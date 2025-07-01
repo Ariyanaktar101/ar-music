@@ -5,6 +5,7 @@ export type Song = {
   duration: string;
   coverArt: string;
   data_ai_hint: string;
+  url: string;
 };
 
 export type Album = {
@@ -166,4 +167,5 @@ export const mockSong: Song = {
   duration: '3:45',
   coverArt: 'https://placehold.co/80x80.png',
   data_ai_hint: 'galaxy stars',
+  url: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3',
 };
