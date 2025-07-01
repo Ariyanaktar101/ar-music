@@ -1,6 +1,11 @@
 import { AppShell } from '@/components/app-shell';
 import { AlbumCard } from '@/components/album-card';
 import { featuredPlaylists, newReleases, trendingSongs, hindiSongs, englishSongs } from '@/lib/data';
+import {
+  Carousel,
+  CarouselContent,
+  CarouselItem,
+} from "@/components/ui/carousel";
 
 export default function Home() {
   return (
@@ -12,17 +17,6 @@ export default function Home() {
         <p className="text-muted-foreground mt-1">
           Discover new music, curated for you.
         </p>
-
-        <section className="mt-8">
-          <h2 className="text-2xl font-semibold font-headline tracking-tight">
-            Top 20 Trending Songs
-          </h2>
-          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4 mt-4">
-            {trendingSongs.map((album) => (
-              <AlbumCard key={album.id} album={album} />
-            ))}
-          </div>
-        </section>
 
         <section className="mt-8">
           <h2 className="text-2xl font-semibold font-headline tracking-tight">
@@ -69,6 +63,27 @@ export default function Home() {
               <AlbumCard key={album.id} album={album} />
             ))}
           </div>
+        </section>
+
+        <section className="mt-8">
+          <h2 className="text-2xl font-semibold font-headline tracking-tight">
+            Top 20 Trending Songs
+          </h2>
+          <Carousel
+            opts={{
+              align: "start",
+              dragFree: true,
+            }}
+            className="w-full mt-4"
+          >
+            <CarouselContent>
+              {trendingSongs.map((album) => (
+                <CarouselItem key={album.id} className="basis-1/2 sm:basis-1/3 md:basis-1/4 lg:basis-1/5 xl:basis-1/6">
+                  <AlbumCard album={album} />
+                </CarouselItem>
+              ))}
+            </CarouselContent>
+          </Carousel>
         </section>
       </div>
     </AppShell>
