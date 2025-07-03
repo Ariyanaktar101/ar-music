@@ -1,13 +1,19 @@
 import { AppShell } from '@/components/app-shell';
-import { AlbumCard } from '@/components/album-card';
-import { featuredPlaylists, newReleases, trendingSongs, hindiSongs, englishSongs } from '@/lib/data';
+import { SongCard } from '@/components/song-card';
+import { searchSongs } from '@/lib/api';
 import {
   Carousel,
   CarouselContent,
   CarouselItem,
 } from "@/components/ui/carousel";
 
-export default function Home() {
+export default async function Home() {
+  const hindiSongs = await searchSongs("hindi latest", 6);
+  const englishSongs = await searchSongs("top english", 6);
+  const featuredPlaylists = await searchSongs("lofi vibes", 6);
+  const newReleases = await searchSongs("new releases", 6);
+  const trendingSongs = await searchSongs("trending today", 20);
+
   return (
     <AppShell>
       <div className="animate-in fade-in-50">
@@ -22,12 +28,9 @@ export default function Home() {
           <h2 className="text-2xl font-semibold font-headline tracking-tight">
             Hindi Hits
           </h2>
-          <p className="text-muted-foreground mt-1">
-            A collection of over 10,000 songs.
-          </p>
           <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4 mt-4">
-            {hindiSongs.map((album) => (
-              <AlbumCard key={album.id} album={album} />
+            {hindiSongs.map((song) => (
+              <SongCard key={song.id} song={song} />
             ))}
           </div>
         </section>
@@ -37,8 +40,8 @@ export default function Home() {
             Popular English Songs
           </h2>
           <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4 mt-4">
-            {englishSongs.map((album) => (
-              <AlbumCard key={album.id} album={album} />
+            {englishSongs.map((song) => (
+              <SongCard key={song.id} song={song} />
             ))}
           </div>
         </section>
@@ -48,8 +51,8 @@ export default function Home() {
             Featured Playlists
           </h2>
           <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4 mt-4">
-            {featuredPlaylists.map((album) => (
-              <AlbumCard key={album.id} album={album} />
+            {featuredPlaylists.map((song) => (
+              <SongCard key={song.id} song={song} />
             ))}
           </div>
         </section>
@@ -59,8 +62,8 @@ export default function Home() {
             New Releases
           </h2>
           <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4 mt-4">
-            {newReleases.map((album) => (
-              <AlbumCard key={album.id} album={album} />
+            {newReleases.map((song) => (
+              <SongCard key={song.id} song={song} />
             ))}
           </div>
         </section>
@@ -77,9 +80,9 @@ export default function Home() {
             className="w-full mt-4"
           >
             <CarouselContent>
-              {trendingSongs.map((album) => (
-                <CarouselItem key={album.id} className="basis-1/2 sm:basis-1/3 md:basis-1/4 lg:basis-1/5 xl:basis-1/6">
-                  <AlbumCard album={album} />
+              {trendingSongs.map((song) => (
+                <CarouselItem key={song.id} className="basis-1/2 sm:basis-1/3 md:basis-1/4 lg:basis-1/5 xl:basis-1/6">
+                  <SongCard song={song} />
                 </CarouselItem>
               ))}
             </CarouselContent>
