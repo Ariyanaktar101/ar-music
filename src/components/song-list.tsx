@@ -23,16 +23,26 @@ export function SongList({ songs }: SongListProps) {
             <TableBody>
                 {songs.map((song, index) => {
                     const isThisSongPlaying = currentSong?.id === song.id && isPlaying;
+                    const isThisCurrentSong = currentSong?.id === song.id;
                     return (
                         <TableRow
                             key={song.id}
                             onClick={() => handlePlay(song)}
                             className={cn(
                                 "cursor-pointer group border-b-0",
-                                currentSong?.id === song.id && "bg-accent/50"
+                                isThisCurrentSong && "bg-secondary"
                             )}
                         >
-                            <TableCell className="w-10 align-middle text-center text-muted-foreground">{index + 1}</TableCell>
+                            <TableCell className="w-10 align-middle text-center text-muted-foreground font-mono text-base">
+                                <span className="group-hover:hidden">{index + 1}</span>
+                                <div className="hidden group-hover:flex items-center justify-center">
+                                    {isThisSongPlaying ? (
+                                        <Pause className="h-5 w-5 text-primary fill-primary" />
+                                    ) : (
+                                        <Play className="h-5 w-5 text-primary fill-primary" />
+                                    )}
+                                </div>
+                            </TableCell>
                             <TableCell className="p-2 align-middle">
                                 <div className="flex items-center gap-4">
                                     <div className="relative h-11 w-11 flex-shrink-0">
@@ -42,21 +52,14 @@ export function SongList({ songs }: SongListProps) {
                                             fill
                                             className="rounded-md object-cover"
                                         />
-                                        <div className="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
-                                            {isThisSongPlaying ? (
-                                                <Pause className="h-6 w-6 text-white fill-white" />
-                                            ) : (
-                                                <Play className="h-6 w-6 text-white fill-white" />
-                                            )}
-                                        </div>
                                     </div>
                                     <div>
-                                        <p className="font-semibold truncate">{song.title}</p>
+                                        <p className={cn("font-semibold truncate", isThisCurrentSong && "text-primary")}>{song.title}</p>
                                         <p className="text-sm text-muted-foreground truncate">{song.artist}</p>
                                     </div>
                                 </div>
                             </TableCell>
-                            <TableCell className="text-right text-muted-foreground align-middle">{song.duration}</TableCell>
+                            <TableCell className="text-right text-muted-foreground align-middle font-mono">{song.duration}</TableCell>
                         </TableRow>
                     )
                 })}
