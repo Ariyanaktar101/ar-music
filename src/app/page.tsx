@@ -6,13 +6,11 @@ import { SongList } from '@/components/song-list';
 export default async function Home() {
   const hindiSongs = await searchSongs("latest bollywood hits", 8);
   const englishSongs = await searchSongs("popular english songs", 8);
-  const newReleases = await searchSongs("new bollywood releases", 8);
-  const trendingSongs = await searchSongs("top 20 indian chart", 20);
+  const trendingSongs = await searchSongs("trending indian songs", 20);
 
   const sections = [
     { title: "Hindi Hits", songs: hindiSongs },
     { title: "Popular English Songs", songs: englishSongs },
-    { title: "New Releases", songs: newReleases },
   ];
 
   return (
