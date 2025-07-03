@@ -37,7 +37,7 @@ export function MusicPlayer() {
   }
 
   return (
-    <div className="fixed bottom-0 left-0 right-0 h-24 bg-background/80 backdrop-blur-md border-t z-50 animate-in slide-in-from-bottom-4">
+    <div className="fixed bottom-0 left-0 right-0 h-24 bg-background/80 backdrop-blur-md border-t z-50 animate-in slide-in-from-bottom-4 shadow-[0_-5px_15px_-5px_rgba(0,0,0,0.05)] dark:shadow-[0_-5px_15px_-5px_rgba(0,0,0,0.5)]">
       <audio ref={audioRef} src={currentSong.url} preload="metadata" />
       <div className="container mx-auto h-full flex items-center justify-between px-4 sm:px-6 lg:px-8">
         <div className="flex items-center gap-4 w-1/4">

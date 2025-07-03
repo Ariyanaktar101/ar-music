@@ -15,10 +15,11 @@ const genres = [
   'Bollywood', 'Punjabi', 'Lofi', 'Workout'
 ];
 
-const genreColors = [
-  'bg-red-500', 'bg-blue-500', 'bg-green-500', 'bg-yellow-500',
-  'bg-purple-500', 'bg-pink-500', 'bg-indigo-500', 'bg-teal-500',
-  'bg-orange-500', 'bg-lime-500', 'bg-cyan-500', 'bg-fuchsia-500'
+const genreGradients = [
+    'from-chart-1 to-chart-2', 'from-chart-2 to-chart-3', 'from-chart-3 to-chart-4',
+    'from-chart-4 to-chart-5', 'from-chart-5 to-chart-1', 'from-primary to-accent',
+    'from-chart-1 to-primary', 'from-chart-2 to-accent', 'from-chart-3 to-primary',
+    'from-chart-4 to-accent', 'from-chart-5 to-primary', 'from-primary to-chart-3'
 ];
 
 
@@ -93,7 +94,7 @@ export default function SearchPage() {
                 {genres.map((genre, index) => (
                   <Card 
                     key={genre} 
-                    className={`overflow-hidden transition-all duration-300 hover:shadow-lg hover:-translate-y-1 cursor-pointer ${genreColors[index % genreColors.length]}`}
+                    className={`overflow-hidden transition-all duration-300 hover:shadow-xl hover:-translate-y-1 cursor-pointer bg-gradient-to-br ${genreGradients[index % genreGradients.length]}`}
                     onClick={() => onGenreClick(genre)}
                   >
                     <CardContent className="p-4">

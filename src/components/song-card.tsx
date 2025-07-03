@@ -24,20 +24,20 @@ export function SongCard({ song }: SongCardProps) {
       onClick={handlePlay}
       className="group cursor-pointer"
     >
-      <Card className="overflow-hidden transition-all duration-300 hover:shadow-lg hover:-translate-y-1">
+      <Card className="overflow-hidden transition-all duration-300 hover:shadow-xl hover:-translate-y-1">
         <CardContent className="p-0">
           <div className="aspect-square relative">
             <Image
               src={song.coverArt}
               alt={song.title}
               fill
-              className="object-cover transition-transform duration-300 group-hover:scale-105"
+              className="object-cover transition-all duration-500 group-hover:scale-110 group-hover:brightness-75"
             />
-            <div className="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+            <div className="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
               {isThisSongPlaying ? (
-                <Pause className="h-12 w-12 text-white fill-white" />
+                <Pause className="h-12 w-12 text-white fill-white transition-transform duration-300 group-hover:scale-110" />
               ) : (
-                <Play className="h-12 w-12 text-white fill-white" />
+                <Play className="h-12 w-12 text-white fill-white transition-transform duration-300 group-hover:scale-110" />
               )}
             </div>
           </div>
