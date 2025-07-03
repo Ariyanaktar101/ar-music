@@ -5,15 +5,13 @@ import { SongList } from '@/components/song-list';
 
 export default async function Home() {
   const hindiSongs = await searchSongs("latest bollywood hits", 8);
-  const englishSongs = await searchSongs("billboard top 100", 8);
-  const featuredPlaylists = await searchSongs("lofi hip hop beats", 8);
+  const englishSongs = await searchSongs("popular english songs", 8);
   const newReleases = await searchSongs("new bollywood releases", 8);
   const trendingSongs = await searchSongs("top 20 indian chart", 20);
 
   const sections = [
     { title: "Hindi Hits", songs: hindiSongs },
     { title: "Popular English Songs", songs: englishSongs },
-    { title: "Featured Playlists", songs: featuredPlaylists },
     { title: "New Releases", songs: newReleases },
   ];
 
