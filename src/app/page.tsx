@@ -4,10 +4,10 @@ import { searchSongs } from '@/lib/api';
 import { SongList } from '@/components/song-list';
 
 export default async function Home() {
-  const hindiSongs = await searchSongs("bollywood romance", 6);
-  const englishSongs = await searchSongs("top english", 6);
-  const featuredPlaylists = await searchSongs("lofi vibes", 6);
-  const newReleases = await searchSongs("new releases", 6);
+  const hindiSongs = await searchSongs("popular hindi", 8);
+  const englishSongs = await searchSongs("popular english", 8);
+  const featuredPlaylists = await searchSongs("lofi vibes", 8);
+  const newReleases = await searchSongs("new releases", 8);
   const trendingSongs = await searchSongs("arijit singh hits", 20);
 
   return (
