@@ -1,18 +1,14 @@
 import { AppShell } from '@/components/app-shell';
 import { SongCard } from '@/components/song-card';
 import { searchSongs } from '@/lib/api';
-import {
-  Carousel,
-  CarouselContent,
-  CarouselItem,
-} from "@/components/ui/carousel";
+import { SongList } from '@/components/song-list';
 
 export default async function Home() {
-  const hindiSongs = await searchSongs("hindi latest", 6);
+  const hindiSongs = await searchSongs("bollywood romance", 6);
   const englishSongs = await searchSongs("top english", 6);
   const featuredPlaylists = await searchSongs("lofi vibes", 6);
   const newReleases = await searchSongs("new releases", 6);
-  const trendingSongs = await searchSongs("trending today", 20);
+  const trendingSongs = await searchSongs("arijit singh hits", 20);
 
   return (
     <AppShell>
@@ -72,21 +68,9 @@ export default async function Home() {
           <h2 className="text-2xl font-semibold font-headline tracking-tight">
             Top 20 Trending Songs
           </h2>
-          <Carousel
-            opts={{
-              align: "start",
-              dragFree: true,
-            }}
-            className="w-full mt-4"
-          >
-            <CarouselContent>
-              {trendingSongs.map((song) => (
-                <CarouselItem key={song.id} className="basis-1/2 sm:basis-1/3 md:basis-1/4 lg:basis-1/5 xl:basis-1/6">
-                  <SongCard song={song} />
-                </CarouselItem>
-              ))}
-            </CarouselContent>
-          </Carousel>
+          <div className="mt-4">
+            <SongList songs={trendingSongs} />
+          </div>
         </section>
       </div>
     </AppShell>
