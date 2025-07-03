@@ -2,7 +2,7 @@
 
 import React from 'react';
 import Link from 'next/link';
-import { usePathname, useRouter } from 'next/navigation';
+import { usePathname } from 'next/navigation';
 import {
   SidebarProvider,
   Sidebar,
@@ -13,27 +13,12 @@ import {
   SidebarMenuButton,
 } from '@/components/ui/sidebar';
 import { MusicPlayer } from '@/components/music-player';
-import { Home, Search as SearchIcon, Library, Plus, Heart, LogIn, UserPlus, Settings, History } from 'lucide-react';
+import { Home, Search, Library, Plus, Heart } from 'lucide-react';
 import Image from 'next/image';
 import { cn } from '@/lib/utils';
-import { Input } from '@/components/ui/input';
-import { Button } from '@/components/ui/button';
 
 export function AppShell({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
-  const router = useRouter();
-
-  const handleSearchSubmit = (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    const formData = new FormData(e.currentTarget);
-    const query = formData.get('query') as string;
-    if (query) {
-      router.push(`/search?q=${encodeURIComponent(query)}`);
-    } else {
-      router.push('/search');
-    }
-  };
-
 
   return (
     <SidebarProvider>
@@ -73,7 +58,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
                         : 'bg-secondary hover:bg-secondary/80'
                     )}
                   >
-                    <Link href="/search"><SearchIcon className="h-5 w-5" /> Search</Link>
+                    <Link href="/search"><Search className="h-5 w-5" /> Search</Link>
                   </SidebarMenuButton>
                 </SidebarMenuItem>
                 <SidebarMenuItem>
@@ -130,34 +115,8 @@ export function AppShell({ children }: { children: React.ReactNode }) {
 
           </SidebarContent>
         </Sidebar>
-        <div className="flex flex-1 flex-col overflow-hidden">
-          <header className="flex items-center justify-between gap-4 px-6 py-3 border-b bg-background/90 backdrop-blur-sm sticky top-0 z-20">
-            <form onSubmit={handleSearchSubmit} className="flex-1">
-              <div className="relative w-full max-w-sm">
-                <SearchIcon className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
-                <Input name="query" placeholder="Search for artists, songs, or podcasts" className="pl-10" />
-              </div>
-            </form>
-            <div className="flex items-center gap-2">
-                <Button variant="ghost" size="icon" className="text-muted-foreground">
-                    <History className="h-5 w-5" />
-                </Button>
-                <Button variant="ghost" size="icon" className="text-muted-foreground">
-                    <Settings className="h-5 w-5" />
-                </Button>
-                <Button variant="outline" asChild>
-                    <Link href="/login">
-                        <LogIn className="h-4 w-4" /> Login
-                    </Link>
-                </Button>
-                <Button asChild>
-                    <Link href="/signup">
-                        <UserPlus className="h-4 w-4" /> Sign Up
-                    </Link>
-                </Button>
-            </div>
-          </header>
-          <main className="flex-1 overflow-y-auto p-4 sm:p-6 lg:p-8 pb-32">
+        <div className="flex-1 flex flex-col overflow-auto">
+          <main className="flex-1 p-6 pb-32">
             {children}
           </main>
           <MusicPlayer />
