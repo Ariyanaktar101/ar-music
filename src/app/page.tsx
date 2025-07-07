@@ -14,7 +14,7 @@ const genres = [
 
 export default async function Home() {
   const trendingSongs = await searchSongs("top trending songs", 20);
-  const hindiHits = await searchSongs("Top Chartbusters Hindi", 12);
+  const hindiHits = await searchSongs("best hindi songs", 12);
 
   return (
     <AppShell>
