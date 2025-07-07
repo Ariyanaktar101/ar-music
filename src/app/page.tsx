@@ -13,8 +13,8 @@ const genres = [
 ];
 
 export default async function Home() {
-  const trendingSongs = await searchSongs("top 20 songs India", 20);
-  const hindiHits = await searchSongs("latest bollywood hits", 12);
+  const trendingSongs = await searchSongs("top 20 hindi songs", 20);
+  const hindiHits = await searchSongs("Top Chartbusters Hindi", 12);
 
   return (
     <AppShell>
