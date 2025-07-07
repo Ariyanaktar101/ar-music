@@ -17,8 +17,8 @@ const genreGradients = [
 ];
 
 export default async function Home() {
-  const trendingSongs = await searchSongs("trending indian songs", 10);
-  const hindiHits = await searchSongs("latest hindi songs", 10);
+  const trendingSongs = await searchSongs("trending indian songs", 12);
+  const hindiHits = await searchSongs("latest hindi songs", 12);
 
   return (
     <AppShell>
@@ -34,11 +34,9 @@ export default async function Home() {
           <h2 className="text-2xl font-semibold font-headline tracking-tight uppercase mb-4">
             Trending Now
           </h2>
-          <div className="flex gap-4 overflow-x-auto pb-4 -mx-6 px-6">
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4">
             {trendingSongs.map((song) => (
-              <div key={song.id} className="w-44 flex-shrink-0">
-                <SongCard song={song} />
-              </div>
+              <SongCard key={song.id} song={song} />
             ))}
           </div>
         </section>
@@ -47,11 +45,9 @@ export default async function Home() {
           <h2 className="text-2xl font-semibold font-headline tracking-tight uppercase mb-4">
             Hindi Hits
           </h2>
-          <div className="flex gap-4 overflow-x-auto pb-4 -mx-6 px-6">
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4">
             {hindiHits.map((song) => (
-              <div key={song.id} className="w-44 flex-shrink-0">
-                <SongCard song={song} />
-              </div>
+              <SongCard key={song.id} song={song} />
             ))}
           </div>
         </section>
