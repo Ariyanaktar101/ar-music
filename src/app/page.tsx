@@ -1,6 +1,6 @@
 import { AppShell } from '@/components/app-shell';
 import { searchSongs } from '@/lib/api';
-import { SongList } from '@/components/song-list';
+import { SongCard } from '@/components/song-card';
 import Link from 'next/link';
 import { Card, CardContent } from '@/components/ui/card';
 
@@ -17,7 +17,8 @@ const genreGradients = [
 ];
 
 export default async function Home() {
-  const trendingSongs = await searchSongs("trending indian songs", 20);
+  const trendingSongs = await searchSongs("trending indian songs", 10);
+  const hindiHits = await searchSongs("latest hindi songs", 10);
 
   return (
     <AppShell>
@@ -33,9 +34,28 @@ export default async function Home() {
           <h2 className="text-2xl font-semibold font-headline tracking-tight uppercase mb-4">
             Trending Now
           </h2>
-          <SongList songs={trendingSongs} />
+          <div className="flex gap-4 overflow-x-auto pb-4 -mx-6 px-6">
+            {trendingSongs.map((song) => (
+              <div key={song.id} className="w-44 flex-shrink-0">
+                <SongCard song={song} />
+              </div>
+            ))}
+          </div>
         </section>
         
+        <section>
+          <h2 className="text-2xl font-semibold font-headline tracking-tight uppercase mb-4">
+            Hindi Hits
+          </h2>
+          <div className="flex gap-4 overflow-x-auto pb-4 -mx-6 px-6">
+            {hindiHits.map((song) => (
+              <div key={song.id} className="w-44 flex-shrink-0">
+                <SongCard song={song} />
+              </div>
+            ))}
+          </div>
+        </section>
+
         <section>
             <h2 className="text-2xl font-semibold font-headline tracking-tight mb-4">
             Browse All
