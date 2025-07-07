@@ -16,6 +16,7 @@ import { MusicPlayer } from '@/components/music-player';
 import { Home, Search, Library, Plus, Heart, Music } from 'lucide-react';
 import Image from 'next/image';
 import { cn } from '@/lib/utils';
+import { motion, AnimatePresence } from 'framer-motion';
 
 export function AppShell({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
@@ -112,7 +113,17 @@ export function AppShell({ children }: { children: React.ReactNode }) {
         </Sidebar>
         <div className="flex-1 flex flex-col overflow-auto">
           <main className="flex-1 p-6 pb-32">
-            {children}
+            <AnimatePresence mode="wait">
+              <motion.div
+                key={pathname}
+                initial={{ opacity: 0, y: 15 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -15 }}
+                transition={{ duration: 0.25 }}
+              >
+                {children}
+              </motion.div>
+            </AnimatePresence>
           </main>
           <MusicPlayer />
         </div>

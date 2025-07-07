@@ -13,12 +13,12 @@ const genres = [
 ];
 
 export default async function Home() {
-  const trendingSongs = await searchSongs("top trending songs", 20);
+  const trendingSongs = await searchSongs("trending now", 20);
   const hindiHits = await searchSongs("best hindi songs", 12);
 
   return (
     <AppShell>
-      <div className="animate-in fade-in-50 space-y-12">
+      <div className="space-y-12">
         <GreetingHeader />
 
         <section>

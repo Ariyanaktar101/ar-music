@@ -6,7 +6,7 @@ import { Mic2, DiscAlbum } from 'lucide-react';
 export default function LibraryPage() {
   return (
     <AppShell>
-      <div className="animate-in fade-in-50">
+      <div>
         <h1 className="text-3xl font-bold font-headline tracking-tight">
           Your Library
         </h1>
