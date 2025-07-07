@@ -3,18 +3,12 @@ import { searchSongs } from '@/lib/api';
 import { SongCard } from '@/components/song-card';
 import { SongList } from '@/components/song-list';
 import Link from 'next/link';
-import { Card, CardContent } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from '@/components/ui/carousel';
 
 const genres = [
   'Pop', 'Rock', 'Hip-Hop', 'Jazz', 'Classical', 'Electronic', 'R&B', 'Country', 
   'Bollywood', 'Punjabi', 'Lofi', 'Workout'
-];
-
-const genreGradients = [
-    'from-chart-1 to-chart-2', 'from-chart-2 to-chart-3', 'from-chart-3 to-chart-4',
-    'from-chart-4 to-chart-5', 'from-chart-5 to-chart-1', 'from-primary to-accent',
-    'from-chart-1 to-primary', 'from-chart-2 to-accent', 'from-chart-3 to-primary',
-    'from-chart-4 to-accent', 'from-chart-5 to-primary', 'from-primary to-chart-3'
 ];
 
 export default async function Home() {
@@ -43,22 +37,30 @@ export default async function Home() {
         </section>
 
         <section>
-            <h2 className="text-2xl font-semibold font-headline tracking-tight mb-4">
+          <h2 className="text-2xl font-semibold font-headline tracking-tight mb-4">
             Browse All
-            </h2>
-            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4">
-            {genres.map((genre, index) => (
-                <Link key={genre} href={`/search?genre=${encodeURIComponent(genre)}`} className="block">
-                    <Card 
-                        className={`overflow-hidden transition-all duration-300 hover:shadow-xl hover:-translate-y-1 cursor-pointer bg-gradient-to-br ${genreGradients[index % genreGradients.length]}`}
-                    >
-                        <CardContent className="p-4 h-32 flex items-end">
-                            <h3 className="font-bold text-xl text-white drop-shadow-md">{genre}</h3>
-                        </CardContent>
-                    </Card>
-                </Link>
-            ))}
-            </div>
+          </h2>
+          <Carousel
+            opts={{
+              align: "start",
+              dragFree: true,
+            }}
+            className="w-full"
+          >
+            <CarouselContent>
+              {genres.map((genre) => (
+                <CarouselItem key={genre} className="basis-auto">
+                    <Button asChild variant="outline" className="rounded-full px-5 py-2 text-sm font-semibold">
+                      <Link href={`/search?genre=${encodeURIComponent(genre)}`}>
+                        {genre}
+                      </Link>
+                    </Button>
+                </CarouselItem>
+              ))}
+            </CarouselContent>
+            <CarouselPrevious className="hidden sm:flex" />
+            <CarouselNext className="hidden sm:flex" />
+          </Carousel>
         </section>
         
         <section>
