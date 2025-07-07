@@ -18,8 +18,8 @@ const genreGradients = [
 ];
 
 export default async function Home() {
-  const trendingSongs = await searchSongs("trending indian songs", 12);
-  const hindiHits = await searchSongs("latest hindi songs", 12);
+  const trendingSongs = await searchSongs("top 20 songs India", 20);
+  const hindiHits = await searchSongs("latest bollywood hits", 12);
 
   return (
     <AppShell>
