@@ -68,7 +68,7 @@ function SearchPageComponent() {
         <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
         <Input 
           placeholder="Search for songs, artists, or albums" 
-          className="pl-10 text-lg h-14" 
+          className="pl-10 text-base md:text-lg h-12 md:h-14" 
           value={query}
           onChange={(e) => setQuery(e.target.value)}
         />
