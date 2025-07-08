@@ -7,8 +7,8 @@ import { Input } from '@/components/ui/input';
 import { SongCard } from '@/components/song-card';
 import type { Song } from '@/lib/types';
 import { handleSearch } from './actions';
-import { Card, CardContent } from '@/components/ui/card';
 import { Search, Loader } from 'lucide-react';
+import { cn } from '@/lib/utils';
 
 const genres = [
   'Pop', 'Rock', 'Hip-Hop', 'Jazz', 'Classical', 'Electronic', 'R&B', 'Country', 
@@ -102,17 +102,21 @@ function SearchPageComponent() {
               <h2 className="text-2xl font-semibold font-headline tracking-tight">
               Browse Genres
             </h2>
-            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4 mt-4">
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4 mt-4">
               {genres.map((genre, index) => (
-                <Card 
-                  key={genre} 
-                  className={`overflow-hidden transition-all duration-300 hover:shadow-xl hover:-translate-y-1 cursor-pointer bg-gradient-to-br ${genreGradients[index % genreGradients.length]}`}
+                <div
+                  key={genre}
                   onClick={() => onGenreClick(genre)}
+                  className={cn(
+                    'group aspect-[3/4] rounded-lg overflow-hidden relative p-4 flex flex-col justify-end',
+                    'transition-all duration-300 hover:shadow-xl hover:-translate-y-1 cursor-pointer',
+                    'bg-gradient-to-br',
+                    genreGradients[index % genreGradients.length]
+                  )}
                 >
-                  <CardContent className="p-4">
-                    <h3 className="font-bold text-lg text-white">{genre}</h3>
-                  </CardContent>
-                </Card>
+                  <div className="absolute inset-0 bg-black/10 group-hover:bg-black/20 transition-colors duration-300"></div>
+                  <h3 className="relative z-10 font-extrabold text-2xl text-white drop-shadow-md">{genre}</h3>
+                </div>
               ))}
             </div>
           </div>
