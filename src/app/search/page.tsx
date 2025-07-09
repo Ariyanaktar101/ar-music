@@ -18,13 +18,13 @@ const genres = [
   { name: 'Rock', hint: 'rock concert', imageUrl: 'https://images.unsplash.com/photo-1541873676-a18131494184?w=800' },
   { name: 'Hip-Hop', hint: 'hip-hop artist', imageUrl: 'https://images.unsplash.com/photo-1601643157091-ce5c665179ab?w=800' },
   { name: 'Jazz', hint: 'jazz club', imageUrl: 'https://images.unsplash.com/photo-1511174511562-5f7f18b874f8?w=800' },
-  { name: 'Classical', hint: 'orchestra', imageUrl: 'https://images.unsplash.com/photo-1498671546682-94a232c26d18?w=800' },
+  { name: 'Classical', hint: 'orchestra', imageUrl: 'https://images.unsplash.com/photo-1519412666096-9f1d4b8828a2?w=800' },
   { name: 'Electronic', hint: 'dj setup', imageUrl: 'https://images.unsplash.com/photo-1514525253161-7a46d19cd819?w=800' },
-  { name: 'R&B', hint: 'r&b singer', imageUrl: 'https://images.unsplash.com/photo-1581404043900-24754a6905a9?w=800' },
+  { name: 'R&B', hint: 'r&b singer', imageUrl: 'https://images.unsplash.com/photo-1629202581987-259505391a34?w=800' },
   { name: 'Country', hint: 'country guitar', imageUrl: 'https://images.unsplash.com/photo-1525994886773-080587e161c2?w=800' },
-  { name: 'Bollywood', hint: 'bollywood dance', imageUrl: 'https://images.unsplash.com/photo-1523450917343-960242724443?w=800' },
-  { name: 'Punjabi', hint: 'punjabi dhol', imageUrl: 'https://images.unsplash.com/photo-1587602336683-b79785055d04?w=800' },
-  { name: 'Lofi', hint: 'lofi aesthetic', imageUrl: 'https://images.unsplash.com/photo-1507261953284-889814421b8f?w=800' },
+  { name: 'Bollywood', hint: 'bollywood dance', imageUrl: 'https://images.unsplash.com/photo-1604618330953-854995b05f82?w=800' },
+  { name: 'Punjabi', hint: 'punjabi dhol', imageUrl: 'https://images.unsplash.com/photo-1590487803525-2b47b4d9a6a8?w=800' },
+  { name: 'Lofi', hint: 'lofi aesthetic', imageUrl: 'https://images.unsplash.com/photo-1543336398-3bf3876c666a?w=800' },
   { name: 'Workout', hint: 'gym workout', imageUrl: 'https://images.unsplash.com/photo-1571902943202-507ec2618e8f?w=800' },
 ];
 
