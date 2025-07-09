@@ -10,17 +10,21 @@ import { handleSearch } from './actions';
 import { Search, Loader, Music } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useDebounce } from '@/hooks/use-debounce';
+import Image from 'next/image';
 
 const genres = [
-  'Pop', 'Rock', 'Hip-Hop', 'Jazz', 'Classical', 'Electronic', 'R&B', 'Country', 
-  'Bollywood', 'Punjabi', 'Lofi', 'Workout'
-];
-
-const genreGradients = [
-    'from-chart-1 to-chart-2', 'from-chart-2 to-chart-3', 'from-chart-3 to-chart-4',
-    'from-chart-4 to-chart-5', 'from-chart-5 to-chart-1', 'from-primary to-accent',
-    'from-chart-1 to-primary', 'from-chart-2 to-accent', 'from-chart-3 to-primary',
-    'from-chart-4 to-accent', 'from-chart-5 to-primary', 'from-primary to-chart-3'
+  { name: 'Pop', hint: 'pop music' },
+  { name: 'Rock', hint: 'rock concert' },
+  { name: 'Hip-Hop', hint: 'hip-hop artist' },
+  { name: 'Jazz', hint: 'jazz club' },
+  { name: 'Classical', hint: 'orchestra' },
+  { name: 'Electronic', hint: 'dj setup' },
+  { name: 'R&B', hint: 'r&b singer' },
+  { name: 'Country', hint: 'country guitar' },
+  { name: 'Bollywood', hint: 'bollywood dance' },
+  { name: 'Punjabi', hint: 'punjabi dhol' },
+  { name: 'Lofi', hint: 'lofi aesthetic' },
+  { name: 'Workout', hint: 'gym workout' },
 ];
 
 function SearchPageComponent() {
@@ -31,7 +35,7 @@ function SearchPageComponent() {
   const [results, setResults] = useState<Song[]>([]);
   const [query, setQuery] = useState(initialGenre || '');
   const debouncedQuery = useDebounce(query, 300);
-  const [hasSearched, setHasSearched] = useState(false);
+  const [hasSearched, setHasSearched] = useState(!!initialGenre);
 
   const performSearch = useCallback((searchTerm: string) => {
     if (!searchTerm) {
@@ -47,13 +51,17 @@ function SearchPageComponent() {
   }, []);
 
   useEffect(() => {
+    // Only search if the debounced query is not empty.
     if (debouncedQuery) {
-        performSearch(debouncedQuery);
+      performSearch(debouncedQuery);
     } else {
-        setResults([]);
-        setHasSearched(false);
+      // Clear results if the query is cleared, unless it was an initial genre search
+      if (!initialGenre || (initialGenre && query === '')) {
+         setResults([]);
+         setHasSearched(false);
+      }
     }
-  }, [debouncedQuery, performSearch]);
+  }, [debouncedQuery, performSearch, initialGenre, query]);
 
   useEffect(() => {
     if (initialGenre) {
@@ -63,10 +71,9 @@ function SearchPageComponent() {
 
   const onGenreClick = (genre: string) => {
     setQuery(genre);
-    performSearch(genre);
   }
 
-  const showGenreGrid = !query && !hasSearched;
+  const showGenreGrid = !hasSearched && query === '';
 
   return (
     <div>
@@ -85,11 +92,11 @@ function SearchPageComponent() {
           <div className="flex justify-center items-center mt-10">
             <Loader className="h-8 w-8 animate-spin text-primary" />
           </div>
-        ) : hasSearched ? (
+        ) : hasSearched && query ? (
           results.length > 0 ? (
               <div>
                 <h2 className="text-xl font-semibold font-headline tracking-tight mb-4">
-                  Top result
+                  Showing results for "{query}"
                 </h2>
                 <SongList songs={results} />
               </div>
@@ -106,19 +113,23 @@ function SearchPageComponent() {
               Browse all
             </h2>
             <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4 mt-4">
-              {genres.map((genre, index) => (
+              {genres.map((genre) => (
                 <div
-                  key={genre}
-                  onClick={() => onGenreClick(genre)}
-                  className={cn(
-                    'group aspect-square rounded-lg overflow-hidden relative p-4 flex flex-col justify-end',
-                    'transition-all duration-300 hover:shadow-xl hover:-translate-y-1 cursor-pointer',
-                    'bg-gradient-to-br',
-                    genreGradients[index % genreGradients.length]
-                  )}
+                  key={genre.name}
+                  onClick={() => onGenreClick(genre.name)}
+                  className="group aspect-[10/12] rounded-lg overflow-hidden relative cursor-pointer transition-all duration-300 hover:shadow-xl hover:-translate-y-1"
                 >
-                  <div className="absolute inset-0 bg-black/10 group-hover:bg-black/20 transition-colors duration-300"></div>
-                  <h3 className="relative z-10 font-extrabold text-2xl text-white drop-shadow-md">{genre}</h3>
+                  <Image
+                    src={`https://placehold.co/400x480.png`}
+                    alt={genre.name}
+                    fill
+                    data-ai-hint={genre.hint}
+                    className="object-cover transition-transform duration-500 group-hover:scale-110"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent" />
+                  <div className="absolute inset-0 flex flex-col justify-end p-4">
+                     <h3 className="relative z-10 font-extrabold text-2xl text-white drop-shadow-md">{genre.name}</h3>
+                  </div>
                 </div>
               ))}
             </div>
