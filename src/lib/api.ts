@@ -1,3 +1,4 @@
+
 import type { Song } from './types';
 
 // This is the raw type from the JioSaavn API
@@ -58,7 +59,7 @@ function mapJioSongToSong(song: JioSong): Song {
 
 export async function searchSongs(query: string, limit: number = 20): Promise<Song[]> {
   try {
-    const response = await fetch(`https://saavn.dev/api/search/songs?query=${encodeURIComponent(query)}&page=1&limit=${limit}`);
+    const response = await fetch(`https://saavn.dev/api/search/songs?query=${encodeURIComponent(query)}&page=1&limit=${limit}`, { next: { revalidate: 3600 } });
     if (!response.ok) {
       console.error(`Failed to fetch songs from JioSaavn API, status: ${response.status}`);
       return [];
