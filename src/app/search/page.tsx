@@ -1,14 +1,15 @@
 'use client';
 
-import React, { useState, useTransition, useEffect, Suspense } from 'react';
+import React, { useState, useTransition, useEffect, Suspense, useCallback } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { AppShell } from '@/components/app-shell';
 import { Input } from '@/components/ui/input';
-import { SongCard } from '@/components/song-card';
+import { SongList } from '@/components/song-list';
 import type { Song } from '@/lib/types';
 import { handleSearch } from './actions';
-import { Search, Loader } from 'lucide-react';
+import { Search, Loader, Music } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { useDebounce } from '@/hooks/use-debounce';
 
 const genres = [
   'Pop', 'Rock', 'Hip-Hop', 'Jazz', 'Classical', 'Electronic', 'R&B', 'Country', 
@@ -29,86 +30,88 @@ function SearchPageComponent() {
   const [isPending, startTransition] = useTransition();
   const [results, setResults] = useState<Song[]>([]);
   const [query, setQuery] = useState(initialGenre || '');
-  const [searched, setSearched] = useState(!!initialGenre);
+  const debouncedQuery = useDebounce(query, 300);
+  const [hasSearched, setHasSearched] = useState(false);
+
+  const performSearch = useCallback((searchTerm: string) => {
+    if (!searchTerm) {
+      setResults([]);
+      setHasSearched(false);
+      return;
+    }
+    setHasSearched(true);
+    startTransition(async () => {
+      const searchResults = await handleSearch(searchTerm);
+      setResults(searchResults);
+    });
+  }, []);
+
+  useEffect(() => {
+    if (debouncedQuery) {
+        performSearch(debouncedQuery);
+    } else {
+        setResults([]);
+        setHasSearched(false);
+    }
+  }, [debouncedQuery, performSearch]);
 
   useEffect(() => {
     if (initialGenre) {
       setQuery(initialGenre);
-      setSearched(true);
-      startTransition(async () => {
-        const searchResults = await handleSearch(initialGenre);
-        setResults(searchResults);
-      });
     }
   }, [initialGenre]);
 
-  const onSearch = (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    if (!query) return;
-
-    setSearched(true);
-    startTransition(async () => {
-      const searchResults = await handleSearch(query);
-      setResults(searchResults);
-    });
-  };
-
   const onGenreClick = (genre: string) => {
     setQuery(genre);
-    setSearched(true);
-    startTransition(async () => {
-        const searchResults = await handleSearch(genre);
-        setResults(searchResults);
-    });
+    performSearch(genre);
   }
+
+  const showGenreGrid = !query && !hasSearched;
 
   return (
     <div>
-      <form onSubmit={onSearch} className="relative">
+      <div className="relative">
         <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
         <Input 
-          placeholder="Search for songs, artists, or albums" 
-          className="pl-10 text-base md:text-lg h-12 md:h-14" 
+          placeholder="What do you want to listen to?" 
+          className="pl-10 text-base md:text-lg h-12 md:h-14 rounded-full" 
           value={query}
           onChange={(e) => setQuery(e.target.value)}
         />
-      </form>
+      </div>
 
       <section className="mt-8">
         {isPending ? (
           <div className="flex justify-center items-center mt-10">
             <Loader className="h-8 w-8 animate-spin text-primary" />
           </div>
-        ) : searched ? (
+        ) : hasSearched ? (
           results.length > 0 ? (
               <div>
-                <h2 className="text-2xl font-semibold font-headline tracking-tight">
-                  Showing results for "{query}"
+                <h2 className="text-xl font-semibold font-headline tracking-tight mb-4">
+                  Top result
                 </h2>
-                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4 mt-4">
-                  {results.map((song) => (
-                    <SongCard key={song.id} song={song} />
-                  ))}
-                </div>
+                <SongList songs={results} />
               </div>
           ) : (
-              <div className="text-center mt-10 text-muted-foreground">
-                  <p>No results found for "{query}".</p>
-                  <p>Try searching for something else.</p>
+              <div className="text-center mt-10 text-muted-foreground flex flex-col items-center gap-4">
+                  <Music className="h-10 w-10"/>
+                  <h3 className="text-lg font-semibold">No results found for "{query}"</h3>
+                  <p className="text-sm">Please make sure your words are spelled correctly, or use fewer or different keywords.</p>
               </div>
           )
-        ) : (
+        ) : showGenreGrid ? (
           <div>
               <h2 className="text-2xl font-semibold font-headline tracking-tight">
-              Browse Genres
+              Browse all
             </h2>
-            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4 mt-4">
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4 mt-4">
               {genres.map((genre, index) => (
                 <div
                   key={genre}
                   onClick={() => onGenreClick(genre)}
                   className={cn(
-                    'group aspect-[3/4] rounded-lg overflow-hidden relative p-4 flex flex-col justify-end',
+                    'group aspect-square rounded-lg overflow-hidden relative p-4 flex flex-col justify-end',
                     'transition-all duration-300 hover:shadow-xl hover:-translate-y-1 cursor-pointer',
                     'bg-gradient-to-br',
                     genreGradients[index % genreGradients.length]
@@ -120,7 +123,7 @@ function SearchPageComponent() {
               ))}
             </div>
           </div>
-        )}
+        ) : null}
       </section>
     </div>
   );
