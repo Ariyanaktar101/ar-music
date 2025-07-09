@@ -13,18 +13,18 @@ import { useDebounce } from '@/hooks/use-debounce';
 import Image from 'next/image';
 
 const genres = [
-  { name: 'Pop', hint: 'pop music' },
-  { name: 'Rock', hint: 'rock concert' },
-  { name: 'Hip-Hop', hint: 'hip-hop artist' },
-  { name: 'Jazz', hint: 'jazz club' },
-  { name: 'Classical', hint: 'orchestra' },
-  { name: 'Electronic', hint: 'dj setup' },
-  { name: 'R&B', hint: 'r&b singer' },
-  { name: 'Country', hint: 'country guitar' },
-  { name: 'Bollywood', hint: 'bollywood dance' },
-  { name: 'Punjabi', hint: 'punjabi dhol' },
-  { name: 'Lofi', hint: 'lofi aesthetic' },
-  { name: 'Workout', hint: 'gym workout' },
+  { name: 'Pop', hint: 'pop music', imageUrl: 'https://images.unsplash.com/photo-1516223725307-6f76b9ec8742' },
+  { name: 'Rock', hint: 'rock concert', imageUrl: 'https://images.unsplash.com/photo-1470229722913-7c0e2dbbafd3' },
+  { name: 'Hip-Hop', hint: 'hip-hop artist', imageUrl: 'https://images.unsplash.com/photo-1594744806549-59549a117549' },
+  { name: 'Jazz', hint: 'jazz club', imageUrl: 'https://images.unsplash.com/photo-1511174511562-5f7f18b874f8' },
+  { name: 'Classical', hint: 'orchestra', imageUrl: 'https://images.unsplash.com/photo-1520623136453-6a0a80c0fe80' },
+  { name: 'Electronic', hint: 'dj setup', imageUrl: 'https://images.unsplash.com/photo-1514525253161-7a46d19cd819' },
+  { name: 'R&B', hint: 'r&b singer', imageUrl: 'https://images.unsplash.com/photo-1542037104-58f6a3874b79' },
+  { name: 'Country', hint: 'country guitar', imageUrl: 'https://images.unsplash.com/photo-1525994886773-080587e161c2' },
+  { name: 'Bollywood', hint: 'bollywood dance', imageUrl: 'https://images.unsplash.com/photo-1626218174358-7269ff240cda' },
+  { name: 'Punjabi', hint: 'punjabi dhol', imageUrl: 'https://images.unsplash.com/photo-1588636433439-565a484c6c10' },
+  { name: 'Lofi', hint: 'lofi aesthetic', imageUrl: 'https://images.unsplash.com/photo-1543364195-052a1455217e' },
+  { name: 'Workout', hint: 'gym workout', imageUrl: 'https://images.unsplash.com/photo-1549060279-7e168fcee0c2' },
 ];
 
 function SearchPageComponent() {
@@ -120,7 +120,7 @@ function SearchPageComponent() {
                   className="group aspect-[10/12] rounded-lg overflow-hidden relative cursor-pointer transition-all duration-300 hover:shadow-xl hover:-translate-y-1"
                 >
                   <Image
-                    src={`https://placehold.co/400x480.png`}
+                    src={genre.imageUrl}
                     alt={genre.name}
                     fill
                     data-ai-hint={genre.hint}
