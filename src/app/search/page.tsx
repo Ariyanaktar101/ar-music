@@ -15,16 +15,16 @@ import Image from 'next/image';
 
 const genres = [
   { name: 'Pop', hint: 'pop music', imageUrl: 'https://images.unsplash.com/photo-1598488035139-bdbb2231ce04?w=800' },
-  { name: 'Rock', hint: 'rock concert', imageUrl: 'https://images.unsplash.com/photo-1541873676-a18131494184?w=800' },
-  { name: 'Hip-Hop', hint: 'hip-hop artist', imageUrl: 'https://images.unsplash.com/photo-1601643157091-ce5c665179ab?w=800' },
+  { name: 'Rock', hint: 'rock concert', imageUrl: 'https://images.unsplash.com/photo-1459749411175-04bf5292ceea?w=800' },
+  { name: 'Hip-Hop', hint: 'hip-hop artist', imageUrl: 'https://images.unsplash.com/photo-1508179587236-a8e5f8f270b9?w=800' },
   { name: 'Jazz', hint: 'jazz club', imageUrl: 'https://images.unsplash.com/photo-1511174511562-5f7f18b874f8?w=800' },
-  { name: 'Classical', hint: 'orchestra', imageUrl: 'https://images.unsplash.com/photo-1519412666096-9f1d4b8828a2?w=800' },
+  { name: 'Classical', hint: 'orchestra', imageUrl: 'https://placehold.co/800x960.png' },
   { name: 'Electronic', hint: 'dj setup', imageUrl: 'https://images.unsplash.com/photo-1514525253161-7a46d19cd819?w=800' },
-  { name: 'R&B', hint: 'r&b singer', imageUrl: 'https://images.unsplash.com/photo-1629202581987-259505391a34?w=800' },
+  { name: 'R&B', hint: 'r&b singer', imageUrl: 'https://placehold.co/800x960.png' },
   { name: 'Country', hint: 'country guitar', imageUrl: 'https://images.unsplash.com/photo-1525994886773-080587e161c2?w=800' },
-  { name: 'Bollywood', hint: 'bollywood dance', imageUrl: 'https://images.unsplash.com/photo-1604618330953-854995b05f82?w=800' },
-  { name: 'Punjabi', hint: 'punjabi dhol', imageUrl: 'https://images.unsplash.com/photo-1590487803525-2b47b4d9a6a8?w=800' },
-  { name: 'Lofi', hint: 'lofi aesthetic', imageUrl: 'https://images.unsplash.com/photo-1543336398-3bf3876c666a?w=800' },
+  { name: 'Bollywood', hint: 'bollywood dance', imageUrl: 'https://placehold.co/800x960.png' },
+  { name: 'Punjabi', hint: 'punjabi dhol', imageUrl: 'https://placehold.co/800x960.png' },
+  { name: 'Lofi', hint: 'lofi aesthetic', imageUrl: 'https://placehold.co/800x960.png' },
   { name: 'Workout', hint: 'gym workout', imageUrl: 'https://images.unsplash.com/photo-1571902943202-507ec2618e8f?w=800' },
 ];
 
