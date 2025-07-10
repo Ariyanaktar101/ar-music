@@ -2,6 +2,9 @@
 
 import React, { useState, useEffect } from 'react';
 import { Clock } from 'lucide-react';
+import { cn } from '@/lib/utils';
+
+type TimeOfDay = 'morning' | 'afternoon' | 'evening';
 
 const thoughts = {
     morning: "Music is the sunrise of the soul. What will you discover today?",
@@ -9,9 +12,14 @@ const thoughts = {
     evening: "Unwind and let the music of the night take over."
 };
 
+const greetings: Record<TimeOfDay, string> = {
+    morning: "Good Morning ☀️",
+    afternoon: "Good Afternoon ☕",
+    evening: "Good Evening 🌙"
+}
+
 export function GreetingHeader() {
-  const [greeting, setGreeting] = useState('');
-  const [thought, setThought] = useState('');
+  const [timeOfDay, setTimeOfDay] = useState<TimeOfDay | null>(null);
   const [time, setTime] = useState('');
 
   useEffect(() => {
@@ -20,14 +28,11 @@ export function GreetingHeader() {
       const hours = date.getHours();
 
       if (hours < 12) {
-        setGreeting('Good Morning');
-        setThought(thoughts.morning);
+        setTimeOfDay('morning');
       } else if (hours < 18) {
-        setGreeting('Good Afternoon');
-        setThought(thoughts.afternoon);
+        setTimeOfDay('afternoon');
       } else {
-        setGreeting('Good Evening');
-        setThought(thoughts.evening);
+        setTimeOfDay('evening');
       }
 
       setTime(date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: true }));
@@ -39,7 +44,7 @@ export function GreetingHeader() {
     return () => clearInterval(timerId);
   }, []);
 
-  if (!greeting || !time) {
+  if (!timeOfDay || !time) {
     return (
       <div className="relative mb-8 h-16">
         <div className="space-y-2">
@@ -51,11 +56,18 @@ export function GreetingHeader() {
     );
   }
 
+  const isEvening = timeOfDay === 'evening';
+
   return (
     <div className="relative mb-8">
       <div>
-        <h1 className="text-3xl font-bold font-headline tracking-tight">{greeting}</h1>
-        <p className="text-muted-foreground mt-1">{thought}</p>
+        <h1 className={cn(
+            "font-bold tracking-tight",
+            isEvening ? "font-display text-5xl" : "text-3xl font-headline"
+        )}>
+            {greetings[timeOfDay]}
+        </h1>
+        <p className="text-muted-foreground mt-1">{thoughts[timeOfDay]}</p>
       </div>
       <div className="absolute top-1 right-1 flex items-center gap-1 text-xs text-muted-foreground font-medium">
         <Clock className="h-3 w-3" />
