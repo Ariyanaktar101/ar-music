@@ -35,6 +35,12 @@ interface MusicPlayerContextType {
 
 const MusicPlayerContext = createContext<MusicPlayerContextType | undefined>(undefined);
 
+// A data structure to hold pre-calculated timings for each lyric line
+interface LyricTimings {
+  line: string;
+  startTime: number;
+}
+
 export const MusicPlayerProvider = ({ children }: { children: React.ReactNode }) => {
   const [currentSong, setCurrentSong] = useState<Song | null>(null);
   const [isPlaying, setIsPlaying] = useState(false);
@@ -50,8 +56,35 @@ export const MusicPlayerProvider = ({ children }: { children: React.ReactNode })
   const [lyrics, setLyrics] = useState<string | null>(null);
   const [loadingLyrics, setLoadingLyrics] = useState(false);
   const [currentLineIndex, setCurrentLineIndex] = useState<number | null>(null);
+  const [lyricTimings, setLyricTimings] = useState<LyricTimings[]>([]);
 
   const audioRef = useRef<HTMLAudioElement>(null);
+  
+  // Effect to pre-calculate lyric timings when lyrics or duration are set
+  useEffect(() => {
+    if (lyrics && duration > 0) {
+      const lines = lyrics.split('\n').filter(line => line.trim() !== '');
+      if (lines.length === 0) {
+        setLyricTimings([]);
+        return;
+      }
+      
+      const totalChars = lines.reduce((acc, line) => acc + line.length, 0);
+      const effectiveDuration = duration - 3; // Start lyrics a bit later
+      let currentTime = 1.5; // Start time for the first lyric
+
+      const timings = lines.map(line => {
+        const lineDuration = (line.length / totalChars) * effectiveDuration;
+        const startTime = currentTime;
+        currentTime += lineDuration;
+        return { line, startTime };
+      });
+
+      setLyricTimings(timings);
+    } else {
+       setLyricTimings([]);
+    }
+  }, [lyrics, duration]);
 
   useEffect(() => {
     const audio = audioRef.current;
@@ -63,30 +96,26 @@ export const MusicPlayerProvider = ({ children }: { children: React.ReactNode })
       }
     };
     const setAudioTime = () => {
-      setProgress(audio.currentTime);
+      const currentTime = audio.currentTime;
+      setProgress(currentTime);
 
-      if (lyrics && duration > 0 && isPlaying) {
-        const lines = lyrics.split('\n').filter(line => line.trim() !== '');
-        if (lines.length > 0) {
-          const timePerLine = (duration - 3) / lines.length; // Assume a small start/end buffer
-          const currentLine = Math.floor(audio.currentTime / timePerLine);
-          
-          // To make it feel more responsive, check if we should advance early
-          if (currentLineIndex !== null && currentLine > currentLineIndex) {
-             setCurrentLineIndex(currentLine < lines.length ? currentLine : lines.length -1);
-          } else if (currentLineIndex === null && currentLine > 0) {
-             setCurrentLineIndex(currentLine < lines.length ? currentLine : lines.length -1);
-          } else if (currentLineIndex === null && audio.currentTime > 0) {
-             setCurrentLineIndex(0);
-          }
+      if (isPlaying && lyricTimings.length > 0) {
+        // Find the current line by checking start times
+        let newIndex = lyricTimings.findIndex((timing, index) => {
+            const nextTiming = lyricTimings[index + 1];
+            return currentTime >= timing.startTime && (!nextTiming || currentTime < nextTiming.startTime);
+        });
+
+        if (newIndex !== -1 && newIndex !== currentLineIndex) {
+            setCurrentLineIndex(newIndex);
         }
       }
     };
     const handleSongEnd = () => {
       setIsPlaying(false);
-      const lines = lyrics ? lyrics.split('\n').filter(line => line.trim() !== '') : [];
-      if (lines.length > 0) {
-        setCurrentLineIndex(lines.length -1);
+      // Highlight the last line when the song ends
+      if (lyricTimings.length > 0) {
+        setCurrentLineIndex(lyricTimings.length - 1);
       }
     };
 
@@ -99,7 +128,7 @@ export const MusicPlayerProvider = ({ children }: { children: React.ReactNode })
       audio.removeEventListener('timeupdate', setAudioTime);
       audio.removeEventListener('ended', handleSongEnd);
     };
-  }, [currentSong, lyrics, duration, isPlaying, currentLineIndex]);
+  }, [currentSong, isPlaying, lyricTimings, currentLineIndex]);
 
   useEffect(() => {
     if (audioRef.current) {
@@ -129,6 +158,7 @@ export const MusicPlayerProvider = ({ children }: { children: React.ReactNode })
     setShowLyrics(false);
     setLyrics(null);
     setCurrentLineIndex(null);
+    setLyricTimings([]);
     if (audioRef.current) {
       audioRef.current.currentTime = 0;
       audioRef.current.src = song.url;
@@ -185,7 +215,7 @@ export const MusicPlayerProvider = ({ children }: { children: React.ReactNode })
       setCurrentSong(null);
       setIsPlaying(false);
       setIsExpanded(false);
-  }
+  };
 
   const isFavorite = (songId: string) => {
     return favoriteSongs.includes(songId);
