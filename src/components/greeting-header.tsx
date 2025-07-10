@@ -3,6 +3,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { cn } from '@/lib/utils';
+import { useAuth } from '@/context/AuthContext';
 
 type TimeOfDay = 'morning' | 'afternoon' | 'evening';
 
@@ -23,6 +24,7 @@ const getGreeting = (timeOfDay: TimeOfDay) => {
 export function GreetingHeader() {
   const [timeOfDay, setTimeOfDay] = useState<TimeOfDay | null>(null);
   const [time, setTime] = useState('');
+  const { user } = useAuth();
 
   useEffect(() => {
     const updateGreetingAndTime = () => {
@@ -66,7 +68,7 @@ export function GreetingHeader() {
             {getGreeting(timeOfDay)}
         </h1>
         <p className="text-muted-foreground mt-1">{thoughts[timeOfDay]}</p>
-        <p className="font-display text-muted-foreground/80 mt-2 text-lg">created by ariyan</p>
+        <p className="font-display text-muted-foreground mt-2 text-lg">created by ariyan</p>
       </div>
       <div className="absolute top-1 right-1 flex items-center gap-1 text-xs text-muted-foreground font-medium">
         <span>{time}</span>
