@@ -12,20 +12,12 @@ const thoughts = {
     evening: "The night is calm and full of stars. Find a song to match."
 };
 
-const getGreeting = (timeOfDay: TimeOfDay, name?: string | null) => {
-    const baseGreeting = {
+const getGreeting = (timeOfDay: TimeOfDay) => {
+    return {
         morning: "Good Morning",
         afternoon: "Good Afternoon",
         evening: "Good Evening"
     }[timeOfDay];
-
-    return name ? `${baseGreeting}, ${name}` : baseGreeting;
-}
-
-const emojis: Record<TimeOfDay, string> = {
-    morning: "☀️",
-    afternoon: "☕",
-    evening: "🌙"
 }
 
 export function GreetingHeader() {
@@ -61,7 +53,6 @@ export function GreetingHeader() {
         <div className="space-y-2">
             <div className="h-10 w-64 bg-muted rounded-md animate-pulse"></div>
             <div className="h-5 w-96 bg-muted rounded-md animate-pulse"></div>
-            <div className="h-4 w-48 bg-muted rounded-md animate-pulse"></div>
         </div>
         <div className="absolute top-0 right-0 h-6 w-20 bg-muted rounded-md animate-pulse"></div>
       </div>
@@ -71,22 +62,10 @@ export function GreetingHeader() {
   return (
     <div className="relative mb-8">
       <div>
-        <h1 className={cn(
-            "text-4xl tracking-tight flex items-baseline gap-2",
-            timeOfDay === 'evening' ? 'font-display' : 'font-bold font-headline'
-        )}>
-            <span>{getGreeting(timeOfDay, user?.name)}</span>
-            <span className={cn(
-                "text-3xl",
-                timeOfDay === 'evening' ? 'text-2xl' : ''
-            )}>
-                {emojis[timeOfDay]}
-            </span>
+        <h1 className="text-4xl font-display tracking-tight">
+            <span>{getGreeting(timeOfDay)}</span>
         </h1>
         <p className="text-muted-foreground mt-1">{thoughts[timeOfDay]}</p>
-        <p className="font-display text-lg text-muted-foreground mt-2">
-            created by ariyan
-        </p>
       </div>
       <div className="absolute top-1 right-1 flex items-center gap-1 text-xs text-muted-foreground font-medium">
         <span>{time}</span>
