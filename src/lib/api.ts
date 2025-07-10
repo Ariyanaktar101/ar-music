@@ -66,7 +66,9 @@ export async function searchSongs(query: string, limit: number = 20): Promise<So
     }
     const json = await response.json();
     const results = json.data?.results || [];
-    return results.map(mapJioSongToSong);
+    return results
+      .filter((song: JioSong) => song.name.toLowerCase() !== 'shree hanuman chalisa')
+      .map(mapJioSongToSong);
   } catch (error) {
     console.error('Error searching songs:', error);
     return [];
