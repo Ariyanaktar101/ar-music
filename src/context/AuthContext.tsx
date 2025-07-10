@@ -4,6 +4,7 @@ import React, { createContext, useContext, useState, useEffect, ReactNode } from
 
 interface User {
   name: string;
+  avatarSeed?: string;
 }
 
 interface AuthContextType {
@@ -34,8 +35,12 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   }, []);
 
   const login = (userData: User) => {
-    setUser(userData);
-    localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(userData));
+    const userToSave = {
+        name: userData.name,
+        avatarSeed: userData.avatarSeed || userData.name // use name as seed if not provided
+    }
+    setUser(userToSave);
+    localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(userToSave));
   };
 
   const logout = () => {
