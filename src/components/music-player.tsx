@@ -46,33 +46,41 @@ export function MusicPlayer() {
       <audio ref={audioRef} src={currentSong.url} preload="metadata" />
       
       {/* Mobile Player */}
-      <div className="md:hidden fixed bottom-16 left-0 right-0 h-20 bg-background/90 backdrop-blur-md border-t z-50 animate-in slide-in-from-bottom-4">
-        <div className="flex flex-col h-full">
-            <div className="flex items-center h-full px-2 gap-2">
-                <Image
-                    src={currentSong.coverArt}
-                    alt={currentSong.title}
-                    width={48}
-                    height={48}
-                    className="rounded-md flex-shrink-0"
-                />
-                <div className="flex-1 flex flex-col justify-center overflow-hidden">
-                    <p className="font-semibold truncate text-sm">{currentSong.title}</p>
-                    <p className="text-xs text-muted-foreground truncate">{currentSong.artist}</p>
-                </div>
-                <div className="flex items-center gap-0">
-                    <Button variant="ghost" size="icon" className="w-9 h-9" onClick={() => toggleFavorite(currentSong.id)}>
-                        <Heart className={cn("h-5 w-5", currentSongIsFavorite ? "fill-red-500 text-red-500" : "text-muted-foreground")} />
-                    </Button>
-                    <Button variant="ghost" size="icon" className="w-9 h-9" onClick={togglePlayPause}>
-                        {isPlaying ? <Pause className="h-6 w-6" /> : <Play className="h-6 w-6" />}
-                    </Button>
-                    <Button variant="ghost" size="icon" className="w-9 h-9" onClick={closePlayer}>
-                        <X className="h-5 w-5 text-muted-foreground" />
-                    </Button>
-                </div>
+       <div className="md:hidden fixed bottom-16 left-0 right-0 h-24 bg-background/90 backdrop-blur-md border-t z-50 animate-in slide-in-from-bottom-4">
+        <div className="flex flex-col h-full justify-center px-3 gap-2">
+          <div className="flex items-center gap-3">
+            <Image
+              src={currentSong.coverArt}
+              alt={currentSong.title}
+              width={48}
+              height={48}
+              className="rounded-md flex-shrink-0"
+            />
+            <div className="flex-1 flex flex-col justify-center overflow-hidden">
+              <p className="font-semibold truncate text-sm">{currentSong.title}</p>
+              <p className="text-xs text-muted-foreground truncate">{currentSong.artist}</p>
             </div>
-            <div className="px-3 pb-1 -mt-2 flex items-center gap-2">
+             <Button variant="ghost" size="icon" className="w-8 h-8" onClick={() => toggleFavorite(currentSong.id)}>
+              <Heart className={cn("h-5 w-5", currentSongIsFavorite ? "fill-red-500 text-red-500" : "text-muted-foreground")} />
+            </Button>
+            <Button variant="ghost" size="icon" className="w-8 h-8" onClick={closePlayer}>
+              <X className="h-5 w-5 text-muted-foreground" />
+            </Button>
+          </div>
+
+          <div className="flex flex-col items-center w-full gap-1">
+             <div className="flex items-center justify-center gap-2">
+                <Button variant="ghost" size="icon" className="w-9 h-9" onClick={skipBackward}>
+                    <SkipBack className="h-5 w-5" />
+                </Button>
+                <Button variant="ghost" size="icon" className="w-12 h-12" onClick={togglePlayPause}>
+                    {isPlaying ? <Pause className="h-7 w-7" /> : <Play className="h-7 w-7" />}
+                </Button>
+                <Button variant="ghost" size="icon" className="w-9 h-9" onClick={skipForward}>
+                    <SkipForward className="h-5 w-5" />
+                </Button>
+             </div>
+            <div className="w-full flex items-center gap-2 -mt-1">
                  <span className="text-xs font-mono text-muted-foreground">{formatTime(progress)}</span>
                  <Slider
                     value={[progress]}
@@ -83,8 +91,10 @@ export function MusicPlayer() {
                 />
                 <span className="text-xs font-mono text-muted-foreground">{formatTime(duration)}</span>
             </div>
+          </div>
         </div>
       </div>
+
 
       {/* Desktop Player */}
       <div className="hidden md:fixed bottom-0 left-0 right-0 h-24 bg-background/80 backdrop-blur-md border-t z-50 animate-in slide-in-from-bottom-4 shadow-[0_-5px_15px_-5px_rgba(0,0,0,0.05)] dark:shadow-[0_-5px_15px_-5px_rgba(0,0,0,0.5)]">
