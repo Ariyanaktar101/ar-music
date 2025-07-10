@@ -79,7 +79,7 @@ function ExpandedPlayer() {
       </div>
 
       <div className="flex-1 flex flex-col justify-center items-center px-8 gap-8 overflow-hidden">
-        <div className="relative w-full aspect-square max-w-sm">
+        <div className="relative w-full max-w-sm aspect-square">
           {showLyrics ? (
             <div className="absolute inset-0 bg-muted/50 flex items-center justify-center text-center rounded-lg">
               {loadingLyrics ? (
@@ -112,12 +112,12 @@ function ExpandedPlayer() {
               )}
             </div>
           ) : (
-             <div className="relative w-full h-full">
+             <div className="relative w-full h-full aspect-square">
                 <Image
                     src={currentSong.coverArt}
                     alt={currentSong.title}
                     fill
-                    className="object-cover rounded-lg shadow-[0_0_25px_5px_hsl(var(--primary)/0.4),_0_0_45px_10px_hsl(var(--accent)/0.3)]"
+                    className="object-cover rounded-lg shadow-[0_0_25px_5px_hsl(var(--primary)/0.6),_0_0_45px_10px_hsl(var(--accent)/0.5),_0_0_80px_20px_hsl(240,100%,70%)/0.4]"
                 />
             </div>
           )}
@@ -225,14 +225,7 @@ export function MusicPlayer() {
   
   const currentSongIsFavorite = isFavorite(currentSong.id);
 
-  const handleDoubleClick = (e: React.MouseEvent) => {
-      // Prevent click events from firing on the children.
-      if (e.target === e.currentTarget) {
-        toggleExpandPlayer();
-      }
-  };
-
-  const stopPropagation = (e: React.MouseEvent) => e.stopPropagation();
+  const stopPropagation = (e: React.MouseEvent | React.TouchEvent) => e.stopPropagation();
 
   return (
     <>
@@ -243,8 +236,7 @@ export function MusicPlayer() {
 
       {/* Mobile Player */}
        <div 
-        onClick={handleDoubleClick}
-        onDoubleClick={handleDoubleClick}
+        onClick={toggleExpandPlayer}
         className="md:hidden fixed bottom-16 left-0 right-0 h-auto bg-background/90 backdrop-blur-md border-t z-50 animate-in slide-in-from-bottom-4"
        >
          <div className="flex flex-col p-2 gap-2">
@@ -273,15 +265,17 @@ export function MusicPlayer() {
                 </div>
             </div>
             <div className="flex items-center gap-2">
-                <Button variant="ghost" size="icon" className="w-6 h-6 flex-shrink-0" onClick={skipBackward}><SkipBack className="h-4 w-4" /></Button>
+                <Button variant="ghost" size="icon" className="w-6 h-6 flex-shrink-0" onClick={(e) => { e.stopPropagation(); skipBackward(); }}><SkipBack className="h-4 w-4" /></Button>
                 <Slider
                     value={[progress]}
                     max={duration}
                     step={1}
-                    onValueChange={(value) => { stopPropagation(); handleProgressChange(value); }}
+                    onValueChange={(value) => handleProgressChange(value)}
+                    onClick={stopPropagation}
+                    onTouchStart={stopPropagation}
                     className="w-full h-1 relative [&>span:first-child]:h-1 [&>span>span]:h-1 [&>span>span]:bg-accent [&>a]:h-2.5 [&>a]:w-2.5"
                 />
-                 <Button variant="ghost" size="icon" className="w-6 h-6 flex-shrink-0" onClick={skipForward}><SkipForward className="h-4 w-4" /></Button>
+                 <Button variant="ghost" size="icon" className="w-6 h-6 flex-shrink-0" onClick={(e) => { e.stopPropagation(); skipForward(); }}><SkipForward className="h-4 w-4" /></Button>
             </div>
         </div>
       </div>
