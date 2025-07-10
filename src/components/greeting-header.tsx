@@ -51,10 +51,11 @@ export function GreetingHeader() {
 
   if (!timeOfDay || !time) {
     return (
-      <div className="relative mb-8 h-16">
+      <div className="relative mb-8 h-20">
         <div className="space-y-2">
             <div className="h-10 w-64 bg-muted rounded-md animate-pulse"></div>
             <div className="h-5 w-96 bg-muted rounded-md animate-pulse"></div>
+            <div className="h-4 w-48 bg-muted rounded-md animate-pulse"></div>
         </div>
         <div className="absolute top-0 right-0 h-6 w-20 bg-muted rounded-md animate-pulse"></div>
       </div>
@@ -70,12 +71,14 @@ export function GreetingHeader() {
         )}>
             <span>{greetings[timeOfDay]}</span>
             <span className={cn(
-                timeOfDay === 'evening' ? 'text-3xl' : 'text-3xl'
+                "text-3xl",
+                timeOfDay === 'evening' ? 'text-2xl' : ''
             )}>
                 {emojis[timeOfDay]}
             </span>
         </h1>
         <p className="text-muted-foreground mt-1">{thoughts[timeOfDay]}</p>
+        <p className="font-display text-lg text-muted-foreground/90 mt-2">created by mr ariyan</p>
       </div>
       <div className="absolute top-1 right-1 flex items-center gap-1 text-xs text-muted-foreground font-medium">
         <span>{time}</span>
