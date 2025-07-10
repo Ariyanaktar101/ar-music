@@ -18,11 +18,17 @@ export default function SignupPage() {
     e.preventDefault();
     const formData = new FormData(e.currentTarget);
     const name = formData.get('name') as string;
+    const email = formData.get('email') as string;
+    const phone = formData.get('phone') as string;
     
     // In a real app, you'd create a user here.
-    // For now, we'll log them in with the name they provided.
-    const mockUser = { name: name || 'Friend' };
-    login(mockUser);
+    // For now, we'll log them in with the info they provided.
+    const newUser = { 
+      name: name || 'Friend',
+      email: email,
+      phone: phone,
+     };
+    login(newUser);
     router.push('/profile');
   };
 
@@ -46,7 +52,11 @@ export default function SignupPage() {
             </div>
             <div className="space-y-2">
               <Label htmlFor="email">Email</Label>
-              <Input id="email" type="email" placeholder="m@example.com" required />
+              <Input id="email" name="email" type="email" placeholder="m@example.com" required />
+            </div>
+             <div className="space-y-2">
+              <Label htmlFor="phone">Phone (Optional)</Label>
+              <Input id="phone" name="phone" type="tel" placeholder="(123) 456-7890" />
             </div>
             <div className="space-y-2">
               <Label htmlFor="password">Password</Label>

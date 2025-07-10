@@ -21,6 +21,7 @@ import {
   RefreshCw,
   AtSign,
   Mail,
+  Phone,
 } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
@@ -81,6 +82,11 @@ function LoggedInView() {
             {user?.email && (
                 <span className="flex items-center gap-1 justify-center">
                     <Mail className="h-4 w-4" />{user.email}
+                </span>
+            )}
+            {user?.phone && (
+                <span className="flex items-center gap-1 justify-center">
+                    <Phone className="h-4 w-4" />{user.phone}
                 </span>
             )}
         </CardDescription>
