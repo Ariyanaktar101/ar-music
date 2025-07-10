@@ -29,6 +29,7 @@ interface MusicPlayerContextType {
   lyrics: string | null;
   loadingLyrics: boolean;
   toggleLyricsView: () => void;
+  currentLineIndex: number | null;
 }
 
 const MusicPlayerContext = createContext<MusicPlayerContextType | undefined>(undefined);
@@ -47,6 +48,7 @@ export const MusicPlayerProvider = ({ children }: { children: React.ReactNode })
   const [showLyrics, setShowLyrics] = useState(false);
   const [lyrics, setLyrics] = useState<string | null>(null);
   const [loadingLyrics, setLoadingLyrics] = useState(false);
+  const [currentLineIndex, setCurrentLineIndex] = useState<number | null>(null);
 
   const audioRef = useRef<HTMLAudioElement>(null);
 
@@ -59,7 +61,17 @@ export const MusicPlayerProvider = ({ children }: { children: React.ReactNode })
         setDuration(audio.duration);
       }
     };
-    const setAudioTime = () => setProgress(audio.currentTime);
+    const setAudioTime = () => {
+      setProgress(audio.currentTime);
+
+      if (lyrics && duration > 0) {
+        const lines = lyrics.split('\n');
+        const numLines = lines.length;
+        const lineDuration = duration / numLines;
+        const currentLine = Math.floor(audio.currentTime / lineDuration);
+        setCurrentLineIndex(currentLine);
+      }
+    };
     const handleSongEnd = () => setIsPlaying(false);
 
     audio.addEventListener('loadedmetadata', setAudioData);
@@ -71,7 +83,7 @@ export const MusicPlayerProvider = ({ children }: { children: React.ReactNode })
       audio.removeEventListener('timeupdate', setAudioTime);
       audio.removeEventListener('ended', handleSongEnd);
     };
-  }, [currentSong]);
+  }, [currentSong, lyrics, duration]);
 
   useEffect(() => {
     if (audioRef.current) {
@@ -100,6 +112,7 @@ export const MusicPlayerProvider = ({ children }: { children: React.ReactNode })
     // Reset lyrics view when song changes
     setShowLyrics(false);
     setLyrics(null);
+    setCurrentLineIndex(null);
     if (audioRef.current) {
       audioRef.current.src = song.url;
       audioRef.current.load();
@@ -179,6 +192,7 @@ export const MusicPlayerProvider = ({ children }: { children: React.ReactNode })
     if (!currentSong) return;
     setLoadingLyrics(true);
     setLyrics(null);
+    setCurrentLineIndex(null);
     try {
         const result = await getLyrics({ songTitle: currentSong.title, artist: currentSong.artist });
         setLyrics(result.lyrics || null);
@@ -226,6 +240,7 @@ export const MusicPlayerProvider = ({ children }: { children: React.ReactNode })
         lyrics,
         loadingLyrics,
         toggleLyricsView,
+        currentLineIndex,
       }}
     >
       {children}

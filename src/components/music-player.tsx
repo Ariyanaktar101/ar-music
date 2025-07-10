@@ -33,7 +33,8 @@ function ExpandedPlayer() {
     showLyrics,
     lyrics,
     loadingLyrics,
-    toggleLyricsView
+    toggleLyricsView,
+    currentLineIndex
   } = useMusicPlayer();
 
   if (!currentSong) return null;
@@ -46,6 +47,18 @@ function ExpandedPlayer() {
   };
   
   const currentSongIsFavorite = isFavorite(currentSong.id);
+  const lyricsLines = React.useMemo(() => lyrics?.split('\n') || [], [lyrics]);
+  
+  const lineRefs = React.useRef<(HTMLParagraphElement | null)[]>([]);
+
+  React.useEffect(() => {
+    if (showLyrics && currentLineIndex !== null && lineRefs.current[currentLineIndex]) {
+      lineRefs.current[currentLineIndex]?.scrollIntoView({
+        behavior: 'smooth',
+        block: 'center',
+      });
+    }
+  }, [currentLineIndex, showLyrics]);
 
   return (
     <div className={cn(
@@ -66,16 +79,29 @@ function ExpandedPlayer() {
       </div>
 
       <div className="flex-1 flex flex-col justify-center items-center px-8 gap-8 overflow-hidden">
-        <div className="relative w-full aspect-square rounded-lg overflow-hidden shadow-2xl">
+        <div className="relative w-full aspect-square max-w-sm">
           {showLyrics ? (
-            <div className="absolute inset-0 bg-muted/50 flex items-center justify-center text-center">
+            <div className="absolute inset-0 bg-muted/50 flex items-center justify-center text-center rounded-lg">
               {loadingLyrics ? (
                 <Loader className="h-10 w-10 animate-spin text-primary" />
               ) : lyrics ? (
                  <ScrollArea className="h-full w-full">
-                    <pre className="font-sans p-6 text-lg whitespace-pre-wrap text-foreground text-center">
-                        {lyrics}
-                    </pre>
+                    <div className="p-6 text-lg text-foreground text-center flex flex-col items-center justify-center min-h-full">
+                      {lyricsLines.map((line, index) => (
+                        <p
+                          key={index}
+                          ref={(el) => { lineRefs.current[index] = el; }}
+                          className={cn(
+                            "py-2 font-sans whitespace-pre-wrap transition-all duration-300",
+                            currentLineIndex === index
+                              ? "text-primary scale-105 font-bold"
+                              : "text-muted-foreground"
+                          )}
+                        >
+                          {line || '...'}
+                        </p>
+                      ))}
+                    </div>
                  </ScrollArea>
               ) : (
                 <div className="text-center text-muted-foreground flex flex-col items-center gap-2">
@@ -86,12 +112,14 @@ function ExpandedPlayer() {
               )}
             </div>
           ) : (
-             <Image
-                src={currentSong.coverArt}
-                alt={currentSong.title}
-                fill
-                className="object-contain"
-              />
+             <div className="relative w-full h-full">
+                <Image
+                    src={currentSong.coverArt}
+                    alt={currentSong.title}
+                    fill
+                    className="object-contain rounded-lg shadow-[0_10px_40px_-10px_hsl(var(--accent)/0.5)]"
+                />
+            </div>
           )}
         </div>
 
@@ -206,7 +234,7 @@ export function MusicPlayer() {
 
       {/* Mobile Player */}
        <div 
-        onDoubleClick={toggleExpandPlayer}
+        onClick={toggleExpandPlayer}
         className="md:hidden fixed bottom-16 left-0 right-0 h-auto bg-background/90 backdrop-blur-md border-t z-50 animate-in slide-in-from-bottom-4"
        >
          <div className="flex flex-col p-2 gap-2">
