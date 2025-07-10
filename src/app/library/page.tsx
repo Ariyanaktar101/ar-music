@@ -7,7 +7,7 @@ import { Card } from "@/components/ui/card";
 import { Heart, Clock, Plus, Library as LibraryIcon, ChevronRight, Music, Download } from 'lucide-react';
 import Link from 'next/link';
 import { useMusicPlayer } from '@/context/MusicPlayerContext';
-import React, 'useState' from 'react';
+import React, { useState } from 'react';
 import { cn } from '@/lib/utils';
 import Image from 'next/image';
 import {
