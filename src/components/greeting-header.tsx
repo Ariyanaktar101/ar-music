@@ -59,7 +59,10 @@ export function GreetingHeader() {
   return (
     <div className="relative mb-8">
       <div>
-        <h1 className="text-3xl font-bold font-headline tracking-tight">
+        <h1 className={cn(
+            "text-4xl tracking-tight",
+            timeOfDay === 'evening' ? 'font-display' : 'font-bold font-headline'
+        )}>
             {greetings[timeOfDay]}
         </h1>
         <p className="text-muted-foreground mt-1">{thoughts[timeOfDay]}</p>
