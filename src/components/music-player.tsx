@@ -68,12 +68,12 @@ function ExpandedPlayer() {
       <div className="flex-1 flex flex-col justify-center items-center px-8 gap-8 overflow-hidden">
         <div className="relative w-full aspect-square rounded-lg overflow-hidden shadow-2xl">
           {showLyrics ? (
-            <div className="absolute inset-0 bg-muted/50 flex items-center justify-center">
+            <div className="absolute inset-0 bg-muted/50 flex items-center justify-center text-center">
               {loadingLyrics ? (
                 <Loader className="h-10 w-10 animate-spin text-primary" />
               ) : lyrics ? (
                  <ScrollArea className="h-full w-full">
-                    <pre className="text-center font-sans p-6 text-lg whitespace-pre-wrap text-muted-foreground">
+                    <pre className="font-sans p-6 text-lg whitespace-pre-wrap text-foreground">
                         {lyrics}
                     </pre>
                  </ScrollArea>
@@ -90,7 +90,7 @@ function ExpandedPlayer() {
                 src={currentSong.coverArt}
                 alt={currentSong.title}
                 fill
-                className="object-cover"
+                className="object-contain"
               />
           )}
         </div>
@@ -123,7 +123,7 @@ function ExpandedPlayer() {
             </div>
         </div>
 
-        <div className="flex items-center justify-between">
+        <div className="flex items-center justify-around">
             <Button variant="ghost" size="icon">
                 <Shuffle className="h-5 w-5 text-muted-foreground" />
             </Button>
@@ -141,7 +141,7 @@ function ExpandedPlayer() {
             </Button>
         </div>
 
-        <div className="flex items-center justify-between gap-4">
+        <div className="flex items-center justify-between gap-4 pt-2">
              <Button variant="ghost" size="icon" onClick={handleMuteToggle}>
                 {isMuted || volume === 0 ? <VolumeX className="h-5 w-5 text-muted-foreground" /> : <Volume2 className="h-5 w-5 text-muted-foreground" />}
             </Button>
@@ -227,6 +227,9 @@ export function MusicPlayer() {
                     <Button variant="ghost" size="icon" className="w-8 h-8 flex-shrink-0" onClick={(e) => { e.stopPropagation(); togglePlayPause(); }}>
                         {isPlaying ? <Pause className="h-5 w-5" /> : <Play className="h-5 w-5" />}
                     </Button>
+                    <Button variant="ghost" size="icon" className="w-8 h-8 flex-shrink-0" onClick={(e) => { e.stopPropagation(); skipForward(); }}>
+                        <SkipForward className="h-5 w-5" />
+                    </Button>
                     <Button variant="ghost" size="icon" className="w-8 h-8 flex-shrink-0" onClick={(e) => { e.stopPropagation(); closePlayer(); }}>
                         <X className="h-5 w-5 text-muted-foreground" />
                     </Button>
@@ -293,6 +296,9 @@ export function MusicPlayer() {
           </div>
 
           <div className="flex items-center gap-2 w-1/4 justify-end">
+             <Button variant="ghost" size="icon" onClick={toggleLyricsView} className={cn(showLyrics && "text-primary")}>
+                <Mic2 className="h-5 w-5" />
+            </Button>
             <Popover>
                 <PopoverTrigger asChild>
                     <Button variant="ghost" size="icon">

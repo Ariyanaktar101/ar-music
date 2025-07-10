@@ -33,7 +33,7 @@ const prompt = ai.definePrompt({
   name: 'getLyricsPrompt',
   input: { schema: GetLyricsInputSchema },
   output: { schema: GetLyricsOutputSchema },
-  prompt: `Find the lyrics for the song "{{songTitle}}" by "{{artist}}". Return only the lyrics. If you cannot find the lyrics, return an empty string.`,
+  prompt: `Find the lyrics for the song "{{songTitle}}" by "{{artist}}". Return only the lyrics, with each line separated by a newline. If you cannot find the lyrics, return an empty string.`,
 });
 
 const getLyricsFlow = ai.defineFlow(

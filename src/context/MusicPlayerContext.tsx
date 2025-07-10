@@ -123,14 +123,23 @@ export const MusicPlayerProvider = ({ children }: { children: React.ReactNode })
   const handleVolumeChange = (value: number[]) => {
     const newVolume = value[0];
     setVolume(newVolume);
+    if (audioRef.current) {
+      audioRef.current.volume = newVolume / 100;
+    }
     setIsMuted(newVolume === 0);
   };
   
   const handleMuteToggle = () => {
     const newMutedState = !isMuted;
     setIsMuted(newMutedState);
+    if (audioRef.current) {
+      audioRef.current.muted = newMutedState;
+    }
     if (!newMutedState && volume === 0) {
       setVolume(50); // Unmute to a default volume
+       if (audioRef.current) {
+        audioRef.current.volume = 0.5;
+      }
     }
   };
   
