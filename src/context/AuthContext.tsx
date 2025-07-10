@@ -5,6 +5,8 @@ import React, { createContext, useContext, useState, useEffect, ReactNode } from
 interface User {
   name: string;
   avatarSeed?: string;
+  username?: string;
+  bio?: string;
 }
 
 interface AuthContextType {
@@ -37,7 +39,9 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const login = (userData: User) => {
     const userToSave = {
         name: userData.name,
-        avatarSeed: userData.avatarSeed || userData.name // use name as seed if not provided
+        avatarSeed: userData.avatarSeed || userData.name, // use name as seed if not provided
+        username: userData.username,
+        bio: userData.bio,
     }
     setUser(userToSave);
     localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(userToSave));

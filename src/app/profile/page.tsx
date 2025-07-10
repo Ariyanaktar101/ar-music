@@ -20,6 +20,7 @@ import {
   Settings,
   Edit,
   RefreshCw,
+  AtSign,
 } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
@@ -36,15 +37,18 @@ import {
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import React, { useState } from 'react';
+import { Textarea } from '@/components/ui/textarea';
 
 function LoggedInView() {
   const { user, logout, login } = useAuth();
   const [name, setName] = useState(user?.name || '');
-  const [avatarSeed, setAvatarSeed] = useState(user?.name || 'default');
+  const [username, setUsername] = useState(user?.username || '');
+  const [bio, setBio] = useState(user?.bio || '');
+  const [avatarSeed, setAvatarSeed] = useState(user?.avatarSeed || 'default');
 
   const handleSaveChanges = () => {
     if (user) {
-      const updatedUser = { ...user, name, avatarSeed };
+      const updatedUser = { ...user, name, username, bio, avatarSeed };
       login(updatedUser); // login function also updates the user
     }
   };
@@ -64,68 +68,101 @@ function LoggedInView() {
           <AvatarFallback>{user?.name?.[0]}</AvatarFallback>
         </Avatar>
         <CardTitle className="text-3xl font-bold font-headline">
-          Welcome, {user?.name}!
+          {user?.name}
         </CardTitle>
-        <CardDescription className="text-md text-muted-foreground pt-2">
-          Manage your profile and settings below.
-        </CardDescription>
+        {user?.username && (
+           <CardDescription className="text-md text-muted-foreground flex items-center gap-1">
+             <AtSign className="h-4 w-4" />{user.username}
+           </CardDescription>
+        )}
       </CardHeader>
-      <CardContent className="grid grid-cols-2 gap-4 px-6 pt-4">
-        <Dialog>
-          <DialogTrigger asChild>
-            <Button variant="outline">
-              <Edit />
-              Edit Profile
-            </Button>
-          </DialogTrigger>
-          <DialogContent className="sm:max-w-[425px]">
-            <DialogHeader>
-              <DialogTitle>Edit profile</DialogTitle>
-              <DialogDescription>
-                Make changes to your profile here. Click save when you're done.
-              </DialogDescription>
-            </DialogHeader>
-            <div className="grid gap-4 py-4">
-              <div className="grid grid-cols-4 items-center gap-4">
-                <Label htmlFor="name" className="text-right">
-                  Name
-                </Label>
-                <Input
-                  id="name"
-                  value={name}
-                  onChange={(e) => setName(e.target.value)}
-                  className="col-span-3"
-                />
-              </div>
-              <div className="grid grid-cols-4 items-center gap-4">
-                 <Label className="text-right">Avatar</Label>
-                 <div className="col-span-3 flex items-center gap-2">
-                    <Avatar>
-                        <AvatarImage src={`https://api.dicebear.com/8.x/bottts-neutral/svg?seed=${avatarSeed}`} alt={name} />
-                        <AvatarFallback>{name?.[0]}</AvatarFallback>
-                    </Avatar>
-                    <Button variant="ghost" size="icon" onClick={randomizeAvatar}>
-                        <RefreshCw className="h-4 w-4" />
-                    </Button>
-                 </div>
-              </div>
+      <CardContent className="px-6 pt-4 space-y-4">
+        {user?.bio && (
+            <div className="text-center text-sm text-foreground p-3 bg-secondary rounded-md">
+                <p>{user.bio}</p>
             </div>
-            <DialogFooter>
-              <DialogClose asChild>
-                <Button type="submit" onClick={handleSaveChanges}>
-                  Save changes
+        )}
+        <div className="grid grid-cols-2 gap-4">
+            <Dialog>
+              <DialogTrigger asChild>
+                <Button variant="outline">
+                  <Edit />
+                  Edit Profile
                 </Button>
-              </DialogClose>
-            </DialogFooter>
-          </DialogContent>
-        </Dialog>
+              </DialogTrigger>
+              <DialogContent className="sm:max-w-[425px]">
+                <DialogHeader>
+                  <DialogTitle>Edit profile</DialogTitle>
+                  <DialogDescription>
+                    Make changes to your profile here. Click save when you're done.
+                  </DialogDescription>
+                </DialogHeader>
+                <div className="grid gap-4 py-4">
+                  <div className="grid grid-cols-4 items-center gap-4">
+                    <Label htmlFor="name" className="text-right">
+                      Name
+                    </Label>
+                    <Input
+                      id="name"
+                      value={name}
+                      onChange={(e) => setName(e.target.value)}
+                      className="col-span-3"
+                    />
+                  </div>
+                   <div className="grid grid-cols-4 items-center gap-4">
+                    <Label htmlFor="username" className="text-right">
+                      Username
+                    </Label>
+                    <Input
+                      id="username"
+                      value={username}
+                      onChange={(e) => setUsername(e.target.value)}
+                      className="col-span-3"
+                      placeholder="e.g. musiclover123"
+                    />
+                  </div>
+                  <div className="grid grid-cols-4 items-start gap-4">
+                    <Label htmlFor="bio" className="text-right pt-2">
+                      Bio
+                    </Label>
+                    <Textarea
+                      id="bio"
+                      value={bio}
+                      onChange={(e) => setBio(e.target.value)}
+                      className="col-span-3"
+                      placeholder="Tell us a little about yourself"
+                    />
+                  </div>
+                  <div className="grid grid-cols-4 items-center gap-4">
+                     <Label className="text-right">Avatar</Label>
+                     <div className="col-span-3 flex items-center gap-2">
+                        <Avatar>
+                            <AvatarImage src={`https://api.dicebear.com/8.x/bottts-neutral/svg?seed=${avatarSeed}`} alt={name} />
+                            <AvatarFallback>{name?.[0]}</AvatarFallback>
+                        </Avatar>
+                        <Button variant="ghost" size="icon" onClick={randomizeAvatar}>
+                            <RefreshCw className="h-4 w-4" />
+                        </Button>
+                     </div>
+                  </div>
+                </div>
+                <DialogFooter>
+                  <DialogClose asChild>
+                    <Button type="submit" onClick={handleSaveChanges}>
+                      Save changes
+                    </Button>
+                  </DialogClose>
+                </DialogFooter>
+              </DialogContent>
+            </Dialog>
 
-        <Button asChild variant="outline">
-          <Link href="/settings">
-            <Settings />
-            Settings
-          </Link>
-        </Button>
+            <Button asChild variant="outline">
+              <Link href="/settings">
+                <Settings />
+                Settings
+              </Link>
+            </Button>
+        </div>
       </CardContent>
       <CardFooter className="flex-col gap-4 text-center text-sm text-muted-foreground pt-6">
         <Button onClick={logout} variant="secondary" className="w-1/2">
