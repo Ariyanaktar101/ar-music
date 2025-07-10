@@ -9,7 +9,7 @@ type TimeOfDay = 'morning' | 'afternoon' | 'evening';
 const thoughts = {
     morning: "Music is the sunrise of the soul. What will you discover today?",
     afternoon: "Keep the rhythm going. Your perfect afternoon soundtrack awaits.",
-    evening: "Unwind and let the music of the night take over."
+    evening: "The night is calm and full of stars. Find a song to match."
 };
 
 const greetings: Record<TimeOfDay, string> = {
@@ -56,15 +56,10 @@ export function GreetingHeader() {
     );
   }
 
-  const isEvening = timeOfDay === 'evening';
-
   return (
     <div className="relative mb-8">
       <div>
-        <h1 className={cn(
-            "font-bold tracking-tight",
-            isEvening ? "font-display text-5xl" : "text-3xl font-headline"
-        )}>
+        <h1 className="text-3xl font-bold font-headline tracking-tight">
             {greetings[timeOfDay]}
         </h1>
         <p className="text-muted-foreground mt-1">{thoughts[timeOfDay]}</p>
