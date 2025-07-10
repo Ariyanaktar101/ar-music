@@ -48,7 +48,7 @@ export function MusicPlayer() {
       {/* Mobile Player */}
       <div className="md:hidden fixed bottom-16 left-0 right-0 h-20 bg-background/90 backdrop-blur-md border-t z-50 animate-in slide-in-from-bottom-4">
         <div className="flex flex-col h-full">
-            <div className="flex items-center h-full px-2 gap-3">
+            <div className="flex items-center h-full px-2 gap-2">
                 <Image
                     src={currentSong.coverArt}
                     alt={currentSong.title}
@@ -61,11 +61,14 @@ export function MusicPlayer() {
                     <p className="text-xs text-muted-foreground truncate">{currentSong.artist}</p>
                 </div>
                 <div className="flex items-center gap-0">
-                    <Button variant="ghost" size="icon" className="w-9 h-9" onClick={() => toggleFavorite(currentSong.id)}>
-                        <Heart className={cn("h-5 w-5", currentSongIsFavorite ? "fill-red-500 text-red-500" : "text-muted-foreground")} />
+                    <Button variant="ghost" size="icon" className="w-9 h-9" onClick={skipBackward}>
+                        <SkipBack className="h-5 w-5" />
                     </Button>
                     <Button variant="ghost" size="icon" className="w-11 h-11" onClick={togglePlayPause}>
                         {isPlaying ? <Pause className="h-6 w-6" /> : <Play className="h-6 w-6" />}
+                    </Button>
+                    <Button variant="ghost" size="icon" className="w-9 h-9" onClick={skipForward}>
+                        <SkipForward className="h-5 w-5" />
                     </Button>
                      <Button variant="ghost" size="icon" className="w-9 h-9" onClick={closePlayer}>
                         <X className="h-5 w-5 text-muted-foreground" />
