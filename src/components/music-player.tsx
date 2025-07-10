@@ -73,7 +73,7 @@ function ExpandedPlayer() {
                 <Loader className="h-10 w-10 animate-spin text-primary" />
               ) : lyrics ? (
                  <ScrollArea className="h-full w-full">
-                    <pre className="font-sans p-6 text-lg whitespace-pre-wrap text-foreground">
+                    <pre className="font-sans p-6 text-lg whitespace-pre-wrap text-foreground text-center">
                         {lyrics}
                     </pre>
                  </ScrollArea>
@@ -179,7 +179,9 @@ export function MusicPlayer() {
     closePlayer,
     isFavorite,
     toggleFavorite,
-    toggleExpandPlayer
+    toggleExpandPlayer,
+    toggleLyricsView,
+    showLyrics,
   } = useMusicPlayer();
   
   const formatTime = (seconds: number) => {
