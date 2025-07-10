@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { cn } from '@/lib/utils';
+import { useAuth } from '@/context/AuthContext';
 
 type TimeOfDay = 'morning' | 'afternoon' | 'evening';
 
@@ -11,10 +12,14 @@ const thoughts = {
     evening: "The night is calm and full of stars. Find a song to match."
 };
 
-const greetings: Record<TimeOfDay, string> = {
-    morning: "Good Morning",
-    afternoon: "Good Afternoon",
-    evening: "Good Evening"
+const getGreeting = (timeOfDay: TimeOfDay, name?: string | null) => {
+    const baseGreeting = {
+        morning: "Good Morning",
+        afternoon: "Good Afternoon",
+        evening: "Good Evening"
+    }[timeOfDay];
+
+    return name ? `${baseGreeting}, ${name}` : baseGreeting;
 }
 
 const emojis: Record<TimeOfDay, string> = {
@@ -24,6 +29,7 @@ const emojis: Record<TimeOfDay, string> = {
 }
 
 export function GreetingHeader() {
+  const { user } = useAuth();
   const [timeOfDay, setTimeOfDay] = useState<TimeOfDay | null>(null);
   const [time, setTime] = useState('');
 
@@ -69,7 +75,7 @@ export function GreetingHeader() {
             "text-4xl tracking-tight flex items-baseline gap-2",
             timeOfDay === 'evening' ? 'font-display' : 'font-bold font-headline'
         )}>
-            <span>{greetings[timeOfDay]}</span>
+            <span>{getGreeting(timeOfDay, user?.name)}</span>
             <span className={cn(
                 "text-3xl",
                 timeOfDay === 'evening' ? 'text-2xl' : ''

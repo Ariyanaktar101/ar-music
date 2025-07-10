@@ -1,11 +1,31 @@
+'use client';
+
+import React from 'react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Music } from 'lucide-react';
+import { useAuth } from '@/context/AuthContext';
 
 export default function SignupPage() {
+  const { login } = useAuth();
+  const router = useRouter();
+
+  const handleSignup = (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    const formData = new FormData(e.currentTarget);
+    const name = formData.get('name') as string;
+    
+    // In a real app, you'd create a user here.
+    // For now, we'll log them in with the name they provided.
+    const mockUser = { name: name || 'Friend' };
+    login(mockUser);
+    router.push('/profile');
+  };
+
   return (
     <div className="flex items-center justify-center min-h-screen bg-secondary">
       <Card className="w-full max-w-sm animate-in fade-in-50 zoom-in-95">
@@ -19,10 +39,10 @@ export default function SignupPage() {
           <CardDescription>Join AR Music and start listening.</CardDescription>
         </CardHeader>
         <CardContent>
-          <form className="space-y-4">
+          <form className="space-y-4" onSubmit={handleSignup}>
             <div className="space-y-2">
               <Label htmlFor="name">Name</Label>
-              <Input id="name" type="text" placeholder="Your Name" required />
+              <Input id="name" name="name" type="text" placeholder="Your Name" required />
             </div>
             <div className="space-y-2">
               <Label htmlFor="email">Email</Label>
