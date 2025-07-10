@@ -21,7 +21,7 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from '@/components/ui/alert-dialog';
-import { ArrowLeft, Palette, Music, Wifi, User, Trash2, Moon, Sun, Monitor } from 'lucide-react';
+import { ArrowLeft, Palette, Music, Wifi, User, Trash2, Moon, Sun, Monitor, Shield, Bell, LifeBuoy, Flag } from 'lucide-react';
 import Link from 'next/link';
 import { Label } from '@/components/ui/label';
 import {
@@ -160,6 +160,75 @@ export default function SettingsPage() {
                     </div>
                     <Switch id="wifi-only-switch" checked={downloadOverWifiOnly} onCheckedChange={setDownloadOverWifiOnly} />
                 </div>
+            </CardContent>
+          </Card>
+          
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2"><Shield /> Privacy & Security</CardTitle>
+              <CardDescription>Manage how your data is used and seen by others.</CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="flex items-center justify-between">
+                  <div>
+                      <Label htmlFor="private-session-switch">Private Session</Label>
+                      <p className="text-sm text-muted-foreground">Your listening activity won't be visible to your followers.</p>
+                  </div>
+                  <Switch id="private-session-switch" />
+              </div>
+              <Separator />
+               <div className="flex items-center justify-between">
+                  <Label>Privacy Policy</Label>
+                  <Button variant="link" asChild><Link href="#">Read Policy</Link></Button>
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2"><Bell /> Notifications</CardTitle>
+              <CardDescription>Choose what you want to be notified about.</CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+                <div className="flex items-center justify-between">
+                    <div>
+                        <Label htmlFor="push-notif-switch">Push Notifications</Label>
+                        <p className="text-sm text-muted-foreground">For new music, and playlist updates.</p>
+                    </div>
+                    <Switch id="push-notif-switch" defaultChecked />
+                </div>
+                 <Separator />
+                <div className="flex items-center justify-between">
+                    <div>
+                        <Label htmlFor="email-notif-switch">Email Notifications</Label>
+                        <p className="text-sm text-muted-foreground">For news, offers, and recommendations.</p>
+                    </div>
+                    <Switch id="email-notif-switch" />
+                </div>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2"><LifeBuoy /> Help & Support</CardTitle>
+              <CardDescription>Get help with your account and the app.</CardDescription>
+            </CardHeader>
+            <CardContent className="flex flex-col gap-2">
+                <Button variant="outline" className="justify-start">FAQs</Button>
+                <Button variant="outline" className="justify-start">Contact Support</Button>
+                <Button variant="outline" className="justify-start">Terms of Service</Button>
+            </CardContent>
+          </Card>
+          
+           <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2"><Flag /> Report a Problem</CardTitle>
+              <CardDescription>Encountered an issue? Let us know.</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <Button className="w-full sm:w-auto">
+                Report a Problem
+              </Button>
             </CardContent>
           </Card>
 
