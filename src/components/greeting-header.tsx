@@ -15,7 +15,7 @@ const thoughts = {
 const greetings: Record<TimeOfDay, string> = {
     morning: "Good Morning ☀️",
     afternoon: "Good Afternoon ☕",
-    evening: "Good Evening 🌒"
+    evening: "Good Evening 🌓"
 }
 
 export function GreetingHeader() {
