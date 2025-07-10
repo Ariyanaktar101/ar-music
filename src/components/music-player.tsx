@@ -72,7 +72,7 @@ function ExpandedPlayer() {
 
         <div className="w-full">
           <div className="flex justify-between items-center">
-            <div className="flex-1 text-left">
+            <div className="flex-1 text-left overflow-hidden">
               <h2 className="text-2xl font-bold truncate">{currentSong.title}</h2>
               <p className="text-muted-foreground truncate">{currentSong.artist}</p>
             </div>
@@ -179,7 +179,7 @@ export function MusicPlayer() {
         onDoubleClick={toggleExpandPlayer}
         className="md:hidden fixed bottom-16 left-0 right-0 h-auto bg-background/90 backdrop-blur-md border-t z-50 animate-in slide-in-from-bottom-4"
        >
-         <div className="flex flex-col p-2 gap-1">
+         <div className="flex flex-col p-2 gap-2">
             <div className="flex items-center gap-3">
                 <Image
                     src={currentSong.coverArt}
@@ -192,26 +192,28 @@ export function MusicPlayer() {
                     <p className="font-semibold truncate text-sm">{currentSong.title}</p>
                     <p className="text-xs text-muted-foreground truncate">{currentSong.artist}</p>
                 </div>
-                 <Button variant="ghost" size="icon" className="w-8 h-8 flex-shrink-0" onClick={(e) => { e.stopPropagation(); toggleFavorite(currentSong.id); }}>
-                    <Heart className={cn("h-5 w-5", currentSongIsFavorite ? "fill-red-500 text-red-500" : "text-muted-foreground")} />
-                </Button>
-                <Button variant="ghost" size="icon" className="w-8 h-8 flex-shrink-0" onClick={(e) => { e.stopPropagation(); togglePlayPause(); }}>
-                    {isPlaying ? <Pause className="h-5 w-5" /> : <Play className="h-5 w-5" />}
-                </Button>
-                 <Button variant="ghost" size="icon" className="w-8 h-8 flex-shrink-0" onClick={(e) => { e.stopPropagation(); closePlayer(); }}>
-                    <X className="h-5 w-5 text-muted-foreground" />
-                </Button>
+                <div className="flex items-center">
+                    <Button variant="ghost" size="icon" className="w-8 h-8 flex-shrink-0" onClick={(e) => { e.stopPropagation(); toggleFavorite(currentSong.id); }}>
+                        <Heart className={cn("h-5 w-5", currentSongIsFavorite ? "fill-red-500 text-red-500" : "text-muted-foreground")} />
+                    </Button>
+                    <Button variant="ghost" size="icon" className="w-8 h-8 flex-shrink-0" onClick={(e) => { e.stopPropagation(); togglePlayPause(); }}>
+                        {isPlaying ? <Pause className="h-5 w-5" /> : <Play className="h-5 w-5" />}
+                    </Button>
+                    <Button variant="ghost" size="icon" className="w-8 h-8 flex-shrink-0" onClick={(e) => { e.stopPropagation(); closePlayer(); }}>
+                        <X className="h-5 w-5 text-muted-foreground" />
+                    </Button>
+                </div>
             </div>
             <div className="flex items-center gap-2">
-                 <span className="text-xs font-mono text-muted-foreground">{formatTime(progress)}</span>
-                 <Slider
+                <span className="text-xs font-mono text-muted-foreground">{formatTime(progress)}</span>
+                <Slider
                     value={[progress]}
                     max={duration}
                     step={1}
                     onValueChange={(value) => { handleProgressChange(value); }}
                     className="w-full h-1 relative [&>span:first-child]:h-1 [&>span>span]:h-1 [&>span>span]:bg-accent [&>a]:h-2.5 [&>a]:w-2.5"
                 />
-                 <span className="text-xs font-mono text-muted-foreground">{formatTime(duration)}</span>
+                <span className="text-xs font-mono text-muted-foreground">{formatTime(duration)}</span>
             </div>
         </div>
       </div>
