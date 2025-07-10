@@ -61,21 +61,19 @@ export function MusicPlayer() {
                     <p className="text-xs text-muted-foreground truncate">{currentSong.artist}</p>
                 </div>
                 <div className="flex items-center gap-0">
-                    <Button variant="ghost" size="icon" className="w-9 h-9" onClick={skipBackward}>
-                        <SkipBack className="h-5 w-5" />
+                    <Button variant="ghost" size="icon" className="w-9 h-9" onClick={() => toggleFavorite(currentSong.id)}>
+                        <Heart className={cn("h-5 w-5", currentSongIsFavorite ? "fill-red-500 text-red-500" : "text-muted-foreground")} />
                     </Button>
-                    <Button variant="ghost" size="icon" className="w-11 h-11" onClick={togglePlayPause}>
+                    <Button variant="ghost" size="icon" className="w-9 h-9" onClick={togglePlayPause}>
                         {isPlaying ? <Pause className="h-6 w-6" /> : <Play className="h-6 w-6" />}
                     </Button>
-                    <Button variant="ghost" size="icon" className="w-9 h-9" onClick={skipForward}>
-                        <SkipForward className="h-5 w-5" />
-                    </Button>
-                     <Button variant="ghost" size="icon" className="w-9 h-9" onClick={closePlayer}>
+                    <Button variant="ghost" size="icon" className="w-9 h-9" onClick={closePlayer}>
                         <X className="h-5 w-5 text-muted-foreground" />
                     </Button>
                 </div>
             </div>
-            <div className="px-3 pb-1 -mt-2">
+            <div className="px-3 pb-1 -mt-2 flex items-center gap-2">
+                 <span className="text-xs font-mono text-muted-foreground">{formatTime(progress)}</span>
                  <Slider
                     value={[progress]}
                     max={duration}
@@ -83,6 +81,7 @@ export function MusicPlayer() {
                     onValueChange={handleProgressChange}
                     className="w-full h-1 relative [&>span:first-child]:h-1 [&>span>span]:h-1 [&>span>span]:bg-accent [&>a]:h-2.5 [&>a]:w-2.5 [&>a]:bg-white"
                 />
+                <span className="text-xs font-mono text-muted-foreground">{formatTime(duration)}</span>
             </div>
         </div>
       </div>
