@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState, useEffect } from 'react';
@@ -15,7 +16,7 @@ import { Skeleton } from '@/components/ui/skeleton';
 
 const genres = [
   'Pop', 'Rock', 'Hip-Hop', 'Jazz', 'Classical', 'Electronic', 'R&B', 'Country', 
-  'Bollywood', 'Punjabi', 'Lofi', 'Workout'
+  'Lofi', 'Workout'
 ];
 
 function shuffleArray<T>(array: T[]): T[] {
