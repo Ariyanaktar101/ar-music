@@ -1,3 +1,4 @@
+
 'use client';
 
 import React from 'react';
@@ -226,9 +227,24 @@ export default function SettingsPage() {
               <CardDescription>Encountered an issue? Let us know.</CardDescription>
             </CardHeader>
             <CardContent>
-              <Button className="w-full sm:w-auto">
-                Report a Problem
-              </Button>
+               <AlertDialog>
+                <AlertDialogTrigger asChild>
+                    <Button className="w-full sm:w-auto">
+                        Report a Problem
+                    </Button>
+                </AlertDialogTrigger>
+                <AlertDialogContent>
+                  <AlertDialogHeader>
+                    <AlertDialogTitle>A Helpful Tip</AlertDialogTitle>
+                    <AlertDialogDescription>
+                        Jada problem ho raha hee na to baap ke paiso se soptify ka premium le.
+                    </AlertDialogDescription>
+                  </AlertDialogHeader>
+                  <AlertDialogFooter>
+                    <AlertDialogAction>Got it</AlertDialogAction>
+                  </AlertDialogFooter>
+                </AlertDialogContent>
+              </AlertDialog>
             </CardContent>
           </Card>
 
@@ -265,3 +281,5 @@ export default function SettingsPage() {
     </AppShell>
   );
 }
+
+    
