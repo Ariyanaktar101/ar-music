@@ -3,8 +3,15 @@
 import React, { useState, useEffect } from 'react';
 import { Clock } from 'lucide-react';
 
+const thoughts = {
+    morning: "Music is the sunrise of the soul. What will you discover today?",
+    afternoon: "Keep the rhythm going. Your perfect afternoon soundtrack awaits.",
+    evening: "Unwind and let the music of the night take over."
+};
+
 export function GreetingHeader() {
   const [greeting, setGreeting] = useState('');
+  const [thought, setThought] = useState('');
   const [time, setTime] = useState('');
 
   useEffect(() => {
@@ -14,13 +21,16 @@ export function GreetingHeader() {
 
       if (hours < 12) {
         setGreeting('Good Morning');
+        setThought(thoughts.morning);
       } else if (hours < 18) {
         setGreeting('Good Afternoon');
+        setThought(thoughts.afternoon);
       } else {
         setGreeting('Good Evening');
+        setThought(thoughts.evening);
       }
 
-      setTime(date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }));
+      setTime(date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: true }));
     };
 
     updateGreetingAndTime();
@@ -31,18 +41,24 @@ export function GreetingHeader() {
 
   if (!greeting || !time) {
     return (
-      <div className="flex justify-between items-center mb-8 h-10">
-        <div className="h-10 w-64 bg-muted rounded-md animate-pulse"></div>
-        <div className="h-8 w-24 bg-muted rounded-md animate-pulse"></div>
+      <div className="relative mb-8 h-16">
+        <div className="space-y-2">
+            <div className="h-10 w-64 bg-muted rounded-md animate-pulse"></div>
+            <div className="h-5 w-96 bg-muted rounded-md animate-pulse"></div>
+        </div>
+        <div className="absolute top-0 right-0 h-6 w-20 bg-muted rounded-md animate-pulse"></div>
       </div>
     );
   }
 
   return (
-    <div className="flex justify-between items-center mb-8">
-      <h1 className="text-3xl font-bold font-headline tracking-tight">{greeting}</h1>
-      <div className="flex items-center gap-2 text-muted-foreground font-medium">
-        <Clock className="h-5 w-5" />
+    <div className="relative mb-8">
+      <div>
+        <h1 className="text-3xl font-bold font-headline tracking-tight">{greeting}</h1>
+        <p className="text-muted-foreground mt-1">{thought}</p>
+      </div>
+      <div className="absolute top-1 right-1 flex items-center gap-1 text-xs text-muted-foreground font-medium">
+        <Clock className="h-3 w-3" />
         <span>{time}</span>
       </div>
     </div>
