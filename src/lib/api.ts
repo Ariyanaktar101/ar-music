@@ -72,3 +72,20 @@ export async function searchSongs(query: string, limit: number = 20): Promise<So
     return [];
   }
 }
+
+export async function getSongsByIds(ids: string[]): Promise<Song[]> {
+  if (ids.length === 0) return [];
+  try {
+    const response = await fetch(`https://saavn.dev/api/songs?ids=${ids.join(',')}`, { next: { revalidate: 3600 } });
+    if (!response.ok) {
+      console.error(`Failed to fetch songs by IDs, status: ${response.status}`);
+      return [];
+    }
+    const json = await response.json();
+    const results = json.data || [];
+    return results.map(mapJioSongToSong);
+  } catch (error) {
+    console.error('Error fetching songs by IDs:', error);
+    return [];
+  }
+}

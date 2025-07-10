@@ -4,11 +4,12 @@
 import { AppShell } from '@/components/app-shell';
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { Heart, Clock, Plus, Library as LibraryIcon } from 'lucide-react';
+import { Heart, Clock, Plus, Library as LibraryIcon, ChevronRight } from 'lucide-react';
 import Link from 'next/link';
 import { useMusicPlayer } from '@/context/MusicPlayerContext';
 import React from 'react';
 import { cn } from '@/lib/utils';
+import Image from 'next/image';
 
 function QuickAccessCard({ icon: Icon, title, subtitle, href, variant }: { icon: React.ElementType, title: string, subtitle: string, href: string, variant: 'primary' | 'secondary' }) {
     return (
@@ -17,14 +18,15 @@ function QuickAccessCard({ icon: Icon, title, subtitle, href, variant }: { icon:
                 <div className="flex items-center gap-4">
                     <div className={cn(
                         "p-3 rounded-md flex items-center justify-center",
-                        variant === 'primary' ? 'bg-primary' : 'bg-muted-foreground/20'
+                        variant === 'primary' ? 'bg-primary text-primary-foreground' : 'bg-muted text-muted-foreground'
                     )}>
-                        <Icon className="h-6 w-6 text-primary-foreground" />
+                        <Icon className="h-6 w-6" />
                     </div>
-                    <div>
+                    <div className="flex-1">
                         <p className="font-semibold">{title}</p>
                         <p className="text-sm text-muted-foreground">{subtitle}</p>
                     </div>
+                    <ChevronRight className="h-5 w-5 text-muted-foreground" />
                 </div>
             </Card>
         </Link>
@@ -49,20 +51,18 @@ function EmptyLibrary() {
 }
 
 export default function LibraryPage() {
-    const { favoriteSongs } = useMusicPlayer();
+    const { favoriteSongs, recentlyPlayed, playSong } = useMusicPlayer();
 
-    // Mock data for recently played, as we don't track it yet.
-    const recentlyPlayedCount = 8;
-    
     // In a real app, you would fetch playlist data here.
     const hasPlaylists = false;
+    const hasHistory = recentlyPlayed.length > 0;
 
   return (
     <AppShell>
       <div className="space-y-6">
         <div>
             <h1 className="text-3xl font-bold font-headline tracking-tight">
-            YOUR LIBRARY
+            Your Library
             </h1>
             <p className="text-muted-foreground mt-1">Your playlists and saved music</p>
         </div>
@@ -75,21 +75,38 @@ export default function LibraryPage() {
                 href="/library/liked"
                 variant="primary"
             />
-            <div className="relative">
-                <QuickAccessCard 
-                    icon={Clock}
-                    title="Recently Played"
-                    subtitle={`${recentlyPlayedCount} songs`}
-                    href="#"
-                    variant="secondary"
-                />
-                {recentlyPlayedCount > 0 && 
-                    <span className="absolute top-1/2 right-4 -translate-y-1/2 w-2 h-2 rounded-full bg-red-500"></span>
-                }
-            </div>
+            <QuickAccessCard 
+                icon={Clock}
+                title="Recently Played"
+                subtitle={`${recentlyPlayed.length} songs`}
+                href="/library/recent"
+                variant="secondary"
+            />
         </div>
+        
+        {hasHistory && (
+          <section>
+            <h2 className="text-xl font-bold font-headline tracking-tight mb-4">Jump Back In</h2>
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
+              {recentlyPlayed.slice(0, 5).map((song) => (
+                <div key={song.id} className="group cursor-pointer" onClick={() => playSong(song)}>
+                  <div className="aspect-square relative mb-2">
+                    <Image
+                      src={song.coverArt}
+                      alt={song.title}
+                      fill
+                      className="rounded-lg object-cover group-hover:brightness-75 transition-all"
+                    />
+                  </div>
+                  <p className="font-semibold text-sm truncate">{song.title}</p>
+                  <p className="text-xs text-muted-foreground truncate">{song.artist}</p>
+                </div>
+              ))}
+            </div>
+          </section>
+        )}
 
-        {!hasPlaylists && <EmptyLibrary />}
+        {!hasPlaylists && !hasHistory && <EmptyLibrary />}
 
       </div>
     </AppShell>

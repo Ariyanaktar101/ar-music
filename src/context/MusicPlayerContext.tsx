@@ -24,6 +24,7 @@ interface MusicPlayerContextType {
   favoriteSongs: string[];
   isFavorite: (songId: string) => boolean;
   toggleFavorite: (songId: string) => void;
+  recentlyPlayed: Song[];
   isExpanded: boolean;
   toggleExpandPlayer: () => void;
   showLyrics: boolean;
@@ -49,6 +50,7 @@ export const MusicPlayerProvider = ({ children }: { children: React.ReactNode })
   const [volume, setVolume] = useState(50);
   const [isMuted, setIsMuted] = useState(false);
   const [favoriteSongs, setFavoriteSongs] = useState<string[]>([]);
+  const [recentlyPlayed, setRecentlyPlayed] = useState<Song[]>([]);
   const [isExpanded, setIsExpanded] = useState(false);
   
   // Lyrics State
@@ -59,6 +61,31 @@ export const MusicPlayerProvider = ({ children }: { children: React.ReactNode })
   const [lyricTimings, setLyricTimings] = useState<LyricTimings[]>([]);
 
   const audioRef = useRef<HTMLAudioElement>(null);
+
+  // Load state from localStorage on initial render
+  useEffect(() => {
+    try {
+      const storedFavorites = localStorage.getItem('ar-music-favorites');
+      if (storedFavorites) {
+        setFavoriteSongs(JSON.parse(storedFavorites));
+      }
+      const storedRecent = localStorage.getItem('ar-music-recent');
+      if (storedRecent) {
+        setRecentlyPlayed(JSON.parse(storedRecent));
+      }
+    } catch (error) {
+      console.error("Failed to parse from localStorage", error);
+    }
+  }, []);
+
+  // Save state to localStorage whenever it changes
+  useEffect(() => {
+    localStorage.setItem('ar-music-favorites', JSON.stringify(favoriteSongs));
+  }, [favoriteSongs]);
+
+  useEffect(() => {
+    localStorage.setItem('ar-music-recent', JSON.stringify(recentlyPlayed));
+  }, [recentlyPlayed]);
   
   // Effect to pre-calculate lyric timings when lyrics or duration are set
   useEffect(() => {
@@ -147,12 +174,24 @@ export const MusicPlayerProvider = ({ children }: { children: React.ReactNode })
     }
   }, [volume, isMuted]);
 
+  const addSongToRecents = (song: Song) => {
+    setRecentlyPlayed(prev => {
+        // Remove the song if it already exists to move it to the top
+        const filtered = prev.filter(s => s.id !== song.id);
+        // Add the new song to the beginning of the array
+        const newRecents = [song, ...filtered];
+        // Limit to 20 recent songs
+        return newRecents.slice(0, 20);
+    });
+  }
+
   const playSong = (song: Song) => {
     if (currentSong?.id === song.id) {
         togglePlayPause();
         return;
     }
     setCurrentSong(song);
+    addSongToRecents(song);
     setIsPlaying(true);
     // Reset lyrics view when song changes
     setShowLyrics(false);
@@ -281,6 +320,7 @@ export const MusicPlayerProvider = ({ children }: { children: React.ReactNode })
         favoriteSongs,
         isFavorite,
         toggleFavorite,
+        recentlyPlayed,
         isExpanded,
         toggleExpandPlayer,
         showLyrics,

@@ -4,7 +4,7 @@
 import { AppShell } from '@/components/app-shell';
 import { SongList } from '@/components/song-list';
 import { useMusicPlayer } from '@/context/MusicPlayerContext';
-import { searchSongs } from '@/lib/api';
+import { getSongsByIds } from '@/lib/api';
 import type { Song } from '@/lib/types';
 import { Heart, Music, ArrowLeft } from 'lucide-react';
 import Link from 'next/link';
@@ -39,13 +39,9 @@ export default function LikedSongsPage() {
   useEffect(() => {
     const fetchLikedSongs = async () => {
       setLoading(true);
-      // This is a mock implementation. In a real app, you'd fetch songs by their IDs.
-      // For now, we'll fetch a list of songs and filter them to simulate finding liked songs.
-      // This is not efficient and is for demo purposes only.
       if (favoriteSongs.length > 0) {
-        const allSongs = await searchSongs('top hindi songs', 50); // Fetch a larger pool of songs
-        const likedDetails = allSongs.filter(song => favoriteSongs.includes(song.id));
-        setLikedSongsDetails(likedDetails);
+        const songDetails = await getSongsByIds(favoriteSongs);
+        setLikedSongsDetails(songDetails);
       } else {
         setLikedSongsDetails([]);
       }
