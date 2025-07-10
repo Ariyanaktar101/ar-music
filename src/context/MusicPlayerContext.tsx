@@ -4,6 +4,7 @@
 import React, { createContext, useContext, useState, useRef, useEffect, useCallback } from 'react';
 import type { Song, Playlist } from '@/lib/types';
 import { getLyrics } from '@/ai/flows/get-lyrics-flow';
+import { useToast } from '@/hooks/use-toast';
 
 interface MusicPlayerContextType {
   currentSong: Song | null;
@@ -39,6 +40,9 @@ interface MusicPlayerContextType {
   addSongToPlaylist: (playlistId: string, song: Song) => void;
   removeSongFromPlaylist: (playlistId: string, songId: string) => void;
   getPlaylistById: (id: string) => Playlist | undefined;
+
+  // New functions
+  downloadSong: (song: Song) => void;
 }
 
 const MusicPlayerContext = createContext<MusicPlayerContextType | undefined>(undefined);
@@ -71,6 +75,7 @@ export const MusicPlayerProvider = ({ children }: { children: React.ReactNode })
   const [playlists, setPlaylists] = useState<Playlist[]>([]);
 
   const audioRef = useRef<HTMLAudioElement>(null);
+  const { toast } = useToast();
 
   // Load state from localStorage on initial render
   useEffect(() => {
@@ -302,9 +307,19 @@ export const MusicPlayerProvider = ({ children }: { children: React.ReactNode })
 
   const toggleLyricsView = () => {
       const willShow = !showLyrics;
-      setShowLyrics(willShow);
-      if(willShow && !lyrics && !loadingLyrics) {
-          fetchLyrics();
+      // If we are in the mobile expanded view, just toggle.
+      if (isExpanded) {
+          setShowLyrics(willShow);
+          if (willShow && !lyrics && !loadingLyrics) {
+              fetchLyrics();
+          }
+      } else {
+          // If we are on desktop or compact mobile, expand the player to show lyrics.
+          setIsExpanded(true);
+          setShowLyrics(true);
+          if (!lyrics && !loadingLyrics) {
+             fetchLyrics();
+          }
       }
   }
   
@@ -321,17 +336,27 @@ export const MusicPlayerProvider = ({ children }: { children: React.ReactNode })
   };
 
   const addSongToPlaylist = (playlistId: string, song: Song) => {
-      setPlaylists(prev => prev.map(p => {
-          if (p.id === playlistId && !p.songIds.includes(song.id)) {
-              const updatedPlaylist = { ...p, songIds: [...p.songIds, song.id] };
-              // Set cover art if it's the first song
-              if (!updatedPlaylist.coverArt) {
-                updatedPlaylist.coverArt = song.coverArt;
-              }
-              return updatedPlaylist;
-          }
-          return p;
-      }));
+    let playlistName = '';
+    setPlaylists(prev => prev.map(p => {
+        if (p.id === playlistId) {
+            playlistName = p.name;
+            if (p.songIds.includes(song.id)) {
+                // Song is already in the playlist
+                return p;
+            }
+            const updatedPlaylist = { ...p, songIds: [...p.songIds, song.id] };
+            // Set cover art if it's the first song
+            if (!updatedPlaylist.coverArt) {
+              updatedPlaylist.coverArt = song.coverArt;
+            }
+            return updatedPlaylist;
+        }
+        return p;
+    }));
+    toast({
+        title: "Added to Playlist",
+        description: `"${song.title}" has been added to ${playlistName}.`,
+    });
   };
 
   const removeSongFromPlaylist = (playlistId: string, songId: string) => {
@@ -353,6 +378,29 @@ export const MusicPlayerProvider = ({ children }: { children: React.ReactNode })
 
   const getPlaylistById = (id: string) => {
     return playlists.find(p => p.id === id);
+  };
+  
+  const downloadSong = async (song: Song) => {
+    if (!song) return;
+    try {
+      toast({ title: 'Starting Download', description: `Downloading "${song.title}"...` });
+      const response = await fetch(song.url);
+      if (!response.ok) throw new Error('Network response was not ok.');
+      const blob = await response.blob();
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.style.display = 'none';
+      a.href = url;
+      a.download = `${song.artist} - ${song.title}.mp3`;
+      document.body.appendChild(a);
+      a.click();
+      window.URL.revokeObjectURL(url);
+      a.remove();
+      toast({ title: 'Download Complete', description: `"${song.title}" has been downloaded.` });
+    } catch (error) {
+      console.error('Error downloading the song:', error);
+      toast({ variant: 'destructive', title: 'Download Failed', description: 'Could not download the song.' });
+    }
   };
 
 
@@ -390,6 +438,7 @@ export const MusicPlayerProvider = ({ children }: { children: React.ReactNode })
         addSongToPlaylist,
         removeSongFromPlaylist,
         getPlaylistById,
+        downloadSong,
       }}
     >
       {children}

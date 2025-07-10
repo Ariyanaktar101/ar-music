@@ -2,13 +2,75 @@
 
 import React from 'react';
 import Image from 'next/image';
-import { Play, Pause, SkipBack, SkipForward, Volume2, VolumeX, X, Heart, ChevronDown, Shuffle, Repeat, Mic2, Loader, Music } from 'lucide-react';
+import { Play, Pause, SkipBack, SkipForward, Volume2, VolumeX, X, Heart, ChevronDown, Shuffle, Repeat, Mic2, Loader, Music, MoreVertical, PlusSquare, Download } from 'lucide-react';
 import { Slider } from '@/components/ui/slider';
 import { Button } from '@/components/ui/button';
 import { useMusicPlayer } from '@/context/MusicPlayerContext';
 import { cn } from '@/lib/utils';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { ScrollArea } from './ui/scroll-area';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+  DropdownMenuSub,
+  DropdownMenuSubContent,
+  DropdownMenuSubTrigger,
+  DropdownMenuPortal,
+} from '@/components/ui/dropdown-menu';
+
+
+function MoreOptionsButton() {
+    const { currentSong, playlists, addSongToPlaylist, toggleLyricsView, downloadSong } = useMusicPlayer();
+
+    if (!currentSong) return null;
+
+    return (
+        <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+                <Button variant="ghost" size="icon">
+                    <MoreVertical className="h-5 w-5" />
+                </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+                <DropdownMenuLabel>Options</DropdownMenuLabel>
+                <DropdownMenuSeparator />
+                <DropdownMenuSub>
+                    <DropdownMenuSubTrigger>
+                        <PlusSquare className="mr-2 h-4 w-4" />
+                        <span>Add to Playlist</span>
+                    </DropdownMenuSubTrigger>
+                    <DropdownMenuPortal>
+                        <DropdownMenuSubContent>
+                             <DropdownMenuLabel>Select Playlist</DropdownMenuLabel>
+                             <DropdownMenuSeparator />
+                             {playlists.length > 0 ? (
+                                playlists.map(playlist => (
+                                    <DropdownMenuItem key={playlist.id} onClick={() => addSongToPlaylist(playlist.id, currentSong)}>
+                                        {playlist.name}
+                                    </DropdownMenuItem>
+                                ))
+                             ) : (
+                                <DropdownMenuItem disabled>No playlists yet</DropdownMenuItem>
+                             )}
+                        </DropdownMenuSubContent>
+                    </DropdownMenuPortal>
+                </DropdownMenuSub>
+                <DropdownMenuItem onClick={toggleLyricsView}>
+                    <Mic2 className="mr-2 h-4 w-4" />
+                    <span>View Lyrics</span>
+                </DropdownMenuItem>
+                 <DropdownMenuItem onClick={() => downloadSong(currentSong)}>
+                    <Download className="mr-2 h-4 w-4" />
+                    <span>Download</span>
+                </DropdownMenuItem>
+            </DropdownMenuContent>
+        </DropdownMenu>
+    )
+}
 
 
 function ExpandedPlayer() {
@@ -73,9 +135,7 @@ function ExpandedPlayer() {
             <p className="text-sm text-muted-foreground uppercase tracking-wider">Playing from Album</p>
             <p className="font-bold truncate">{currentSong.album}</p>
         </div>
-        <Button variant="ghost" size="icon" onClick={closePlayer}>
-          <X className="h-6 w-6" />
-        </Button>
+         <MoreOptionsButton />
       </div>
 
       <div className="flex-1 flex flex-col justify-center items-center px-8 gap-8 overflow-hidden">
@@ -259,9 +319,7 @@ export function MusicPlayer() {
                     <Button variant="ghost" size="icon" className="w-8 h-8 flex-shrink-0" onClick={togglePlayPause}>
                         {isPlaying ? <Pause className="h-5 w-5" /> : <Play className="h-5 w-5" />}
                     </Button>
-                    <Button variant="ghost" size="icon" className="w-8 h-8 flex-shrink-0" onClick={closePlayer}>
-                        <X className="h-5 w-5 text-muted-foreground" />
-                    </Button>
+                    <MoreOptionsButton />
                 </div>
             </div>
             <div className="flex items-center gap-2">
@@ -346,6 +404,7 @@ export function MusicPlayer() {
                     />
                 </PopoverContent>
             </Popover>
+            <MoreOptionsButton />
              <Button variant="ghost" size="icon" onClick={closePlayer}>
               <X className="h-5 w-5" />
             </Button>
