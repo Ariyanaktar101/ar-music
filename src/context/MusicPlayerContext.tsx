@@ -1,3 +1,4 @@
+
 'use client';
 
 import React, { createContext, useContext, useState, useRef, useEffect, useCallback } from 'react';
@@ -67,15 +68,27 @@ export const MusicPlayerProvider = ({ children }: { children: React.ReactNode })
       if (lyrics && duration > 0 && isPlaying) {
         const lines = lyrics.split('\n').filter(line => line.trim() !== '');
         if (lines.length > 0) {
-            const timePerLine = duration / lines.length;
-            const currentLine = Math.floor(audio.currentTime / timePerLine);
-            if (currentLine < lines.length) {
-              setCurrentLineIndex(currentLine);
-            }
+          const timePerLine = (duration - 3) / lines.length; // Assume a small start/end buffer
+          const currentLine = Math.floor(audio.currentTime / timePerLine);
+          
+          // To make it feel more responsive, check if we should advance early
+          if (currentLineIndex !== null && currentLine > currentLineIndex) {
+             setCurrentLineIndex(currentLine < lines.length ? currentLine : lines.length -1);
+          } else if (currentLineIndex === null && currentLine > 0) {
+             setCurrentLineIndex(currentLine < lines.length ? currentLine : lines.length -1);
+          } else if (currentLineIndex === null && audio.currentTime > 0) {
+             setCurrentLineIndex(0);
+          }
         }
       }
     };
-    const handleSongEnd = () => setIsPlaying(false);
+    const handleSongEnd = () => {
+      setIsPlaying(false);
+      const lines = lyrics ? lyrics.split('\n').filter(line => line.trim() !== '') : [];
+      if (lines.length > 0) {
+        setCurrentLineIndex(lines.length -1);
+      }
+    };
 
     audio.addEventListener('loadedmetadata', setAudioData);
     audio.addEventListener('timeupdate', setAudioTime);
@@ -86,7 +99,7 @@ export const MusicPlayerProvider = ({ children }: { children: React.ReactNode })
       audio.removeEventListener('timeupdate', setAudioTime);
       audio.removeEventListener('ended', handleSongEnd);
     };
-  }, [currentSong, lyrics, duration, isPlaying]);
+  }, [currentSong, lyrics, duration, isPlaying, currentLineIndex]);
 
   useEffect(() => {
     if (audioRef.current) {
@@ -117,6 +130,7 @@ export const MusicPlayerProvider = ({ children }: { children: React.ReactNode })
     setLyrics(null);
     setCurrentLineIndex(null);
     if (audioRef.current) {
+      audioRef.current.currentTime = 0;
       audioRef.current.src = song.url;
       audioRef.current.load();
       audioRef.current.play().catch(console.error);
