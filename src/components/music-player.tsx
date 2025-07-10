@@ -46,52 +46,46 @@ export function MusicPlayer() {
       <audio ref={audioRef} src={currentSong.url} preload="metadata" />
       
       {/* Mobile Player */}
-       <div className="md:hidden fixed bottom-16 left-0 right-0 h-24 bg-background/90 backdrop-blur-md border-t z-50 animate-in slide-in-from-bottom-4">
-        <div className="flex flex-col h-full justify-center px-3 gap-2">
-          <div className="flex items-center gap-3">
-            <Image
-              src={currentSong.coverArt}
-              alt={currentSong.title}
-              width={48}
-              height={48}
-              className="rounded-md flex-shrink-0"
-            />
-            <div className="flex-1 flex flex-col justify-center overflow-hidden">
-              <p className="font-semibold truncate text-sm">{currentSong.title}</p>
-              <p className="text-xs text-muted-foreground truncate">{currentSong.artist}</p>
-            </div>
-             <Button variant="ghost" size="icon" className="w-8 h-8" onClick={() => toggleFavorite(currentSong.id)}>
-              <Heart className={cn("h-5 w-5", currentSongIsFavorite ? "fill-red-500 text-red-500" : "text-muted-foreground")} />
-            </Button>
-            <Button variant="ghost" size="icon" className="w-8 h-8" onClick={closePlayer}>
-              <X className="h-5 w-5 text-muted-foreground" />
-            </Button>
-          </div>
-
-          <div className="flex flex-col items-center w-full gap-1">
-             <div className="flex items-center justify-center gap-2">
-                <Button variant="ghost" size="icon" className="w-9 h-9" onClick={skipBackward}>
-                    <SkipBack className="h-5 w-5" />
-                </Button>
-                <Button variant="ghost" size="icon" className="w-12 h-12" onClick={togglePlayPause}>
-                    {isPlaying ? <Pause className="h-7 w-7" /> : <Play className="h-7 w-7" />}
-                </Button>
-                <Button variant="ghost" size="icon" className="w-9 h-9" onClick={skipForward}>
-                    <SkipForward className="h-5 w-5" />
-                </Button>
-             </div>
-            <div className="w-full flex items-center gap-2 -mt-1">
-                 <span className="text-xs font-mono text-muted-foreground">{formatTime(progress)}</span>
+       <div className="md:hidden fixed bottom-16 left-0 right-0 h-[68px] bg-background/90 backdrop-blur-md border-t z-50 animate-in slide-in-from-bottom-4">
+        <div className="flex flex-col h-full justify-center px-3 gap-1">
+            <div className="absolute top-0 left-0 w-full h-0.5">
                  <Slider
                     value={[progress]}
                     max={duration}
                     step={1}
                     onValueChange={handleProgressChange}
-                    className="w-full h-1 relative [&>span:first-child]:h-1 [&>span>span]:h-1 [&>span>span]:bg-accent [&>a]:h-2.5 [&>a]:w-2.5 [&>a]:bg-white"
+                    className="w-full h-0.5 relative [&>span:first-child]:h-0.5 [&>span>span]:h-0.5 [&>span>span]:bg-accent [&>a]:h-2 [&>a]:w-2 [&>a]:-top-0.5 [&>a]:bg-white"
                 />
-                <span className="text-xs font-mono text-muted-foreground">{formatTime(duration)}</span>
             </div>
-          </div>
+            <div className="flex items-center gap-3 mt-1">
+                <Image
+                src={currentSong.coverArt}
+                alt={currentSong.title}
+                width={40}
+                height={40}
+                className="rounded-md flex-shrink-0"
+                />
+                <div className="flex-1 flex flex-col justify-center overflow-hidden">
+                    <p className="font-semibold truncate text-sm">{currentSong.title}</p>
+                    <p className="text-xs text-muted-foreground truncate">{currentSong.artist}</p>
+                </div>
+                <Button variant="ghost" size="icon" className="w-8 h-8" onClick={() => toggleFavorite(currentSong.id)}>
+                    <Heart className={cn("h-5 w-5", currentSongIsFavorite ? "fill-red-500 text-red-500" : "text-muted-foreground")} />
+                </Button>
+                <Button variant="ghost" size="icon" className="w-8 h-8" onClick={togglePlayPause}>
+                    {isPlaying ? <Pause className="h-5 w-5" /> : <Play className="h-5 w-5" />}
+                </Button>
+                 <Button variant="ghost" size="icon" className="w-8 h-8" onClick={skipForward}>
+                    <SkipForward className="h-5 w-5" />
+                </Button>
+                <Button variant="ghost" size="icon" className="w-8 h-8" onClick={closePlayer}>
+                    <X className="h-5 w-5 text-muted-foreground" />
+                </Button>
+            </div>
+             <div className="w-full flex items-center justify-between text-xs font-mono text-muted-foreground -mt-1">
+                 <span>{formatTime(progress)}</span>
+                 <span>{formatTime(duration)}</span>
+            </div>
         </div>
       </div>
 
