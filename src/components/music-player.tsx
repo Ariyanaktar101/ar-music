@@ -2,11 +2,115 @@
 
 import React from 'react';
 import Image from 'next/image';
-import { Play, Pause, SkipBack, SkipForward, Volume2, VolumeX, X, Heart } from 'lucide-react';
+import { Play, Pause, SkipBack, SkipForward, Volume2, VolumeX, X, Heart, ChevronDown, Shuffle, Repeat } from 'lucide-react';
 import { Slider } from '@/components/ui/slider';
 import { Button } from '@/components/ui/button';
 import { useMusicPlayer } from '@/context/MusicPlayerContext';
 import { cn } from '@/lib/utils';
+
+function ExpandedPlayer() {
+  const { 
+    currentSong, 
+    isPlaying, 
+    togglePlayPause, 
+    progress, 
+    duration, 
+    handleProgressChange,
+    skipForward, 
+    skipBackward, 
+    isFavorite, 
+    toggleFavorite,
+    isExpanded,
+    toggleExpandPlayer
+  } = useMusicPlayer();
+
+  if (!currentSong) return null;
+
+  const formatTime = (seconds: number) => {
+    if (isNaN(seconds) || seconds === 0) return '0:00';
+    const minutes = Math.floor(seconds / 60);
+    const remainingSeconds = Math.floor(seconds % 60);
+    return `${minutes}:${remainingSeconds.toString().padStart(2, '0')}`;
+  };
+  
+  const currentSongIsFavorite = isFavorite(currentSong.id);
+
+  return (
+    <div className={cn(
+      "fixed inset-0 bg-background z-[60] flex flex-col transition-transform duration-500 ease-in-out md:hidden",
+      isExpanded ? "translate-y-0" : "translate-y-full"
+    )}>
+      <div className="flex-shrink-0 p-4 flex items-center justify-between">
+        <Button variant="ghost" size="icon" onClick={toggleExpandPlayer}>
+          <ChevronDown className="h-6 w-6" />
+        </Button>
+        <div className="text-center">
+            <p className="text-sm text-muted-foreground">PLAYING FROM ALBUM</p>
+            <p className="font-bold truncate">{currentSong.album}</p>
+        </div>
+        <Button variant="ghost" size="icon">
+          <X className="h-6 w-6" />
+        </Button>
+      </div>
+
+      <div className="flex-1 flex flex-col justify-center items-center px-8 gap-8">
+        <div className="relative w-full aspect-square rounded-lg overflow-hidden shadow-2xl">
+          <Image
+            src={currentSong.coverArt}
+            alt={currentSong.title}
+            fill
+            className="object-cover"
+          />
+        </div>
+
+        <div className="w-full text-center">
+          <h2 className="text-2xl font-bold">{currentSong.title}</h2>
+          <p className="text-muted-foreground">{currentSong.artist}</p>
+        </div>
+      </div>
+
+      <div className="flex-shrink-0 p-8 space-y-6">
+        <div className="space-y-2">
+            <Slider
+                value={[progress]}
+                max={duration}
+                step={1}
+                onValueChange={handleProgressChange}
+                className="w-full h-1 relative [&>span:first-child]:h-1 [&>span>span]:h-1 [&>span>span]:bg-accent [&>a]:h-3 [&>a]:w-3 [&>a]:bg-white"
+            />
+            <div className="flex justify-between text-xs text-muted-foreground font-mono">
+                <span>{formatTime(progress)}</span>
+                <span>{formatTime(duration)}</span>
+            </div>
+        </div>
+
+        <div className="flex items-center justify-between">
+            <Button variant="ghost" size="icon" onClick={() => toggleFavorite(currentSong.id)}>
+                <Heart className={cn("h-6 w-6", currentSongIsFavorite ? "fill-red-500 text-red-500" : "text-muted-foreground")} />
+            </Button>
+             <div className="flex items-center gap-2">
+                <Button variant="ghost" size="icon" className="w-12 h-12">
+                    <Shuffle className="h-6 w-6 text-muted-foreground" />
+                </Button>
+                <Button variant="ghost" size="icon" className="w-12 h-12" onClick={skipBackward}>
+                    <SkipBack className="h-8 w-8" />
+                </Button>
+                <Button size="icon" className="w-20 h-20 bg-primary hover:bg-primary/90 rounded-full" onClick={togglePlayPause}>
+                    {isPlaying ? <Pause className="h-10 w-10 fill-primary-foreground" /> : <Play className="h-10 w-10 fill-primary-foreground" />}
+                </Button>
+                <Button variant="ghost" size="icon" className="w-12 h-12" onClick={skipForward}>
+                    <SkipForward className="h-8 w-8" />
+                </Button>
+                <Button variant="ghost" size="icon" className="w-12 h-12">
+                    <Repeat className="h-6 w-6 text-muted-foreground" />
+                </Button>
+             </div>
+             <div className="w-10 h-10"></div>
+        </div>
+      </div>
+    </div>
+  )
+}
 
 export function MusicPlayer() {
   const {
@@ -25,7 +129,8 @@ export function MusicPlayer() {
     skipBackward,
     closePlayer,
     isFavorite,
-    toggleFavorite
+    toggleFavorite,
+    toggleExpandPlayer
   } = useMusicPlayer();
   
   const formatTime = (seconds: number) => {
@@ -45,46 +150,47 @@ export function MusicPlayer() {
     <>
       <audio ref={audioRef} src={currentSong.url} preload="metadata" />
       
+      {/* Expanded Mobile Player */}
+      <ExpandedPlayer />
+
       {/* Mobile Player */}
-       <div className="md:hidden fixed bottom-16 left-0 right-0 h-[68px] bg-background/90 backdrop-blur-md border-t z-50 animate-in slide-in-from-bottom-4">
-        <div className="flex flex-col h-full justify-center px-3 gap-1">
-            <div className="absolute top-0 left-0 w-full h-0.5">
-                 <Slider
-                    value={[progress]}
-                    max={duration}
-                    step={1}
-                    onValueChange={handleProgressChange}
-                    className="w-full h-0.5 relative [&>span:first-child]:h-0.5 [&>span>span]:h-0.5 [&>span>span]:bg-accent [&>a]:h-2 [&>a]:w-2 [&>a]:-top-0.5 [&>a]:bg-white"
-                />
-            </div>
-            <div className="flex items-center gap-3 mt-1">
+       <div 
+        onDoubleClick={toggleExpandPlayer}
+        className="md:hidden fixed bottom-16 left-0 right-0 h-auto bg-background/90 backdrop-blur-md border-t z-50 animate-in slide-in-from-bottom-4"
+       >
+        <div className="flex flex-col p-2 gap-1">
+            <div className="flex items-center gap-3">
                 <Image
-                src={currentSong.coverArt}
-                alt={currentSong.title}
-                width={40}
-                height={40}
-                className="rounded-md flex-shrink-0"
+                    src={currentSong.coverArt}
+                    alt={currentSong.title}
+                    width={40}
+                    height={40}
+                    className="rounded-md flex-shrink-0"
                 />
                 <div className="flex-1 flex flex-col justify-center overflow-hidden">
                     <p className="font-semibold truncate text-sm">{currentSong.title}</p>
                     <p className="text-xs text-muted-foreground truncate">{currentSong.artist}</p>
                 </div>
-                <Button variant="ghost" size="icon" className="w-8 h-8" onClick={() => toggleFavorite(currentSong.id)}>
+                <Button variant="ghost" size="icon" className="w-8 h-8" onClick={(e) => { e.stopPropagation(); toggleFavorite(currentSong.id); }}>
                     <Heart className={cn("h-5 w-5", currentSongIsFavorite ? "fill-red-500 text-red-500" : "text-muted-foreground")} />
                 </Button>
-                <Button variant="ghost" size="icon" className="w-8 h-8" onClick={togglePlayPause}>
+                <Button variant="ghost" size="icon" className="w-8 h-8" onClick={(e) => { e.stopPropagation(); togglePlayPause(); }}>
                     {isPlaying ? <Pause className="h-5 w-5" /> : <Play className="h-5 w-5" />}
                 </Button>
-                 <Button variant="ghost" size="icon" className="w-8 h-8" onClick={skipForward}>
-                    <SkipForward className="h-5 w-5" />
-                </Button>
-                <Button variant="ghost" size="icon" className="w-8 h-8" onClick={closePlayer}>
+                 <Button variant="ghost" size="icon" className="w-8 h-8" onClick={(e) => { e.stopPropagation(); closePlayer(); }}>
                     <X className="h-5 w-5 text-muted-foreground" />
                 </Button>
             </div>
-             <div className="w-full flex items-center justify-between text-xs font-mono text-muted-foreground -mt-1">
-                 <span>{formatTime(progress)}</span>
-                 <span>{formatTime(duration)}</span>
+            <div className="flex items-center gap-2">
+                 <span className="text-xs font-mono text-muted-foreground">{formatTime(progress)}</span>
+                 <Slider
+                    value={[progress]}
+                    max={duration}
+                    step={1}
+                    onValueChange={(value) => { handleProgressChange(value); }}
+                    className="w-full h-1 relative [&>span:first-child]:h-1 [&>span>span]:h-1 [&>span>span]:bg-accent [&>a]:h-2.5 [&>a]:w-2.5"
+                />
+                 <span className="text-xs font-mono text-muted-foreground">{formatTime(duration)}</span>
             </div>
         </div>
       </div>

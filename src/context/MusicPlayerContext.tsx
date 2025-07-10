@@ -22,6 +22,8 @@ interface MusicPlayerContextType {
   favoriteSongs: string[];
   isFavorite: (songId: string) => boolean;
   toggleFavorite: (songId: string) => void;
+  isExpanded: boolean;
+  toggleExpandPlayer: () => void;
 }
 
 const MusicPlayerContext = createContext<MusicPlayerContextType | undefined>(undefined);
@@ -34,6 +36,7 @@ export const MusicPlayerProvider = ({ children }: { children: React.ReactNode })
   const [volume, setVolume] = useState(50);
   const [isMuted, setIsMuted] = useState(false);
   const [favoriteSongs, setFavoriteSongs] = useState<string[]>([]);
+  const [isExpanded, setIsExpanded] = useState(false);
   const audioRef = useRef<HTMLAudioElement>(null);
 
   useEffect(() => {
@@ -128,6 +131,7 @@ export const MusicPlayerProvider = ({ children }: { children: React.ReactNode })
   const closePlayer = () => {
       setCurrentSong(null);
       setIsPlaying(false);
+      setIsExpanded(false);
   }
 
   const isFavorite = (songId: string) => {
@@ -138,6 +142,10 @@ export const MusicPlayerProvider = ({ children }: { children: React.ReactNode })
     setFavoriteSongs(prev => 
       prev.includes(songId) ? prev.filter(id => id !== songId) : [...prev, songId]
     )
+  }
+
+  const toggleExpandPlayer = () => {
+    setIsExpanded(prev => !prev);
   }
 
   return (
@@ -161,6 +169,8 @@ export const MusicPlayerProvider = ({ children }: { children: React.ReactNode })
         favoriteSongs,
         isFavorite,
         toggleFavorite,
+        isExpanded,
+        toggleExpandPlayer
       }}
     >
       {children}
