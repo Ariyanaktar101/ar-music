@@ -78,7 +78,10 @@ export function GreetingHeader() {
             </span>
         </h1>
         <p className="text-muted-foreground mt-1">{thoughts[timeOfDay]}</p>
-        <p className="font-display text-lg text-muted-foreground/90 mt-2">created by mr ariyan</p>
+        <p className="font-display text-lg text-foreground mt-2 flex items-center gap-1.5">
+            <span>created by mr ariyan</span>
+            <span className="text-red-500">❤️</span>
+        </p>
       </div>
       <div className="absolute top-1 right-1 flex items-center gap-1 text-xs text-muted-foreground font-medium">
         <span>{time}</span>
