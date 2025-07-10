@@ -210,18 +210,17 @@ function LoggedInView() {
           <LogOut />
           Log Out
         </Button>
-        <div className="flex flex-col gap-2">
-            <p>App created by Ariyan</p>
-            <a
-                href="https://www.instagram.com/ariyan.xlx"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-flex items-center gap-2 hover:text-primary transition-colors"
-            >
-                <Instagram className="h-4 w-4" />
-                ariyan.xlx
-            </a>
-        </div>
+        <p>
+          App created by Ariyan •{' '}
+          <a
+            href="https://www.instagram.com/ariyan.xlx"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex items-center gap-1 hover:text-primary transition-colors"
+          >
+            Follow on <Instagram className="h-4 w-4" />
+          </a>
+        </p>
       </CardFooter>
     </Card>
   );
@@ -253,16 +252,17 @@ function GuestView() {
         </Button>
       </CardContent>
       <CardFooter className="flex-col gap-2 text-center text-sm text-muted-foreground pt-6">
-        <p>App created by Ariyan</p>
-        <a
-          href="https://www.instagram.com/ariyan.xlx"
-          target="_blank"
-          rel="noopener noreferrer"
-          className="inline-flex items-center gap-2 hover:text-primary transition-colors"
-        >
-          <Instagram className="h-4 w-4" />
-          ariyan.xlx
-        </a>
+        <p>
+          App created by Ariyan •{' '}
+          <a
+            href="https://www.instagram.com/ariyan.xlx"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex items-center gap-1 hover:text-primary transition-colors"
+          >
+            Follow on <Instagram className="h-4 w-4" />
+          </a>
+        </p>
       </CardFooter>
     </Card>
   );
