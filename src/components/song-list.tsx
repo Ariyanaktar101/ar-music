@@ -3,7 +3,7 @@
 import Image from 'next/image'
 import type { Song } from '@/lib/types'
 import { useMusicPlayer } from '@/context/MusicPlayerContext'
-import { Play, Pause, MusicIcon } from 'lucide-react'
+import { Play, Pause } from 'lucide-react'
 import { Table, TableBody, TableCell, TableRow } from '@/components/ui/table'
 import { cn } from '@/lib/utils'
 
