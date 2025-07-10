@@ -16,11 +16,8 @@ import Image from 'next/image';
 const genres = [
   { name: 'Pop', hint: 'pop music', imageUrl: 'https://images.unsplash.com/photo-1598488035139-bdbb2231ce04?w=800' },
   { name: 'Rock', hint: 'rock concert', imageUrl: 'https://images.unsplash.com/photo-1459749411175-04bf5292ceea?w=800' },
-  { name: 'Hip-Hop', hint: 'hip-hop artist', imageUrl: 'https://images.unsplash.com/photo-1594951934258-0814834b69b3?w=800' },
   { name: 'Jazz', hint: 'jazz club', imageUrl: 'https://images.unsplash.com/photo-1511174511562-5f7f18b874f8?w=800' },
-  { name: 'Classical', hint: 'orchestra violin', imageUrl: 'https://images.unsplash.com/photo-1520523839598-bd0352494159?w=800' },
   { name: 'Electronic', hint: 'dj setup', imageUrl: 'https://images.unsplash.com/photo-1514525253161-7a46d19cd819?w=800' },
-  { name: 'R&B', hint: 'r&b singer', imageUrl: 'https://images.unsplash.com/photo-1543415155-236b29d63c5a?w=800' },
   { name: 'Country', hint: 'country guitar', imageUrl: 'https://images.unsplash.com/photo-1525994886773-080587e161c2?w=800' },
   { name: 'Bollywood', hint: 'bollywood dance', imageUrl: 'https://images.unsplash.com/photo-1626298641033-518815f91f1a?w=800' },
   { name: 'Punjabi', hint: 'punjabi dhol', imageUrl: 'https://images.unsplash.com/photo-1589694226354-a7a7e0415291?w=800' },
