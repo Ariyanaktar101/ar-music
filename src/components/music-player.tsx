@@ -1,3 +1,4 @@
+
 "use client";
 
 import React from 'react';
@@ -21,6 +22,7 @@ import {
   DropdownMenuSubTrigger,
   DropdownMenuPortal,
 } from '@/components/ui/dropdown-menu';
+import { motion, PanInfo, useAnimation } from 'framer-motion';
 
 
 function MoreOptionsButton() {
@@ -98,8 +100,24 @@ function ExpandedPlayer() {
     toggleLyricsView,
     currentLineIndex
   } = useMusicPlayer();
+  
+  const controls = useAnimation();
 
   if (!currentSong) return null;
+
+  const handleDragEnd = (event: MouseEvent | TouchEvent | PointerEvent, info: PanInfo) => {
+    const dragDistance = info.offset.y;
+    const velocity = info.velocity.y;
+
+    // If dragged down more than 50% of the screen height, or with a high velocity, close it.
+    if (dragDistance > window.innerHeight / 2 || velocity > 500) {
+      closePlayer();
+    } else {
+      // Otherwise, snap back to the original position.
+      controls.start({ y: 0 });
+    }
+  };
+
 
   const formatTime = (seconds: number) => {
     if (isNaN(seconds) || seconds === 0) return '0:00';
@@ -121,12 +139,26 @@ function ExpandedPlayer() {
       });
     }
   }, [currentLineIndex, showLyrics]);
+  
+  React.useEffect(() => {
+    if (isExpanded) {
+        controls.start({ y: 0 });
+    } else {
+        controls.start({ y: '100%' });
+    }
+  }, [isExpanded, controls]);
 
   return (
-    <div className={cn(
-      "fixed inset-0 bg-background z-[60] flex flex-col transition-transform duration-500 ease-in-out md:hidden",
-      isExpanded ? "translate-y-0" : "translate-y-full"
-    )}>
+    <motion.div 
+      className="fixed inset-0 bg-background z-[60] flex flex-col md:hidden"
+      initial={{ y: '100%' }}
+      animate={controls}
+      transition={{ type: 'spring', damping: 25, stiffness: 250 }}
+      drag="y"
+      dragConstraints={{ top: 0, bottom: 0 }}
+      dragElastic={0.2}
+      onDragEnd={handleDragEnd}
+    >
       <div className="flex-shrink-0 p-4 flex items-center justify-between">
         <Button variant="ghost" size="icon" onClick={toggleExpandPlayer}>
           <ChevronDown className="h-6 w-6" />
@@ -245,7 +277,7 @@ function ExpandedPlayer() {
             </Button>
         </div>
       </div>
-    </div>
+    </motion.div>
   )
 }
 
