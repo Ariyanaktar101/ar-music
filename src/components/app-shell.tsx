@@ -85,7 +85,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
         <div className="flex-1 flex flex-col overflow-auto">
             <main className={cn(
                 "flex-1 p-4 md:p-6",
-                currentSong ? 'pb-40 md:pb-32' : 'pb-20 md:pb-6'
+                currentSong ? 'pb-28 md:pb-32' : 'pb-20 md:pb-6'
             )}>
               {children}
             </main>
