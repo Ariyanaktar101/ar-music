@@ -4,10 +4,10 @@
 import { AppShell } from '@/components/app-shell';
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { Heart, Clock, Plus, Library as LibraryIcon, ChevronRight, Music } from 'lucide-react';
+import { Heart, Clock, Plus, Library as LibraryIcon, ChevronRight, Music, Download } from 'lucide-react';
 import Link from 'next/link';
 import { useMusicPlayer } from '@/context/MusicPlayerContext';
-import React, { useState } from 'react';
+import React, 'useState' from 'react';
 import { cn } from '@/lib/utils';
 import Image from 'next/image';
 import {
@@ -24,14 +24,16 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useRouter } from 'next/navigation';
 
-function QuickAccessCard({ icon: Icon, title, subtitle, href, variant }: { icon: React.ElementType, title: string, subtitle: string, href: string, variant: 'primary' | 'secondary' }) {
+function QuickAccessCard({ icon: Icon, title, subtitle, href, variant }: { icon: React.ElementType, title: string, subtitle: string, href: string, variant: 'primary' | 'secondary' | 'accent' }) {
     return (
         <Link href={href}>
             <Card className="p-3 hover:bg-secondary/80 transition-colors cursor-pointer">
                 <div className="flex items-center gap-4">
                     <div className={cn(
                         "p-3 rounded-md flex items-center justify-center",
-                        variant === 'primary' ? 'bg-primary text-primary-foreground' : 'bg-muted text-muted-foreground'
+                        variant === 'primary' && 'bg-primary text-primary-foreground',
+                        variant === 'secondary' && 'bg-muted text-muted-foreground',
+                        variant === 'accent' && 'bg-accent text-accent-foreground'
                     )}>
                         <Icon className="h-6 w-6" />
                     </div>
@@ -110,7 +112,7 @@ function EmptyLibrary() {
 }
 
 export default function LibraryPage() {
-    const { favoriteSongs, recentlyPlayed, playlists, playSong } = useMusicPlayer();
+    const { favoriteSongs, recentlyPlayed, playlists, playSong, downloadedSongs } = useMusicPlayer();
 
     const hasPlaylists = playlists.length > 0;
     const hasHistory = recentlyPlayed.length > 0;
@@ -139,6 +141,13 @@ export default function LibraryPage() {
                 subtitle={`${favoriteSongs.length} songs`}
                 href="/library/liked"
                 variant="primary"
+            />
+             <QuickAccessCard 
+                icon={Download}
+                title="Downloads"
+                subtitle={`${downloadedSongs.length} songs`}
+                href="/library/downloads"
+                variant="accent"
             />
             <QuickAccessCard 
                 icon={Clock}

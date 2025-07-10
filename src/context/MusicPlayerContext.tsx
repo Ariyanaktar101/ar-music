@@ -41,7 +41,8 @@ interface MusicPlayerContextType {
   removeSongFromPlaylist: (playlistId: string, songId: string) => void;
   getPlaylistById: (id: string) => Playlist | undefined;
 
-  // New functions
+  // Download state
+  downloadedSongs: Song[];
   downloadSong: (song: Song) => void;
 }
 
@@ -73,6 +74,9 @@ export const MusicPlayerProvider = ({ children }: { children: React.ReactNode })
 
   // Playlist State
   const [playlists, setPlaylists] = useState<Playlist[]>([]);
+  
+  // Download State
+  const [downloadedSongs, setDownloadedSongs] = useState<Song[]>([]);
 
   const audioRef = useRef<HTMLAudioElement>(null);
   const { toast } = useToast();
@@ -88,6 +92,9 @@ export const MusicPlayerProvider = ({ children }: { children: React.ReactNode })
 
       const storedPlaylists = localStorage.getItem('ar-music-playlists');
       if (storedPlaylists) setPlaylists(JSON.parse(storedPlaylists));
+
+      const storedDownloads = localStorage.getItem('ar-music-downloads');
+      if (storedDownloads) setDownloadedSongs(JSON.parse(storedDownloads));
       
     } catch (error) {
       console.error("Failed to parse from localStorage", error);
@@ -106,6 +113,10 @@ export const MusicPlayerProvider = ({ children }: { children: React.ReactNode })
   useEffect(() => {
     localStorage.setItem('ar-music-playlists', JSON.stringify(playlists));
   }, [playlists]);
+
+  useEffect(() => {
+    localStorage.setItem('ar-music-downloads', JSON.stringify(downloadedSongs));
+  }, [downloadedSongs]);
   
   // Effect to pre-calculate lyric timings when lyrics or duration are set
   useEffect(() => {
@@ -382,6 +393,11 @@ export const MusicPlayerProvider = ({ children }: { children: React.ReactNode })
   
   const downloadSong = async (song: Song) => {
     if (!song) return;
+    if (downloadedSongs.some(s => s.id === song.id)) {
+        toast({ title: 'Already Downloaded', description: `"${song.title}" is already in your downloads.` });
+        return;
+    }
+
     try {
       toast({ title: 'Starting Download', description: `Downloading "${song.title}"...` });
       const response = await fetch(song.url);
@@ -396,7 +412,8 @@ export const MusicPlayerProvider = ({ children }: { children: React.ReactNode })
       a.click();
       window.URL.revokeObjectURL(url);
       a.remove();
-      toast({ title: 'Download Complete', description: `"${song.title}" has been downloaded.` });
+      setDownloadedSongs(prev => [...prev, song]);
+      toast({ title: 'Download Complete', description: `"${song.title}" has been added to your downloads.` });
     } catch (error) {
       console.error('Error downloading the song:', error);
       toast({ variant: 'destructive', title: 'Download Failed', description: 'Could not download the song.' });
@@ -438,6 +455,7 @@ export const MusicPlayerProvider = ({ children }: { children: React.ReactNode })
         addSongToPlaylist,
         removeSongFromPlaylist,
         getPlaylistById,
+        downloadedSongs,
         downloadSong,
       }}
     >
