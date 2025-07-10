@@ -21,7 +21,7 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from '@/components/ui/alert-dialog';
-import { ArrowLeft, Palette, Music, Wifi, User, Trash2, Moon, Sun, Monitor, Paintbrush } from 'lucide-react';
+import { ArrowLeft, Palette, Music, Wifi, User, Trash2, Moon, Sun, Monitor } from 'lucide-react';
 import Link from 'next/link';
 import { Label } from '@/components/ui/label';
 import {
@@ -35,18 +35,29 @@ import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Slider } from '@/components/ui/slider';
 import { Switch } from '@/components/ui/switch';
 import { Separator } from '@/components/ui/separator';
+import { useTheme } from '@/context/ThemeContext';
+import { useSettings } from '@/context/SettingsContext';
 
 const accentColors = [
-    { name: 'Blue', color: 'hsl(207 90% 58%)' },
-    { name: 'Green', color: 'hsl(142 71% 45%)' },
-    { name: 'Orange', color: 'hsl(25 95% 53%)' },
-    { name: 'Rose', color: 'hsl(347 77% 50%)' },
-    { name: 'Violet', color: 'hsl(262 84% 58%)' },
+    { name: 'Blue', color: '207 90% 58%' },
+    { name: 'Green', color: '142 71% 45%' },
+    { name: 'Orange', color: '25 95% 53%' },
+    { name: 'Rose', color: '347 77% 50%' },
+    { name: 'Violet', color: '262 84% 58%' },
 ]
 
 export default function SettingsPage() {
-  const [crossfade, setCrossfade] = React.useState([8]);
-  const [selectedAccent, setSelectedAccent] = React.useState(accentColors[0].name);
+  const { theme, setTheme } = useTheme();
+  const { 
+    accentColor, 
+    setAccentColor,
+    streamingQuality,
+    setStreamingQuality,
+    crossfade,
+    setCrossfade,
+    downloadOverWifiOnly,
+    setDownloadOverWifiOnly,
+  } = useSettings();
 
   return (
     <AppShell>
@@ -72,7 +83,7 @@ export default function SettingsPage() {
             <CardContent className="space-y-6">
               <div className="flex items-center justify-between">
                 <Label htmlFor="theme-select">Theme</Label>
-                <Select defaultValue="system">
+                <Select value={theme} onValueChange={setTheme}>
                   <SelectTrigger id="theme-select" className="w-[180px]">
                     <SelectValue placeholder="Select theme" />
                   </SelectTrigger>
@@ -88,8 +99,8 @@ export default function SettingsPage() {
                 <Label>Accent Color</Label>
                 <div className="flex flex-wrap gap-3">
                     {accentColors.map(accent => (
-                         <Button key={accent.name} variant={selectedAccent === accent.name ? 'default' : 'outline'} className="flex items-center gap-2" onClick={() => setSelectedAccent(accent.name)}>
-                            <div className="w-4 h-4 rounded-full" style={{backgroundColor: accent.color}} />
+                         <Button key={accent.name} variant={accentColor === accent.color ? 'default' : 'outline'} className="flex items-center gap-2" onClick={() => setAccentColor(accent.color)}>
+                            <div className="w-4 h-4 rounded-full" style={{backgroundColor: `hsl(${accent.color})`}} />
                             {accent.name}
                         </Button>
                     ))}
@@ -106,7 +117,7 @@ export default function SettingsPage() {
             <CardContent className="space-y-6">
                 <div className="space-y-3">
                     <Label>Streaming Quality</Label>
-                    <RadioGroup defaultValue="normal" className="flex flex-col sm:flex-row gap-4">
+                    <RadioGroup value={streamingQuality} onValueChange={(value) => setStreamingQuality(value as any)} className="flex flex-col sm:flex-row gap-4">
                         <div className="flex items-center space-x-2">
                             <RadioGroupItem value="low" id="q-low" />
                             <Label htmlFor="q-low">Low</Label>
@@ -129,8 +140,8 @@ export default function SettingsPage() {
                  <div className="space-y-3">
                     <Label htmlFor="crossfade-slider">Crossfade</Label>
                     <div className="flex items-center gap-4">
-                        <Slider id="crossfade-slider" value={crossfade} max={12} step={1} onValueChange={setCrossfade} />
-                        <span className="text-sm font-mono text-muted-foreground w-12 text-right">{crossfade[0]} s</span>
+                        <Slider id="crossfade-slider" value={[crossfade]} max={12} step={1} onValueChange={(value) => setCrossfade(value[0])} />
+                        <span className="text-sm font-mono text-muted-foreground w-12 text-right">{crossfade} s</span>
                     </div>
                 </div>
             </CardContent>
@@ -147,7 +158,7 @@ export default function SettingsPage() {
                         <Label htmlFor="wifi-only-switch">Download over Wi-Fi only</Label>
                         <p className="text-sm text-muted-foreground">Prevent downloads when on a cellular network.</p>
                     </div>
-                    <Switch id="wifi-only-switch" />
+                    <Switch id="wifi-only-switch" checked={downloadOverWifiOnly} onCheckedChange={setDownloadOverWifiOnly} />
                 </div>
             </CardContent>
           </Card>
