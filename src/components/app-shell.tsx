@@ -9,7 +9,6 @@ import Image from 'next/image';
 import { cn } from '@/lib/utils';
 import { useMusicPlayer } from '@/context/MusicPlayerContext';
 import { BottomNavBar } from '@/components/bottom-nav';
-import { motion, AnimatePresence } from 'framer-motion';
 
 export function AppShell({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
@@ -88,17 +87,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
                 "flex-1 p-4 md:p-6",
                 currentSong ? 'pb-40 md:pb-32' : 'pb-20 md:pb-6'
             )}>
-              <AnimatePresence mode="wait">
-                  <motion.div
-                      key={pathname}
-                      initial={{ opacity: 0 }}
-                      animate={{ opacity: 1 }}
-                      exit={{ opacity: 0 }}
-                      transition={{ duration: 0.05 }}
-                  >
-                      {children}
-                  </motion.div>
-              </AnimatePresence>
+              {children}
             </main>
             <MusicPlayer />
             <BottomNavBar />
