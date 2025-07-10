@@ -3,7 +3,7 @@
 import Image from 'next/image'
 import type { Song } from '@/lib/types'
 import { useMusicPlayer } from '@/context/MusicPlayerContext'
-import { Play, Pause } from 'lucide-react'
+import { Play, Pause, MusicIcon } from 'lucide-react'
 import { Table, TableBody, TableCell, TableRow } from '@/components/ui/table'
 import { cn } from '@/lib/utils'
 
@@ -59,6 +59,7 @@ export function SongList({ songs }: SongListProps) {
                                     </div>
                                 </div>
                             </TableCell>
+                            <TableCell className="hidden md:table-cell text-muted-foreground align-middle">{song.album}</TableCell>
                             <TableCell className="text-right text-muted-foreground align-middle font-mono">{song.duration}</TableCell>
                         </TableRow>
                     )
