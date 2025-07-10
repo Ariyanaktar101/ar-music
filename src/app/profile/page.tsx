@@ -22,6 +22,7 @@ import {
   AtSign,
   Mail,
   Phone,
+  Heart,
 } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
@@ -210,15 +211,15 @@ function LoggedInView() {
           <LogOut />
           Log Out
         </Button>
-        <p>
-          App created by Ariyan •{' '}
+        <p className="inline-flex items-center gap-1.5">
+          App created with <Heart className="h-4 w-4 text-red-500 fill-current" /> by Ariyan •{' '}
           <a
             href="https://www.instagram.com/ariyan.xlx"
             target="_blank"
             rel="noopener noreferrer"
             className="inline-flex items-center gap-1 hover:text-primary transition-colors"
           >
-            Follow on <Instagram className="h-4 w-4" />
+            <Instagram className="h-4 w-4" /> @ariyan.xlx
           </a>
         </p>
       </CardFooter>
@@ -252,15 +253,15 @@ function GuestView() {
         </Button>
       </CardContent>
       <CardFooter className="flex-col gap-2 text-center text-sm text-muted-foreground pt-6">
-        <p>
-          App created by Ariyan •{' '}
+        <p className="inline-flex items-center gap-1.5">
+          App created with <Heart className="h-4 w-4 text-red-500 fill-current" /> by Ariyan •{' '}
           <a
             href="https://www.instagram.com/ariyan.xlx"
             target="_blank"
             rel="noopener noreferrer"
             className="inline-flex items-center gap-1 hover:text-primary transition-colors"
           >
-            Follow on <Instagram className="h-4 w-4" />
+            <Instagram className="h-4 w-4" /> @ariyan.xlx
           </a>
         </p>
       </CardFooter>
