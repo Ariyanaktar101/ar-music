@@ -2,13 +2,13 @@
 'use client';
 
 import React, { createContext, useContext, useState, useRef, useEffect, useCallback } from 'react';
-import type { Song } from '@/lib/types';
+import type { Song, Playlist } from '@/lib/types';
 import { getLyrics } from '@/ai/flows/get-lyrics-flow';
 
 interface MusicPlayerContextType {
   currentSong: Song | null;
   isPlaying: boolean;
-  playSong: (song: Song) => void;
+  playSong: (song: Song, playlist?: Song[]) => void;
   togglePlayPause: () => void;
   progress: number;
   duration: number;
@@ -32,6 +32,13 @@ interface MusicPlayerContextType {
   loadingLyrics: boolean;
   toggleLyricsView: () => void;
   currentLineIndex: number | null;
+  
+  // Playlist state
+  playlists: Playlist[];
+  createPlaylist: (name: string, description?: string) => Playlist;
+  addSongToPlaylist: (playlistId: string, song: Song) => void;
+  removeSongFromPlaylist: (playlistId: string, songId: string) => void;
+  getPlaylistById: (id: string) => Playlist | undefined;
 }
 
 const MusicPlayerContext = createContext<MusicPlayerContextType | undefined>(undefined);
@@ -60,19 +67,23 @@ export const MusicPlayerProvider = ({ children }: { children: React.ReactNode })
   const [currentLineIndex, setCurrentLineIndex] = useState<number | null>(null);
   const [lyricTimings, setLyricTimings] = useState<LyricTimings[]>([]);
 
+  // Playlist State
+  const [playlists, setPlaylists] = useState<Playlist[]>([]);
+
   const audioRef = useRef<HTMLAudioElement>(null);
 
   // Load state from localStorage on initial render
   useEffect(() => {
     try {
       const storedFavorites = localStorage.getItem('ar-music-favorites');
-      if (storedFavorites) {
-        setFavoriteSongs(JSON.parse(storedFavorites));
-      }
+      if (storedFavorites) setFavoriteSongs(JSON.parse(storedFavorites));
+      
       const storedRecent = localStorage.getItem('ar-music-recent');
-      if (storedRecent) {
-        setRecentlyPlayed(JSON.parse(storedRecent));
-      }
+      if (storedRecent) setRecentlyPlayed(JSON.parse(storedRecent));
+
+      const storedPlaylists = localStorage.getItem('ar-music-playlists');
+      if (storedPlaylists) setPlaylists(JSON.parse(storedPlaylists));
+      
     } catch (error) {
       console.error("Failed to parse from localStorage", error);
     }
@@ -86,6 +97,10 @@ export const MusicPlayerProvider = ({ children }: { children: React.ReactNode })
   useEffect(() => {
     localStorage.setItem('ar-music-recent', JSON.stringify(recentlyPlayed));
   }, [recentlyPlayed]);
+
+  useEffect(() => {
+    localStorage.setItem('ar-music-playlists', JSON.stringify(playlists));
+  }, [playlists]);
   
   // Effect to pre-calculate lyric timings when lyrics or duration are set
   useEffect(() => {
@@ -176,16 +191,13 @@ export const MusicPlayerProvider = ({ children }: { children: React.ReactNode })
 
   const addSongToRecents = (song: Song) => {
     setRecentlyPlayed(prev => {
-        // Remove the song if it already exists to move it to the top
         const filtered = prev.filter(s => s.id !== song.id);
-        // Add the new song to the beginning of the array
         const newRecents = [song, ...filtered];
-        // Limit to 20 recent songs
         return newRecents.slice(0, 20);
     });
   }
 
-  const playSong = (song: Song) => {
+  const playSong = (song: Song, playlist?: Song[]) => {
     if (currentSong?.id === song.id) {
         togglePlayPause();
         return;
@@ -193,7 +205,6 @@ export const MusicPlayerProvider = ({ children }: { children: React.ReactNode })
     setCurrentSong(song);
     addSongToRecents(song);
     setIsPlaying(true);
-    // Reset lyrics view when song changes
     setShowLyrics(false);
     setLyrics(null);
     setCurrentLineIndex(null);
@@ -235,7 +246,7 @@ export const MusicPlayerProvider = ({ children }: { children: React.ReactNode })
       audioRef.current.muted = newMutedState;
     }
     if (!newMutedState && volume === 0) {
-      setVolume(50); // Unmute to a default volume
+      setVolume(50);
        if (audioRef.current) {
         audioRef.current.volume = 0.5;
       }
@@ -268,7 +279,6 @@ export const MusicPlayerProvider = ({ children }: { children: React.ReactNode })
 
   const toggleExpandPlayer = () => {
     setIsExpanded(prev => !prev);
-    // Close lyrics view when player is collapsed
     if (isExpanded) {
       setShowLyrics(false);
     }
@@ -297,6 +307,53 @@ export const MusicPlayerProvider = ({ children }: { children: React.ReactNode })
           fetchLyrics();
       }
   }
+  
+  // Playlist functions
+  const createPlaylist = (name: string, description?: string): Playlist => {
+      const newPlaylist: Playlist = {
+        id: `playlist-${Date.now()}`,
+        name,
+        description,
+        songIds: [],
+      };
+      setPlaylists(prev => [...prev, newPlaylist]);
+      return newPlaylist;
+  };
+
+  const addSongToPlaylist = (playlistId: string, song: Song) => {
+      setPlaylists(prev => prev.map(p => {
+          if (p.id === playlistId && !p.songIds.includes(song.id)) {
+              const updatedPlaylist = { ...p, songIds: [...p.songIds, song.id] };
+              // Set cover art if it's the first song
+              if (!updatedPlaylist.coverArt) {
+                updatedPlaylist.coverArt = song.coverArt;
+              }
+              return updatedPlaylist;
+          }
+          return p;
+      }));
+  };
+
+  const removeSongFromPlaylist = (playlistId: string, songId: string) => {
+      setPlaylists(prev => prev.map(p => {
+          if (p.id === playlistId) {
+              const updatedPlaylist = { ...p, songIds: p.songIds.filter(id => id !== songId) };
+              // If the removed song was the cover art, find a new one or remove it
+              if (p.coverArt && p.songIds.length > 0 && p.songIds[0] === songId) {
+                  // This part requires fetching song details to get new cover art.
+                  // For simplicity, we can clear it or set to a placeholder.
+                  // A more advanced implementation would fetch the next song's cover.
+                  updatedPlaylist.coverArt = undefined; // Or a placeholder
+              }
+              return updatedPlaylist;
+          }
+          return p;
+      }));
+  };
+
+  const getPlaylistById = (id: string) => {
+    return playlists.find(p => p.id === id);
+  };
 
 
   return (
@@ -328,6 +385,11 @@ export const MusicPlayerProvider = ({ children }: { children: React.ReactNode })
         loadingLyrics,
         toggleLyricsView,
         currentLineIndex,
+        playlists,
+        createPlaylist,
+        addSongToPlaylist,
+        removeSongFromPlaylist,
+        getPlaylistById,
       }}
     >
       {children}
