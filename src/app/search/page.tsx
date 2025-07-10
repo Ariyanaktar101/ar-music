@@ -18,13 +18,13 @@ const genres = [
   { name: 'Rock', hint: 'rock concert', imageUrl: 'https://images.unsplash.com/photo-1459749411175-04bf5292ceea?w=800' },
   { name: 'Hip-Hop', hint: 'hip-hop artist', imageUrl: 'https://images.unsplash.com/photo-1594951934258-0814834b69b3?w=800' },
   { name: 'Jazz', hint: 'jazz club', imageUrl: 'https://images.unsplash.com/photo-1511174511562-5f7f18b874f8?w=800' },
-  { name: 'Classical', hint: 'orchestra', imageUrl: 'https://placehold.co/800x960.png' },
+  { name: 'Classical', hint: 'orchestra violin', imageUrl: 'https://images.unsplash.com/photo-1520523839598-bd0352494159?w=800' },
   { name: 'Electronic', hint: 'dj setup', imageUrl: 'https://images.unsplash.com/photo-1514525253161-7a46d19cd819?w=800' },
-  { name: 'R&B', hint: 'r&b singer', imageUrl: 'https://placehold.co/800x960.png' },
+  { name: 'R&B', hint: 'r&b singer', imageUrl: 'https://images.unsplash.com/photo-1543415155-236b29d63c5a?w=800' },
   { name: 'Country', hint: 'country guitar', imageUrl: 'https://images.unsplash.com/photo-1525994886773-080587e161c2?w=800' },
-  { name: 'Bollywood', hint: 'bollywood dance', imageUrl: 'https://placehold.co/800x960.png' },
-  { name: 'Punjabi', hint: 'punjabi dhol', imageUrl: 'https://placehold.co/800x960.png' },
-  { name: 'Lofi', hint: 'lofi aesthetic', imageUrl: 'https://placehold.co/800x960.png' },
+  { name: 'Bollywood', hint: 'bollywood dance', imageUrl: 'https://images.unsplash.com/photo-1626298641033-518815f91f1a?w=800' },
+  { name: 'Punjabi', hint: 'punjabi dhol', imageUrl: 'https://images.unsplash.com/photo-1589694226354-a7a7e0415291?w=800' },
+  { name: 'Lofi', hint: 'lofi aesthetic', imageUrl: 'https://images.unsplash.com/photo-1507608869274-d3177c8bb4c7?w=800' },
   { name: 'Workout', hint: 'gym workout', imageUrl: 'https://images.unsplash.com/photo-1571902943202-507ec2618e8f?w=800' },
 ];
 
