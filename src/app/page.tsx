@@ -18,14 +18,14 @@ const genres = [
   'Bollywood', 'Punjabi', 'Lofi', 'Workout'
 ];
 
-const romanticQueries = [
-  "top romantic hindi songs",
-  "latest love songs bollywood",
-  "90s romantic hindi hits",
-  "arijit singh romantic songs",
-  "jubin nautiyal love songs",
-  "soft hindi romantic songs"
-];
+function shuffleArray<T>(array: T[]): T[] {
+    const newArray = [...array];
+    for (let i = newArray.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [newArray[i], newArray[j]] = [newArray[j], newArray[i]];
+    }
+    return newArray;
+}
 
 function HindiHitsSkeleton() {
     return (
@@ -74,10 +74,13 @@ export default function Home() {
 
   const fetchHindiHits = async () => {
     setLoadingHits(true);
-    const randomQuery = romanticQueries[Math.floor(Math.random() * romanticQueries.length)];
-    const songs = await searchSongs(randomQuery, 6);
+    const songs = await searchSongs("top hindi songs", 12); // Fetch more songs initially
     setHindiHits(songs);
     setLoadingHits(false);
+  };
+  
+  const refreshHindiHits = () => {
+    setHindiHits(prevHits => shuffleArray(prevHits));
   };
   
   useEffect(() => {
@@ -95,14 +98,14 @@ export default function Home() {
             <h2 className="text-2xl font-bold font-headline tracking-wide uppercase">
               Hindi Hits
             </h2>
-            <Button variant="ghost" size="icon" onClick={fetchHindiHits} disabled={loadingHits}>
+            <Button variant="ghost" size="icon" onClick={refreshHindiHits} disabled={loadingHits}>
               {loadingHits ? <Loader className="h-5 w-5 animate-spin" /> : <RefreshCw className="h-5 w-5" />}
             </Button>
           </div>
            {loadingHits ? <HindiHitsSkeleton /> : (
             <div className="grid grid-cols-3 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4">
-                {hindiHits.map((song) => (
-                <SongCard key={song.id} song={song} />
+                {hindiHits.slice(0, 6).map((song) => ( // Display first 6
+                  <SongCard key={song.id} song={song} />
                 ))}
             </div>
            )}
