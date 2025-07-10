@@ -3,14 +3,13 @@
 
 import React, { useState, useEffect } from 'react';
 import { cn } from '@/lib/utils';
-import { useAuth } from '@/context/AuthContext';
 
 type TimeOfDay = 'morning' | 'afternoon' | 'evening';
 
 const thoughts = {
-    morning: "Music is the sunrise of the soul. What will you discover today?",
+    morning: "Start your day bright with beats that lift your soul.",
     afternoon: "Keep the rhythm going. Your perfect afternoon soundtrack awaits.",
-    evening: "The night is calm and full of stars. Find a song to match."
+    evening: "Slow down the world, let music set the mood."
 };
 
 const getGreeting = (timeOfDay: TimeOfDay) => {
@@ -22,7 +21,6 @@ const getGreeting = (timeOfDay: TimeOfDay) => {
 }
 
 export function GreetingHeader() {
-  const { user } = useAuth();
   const [timeOfDay, setTimeOfDay] = useState<TimeOfDay | null>(null);
   const [time, setTime] = useState('');
 
