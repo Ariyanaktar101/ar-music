@@ -41,6 +41,26 @@ import { Label } from '@/components/ui/label';
 import React, { useState } from 'react';
 import { Textarea } from '@/components/ui/textarea';
 
+function SnapchatIcon(props: React.SVGProps<SVGSVGElement>) {
+  return (
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      width="24"
+      height="24"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      {...props}
+    >
+      <path d="M12 6.5A5.5 5.5 0 0 0 6.5 12c0 2.4 1.52 4.42 3.65 5.14a.5.5 0 0 0 .35-.14l.05-.05c.1-.1.15-.25.15-.4V16a.5.5 0 0 1 .5-.5h2.5a.5.5 0 0 1 .5.5v.55c0 .15.05.3.15.4l.05.05a.5.5 0 0 0 .35.14C16 16.42 17.5 14.4 17.5 12A5.5 5.5 0 0 0 12 6.5z" />
+      <path d="M12 2a10 10 0 0 0-10 10c0 5.52 4.48 10 10 10s10-4.48 10-10c0-5.52-4.48-10-10-10z" />
+    </svg>
+  );
+}
+
 function LoggedInView() {
   const { user, logout, login } = useAuth();
   const [name, setName] = useState(user?.name || '');
@@ -211,17 +231,29 @@ function LoggedInView() {
           <LogOut />
           Log Out
         </Button>
-        <p className="inline-flex items-center gap-1.5">
-          App created with <Heart className="h-4 w-4 text-red-500 fill-current" /> by Ariyan •{' '}
-          <a
-            href="https://www.instagram.com/ariyan.xlx"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="inline-flex items-center gap-1 hover:text-primary transition-colors"
-          >
-            <Instagram className="h-4 w-4" /> @ariyan.xlx
-          </a>
-        </p>
+        <div className="flex flex-col items-center gap-2">
+            <p className="inline-flex items-center gap-1.5">
+              Made with <Heart className="h-4 w-4 text-red-500 fill-current" /> by Ariyan
+            </p>
+            <div className="flex items-center gap-4">
+                <a
+                    href="https://www.instagram.com/ariyan.xlx"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-1 hover:text-primary transition-colors"
+                >
+                    <Instagram className="h-4 w-4" /> @ariyan.xlx
+                </a>
+                <a
+                    href="https://www.snapchat.com/add/ariyan.xlx"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-1 hover:text-primary transition-colors"
+                >
+                    <SnapchatIcon className="h-4 w-4" /> @ariyan.xlx
+                </a>
+            </div>
+        </div>
       </CardFooter>
     </Card>
   );
@@ -253,17 +285,29 @@ function GuestView() {
         </Button>
       </CardContent>
       <CardFooter className="flex-col gap-2 text-center text-sm text-muted-foreground pt-6">
-        <p className="inline-flex items-center gap-1.5">
-          App created with <Heart className="h-4 w-4 text-red-500 fill-current" /> by Ariyan •{' '}
-          <a
-            href="https://www.instagram.com/ariyan.xlx"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="inline-flex items-center gap-1 hover:text-primary transition-colors"
-          >
-            <Instagram className="h-4 w-4" /> @ariyan.xlx
-          </a>
-        </p>
+         <div className="flex flex-col items-center gap-2">
+            <p className="inline-flex items-center gap-1.5">
+              Made with <Heart className="h-4 w-4 text-red-500 fill-current" /> by Ariyan
+            </p>
+            <div className="flex items-center gap-4">
+                <a
+                    href="https://www.instagram.com/ariyan.xlx"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-1 hover:text-primary transition-colors"
+                >
+                    <Instagram className="h-4 w-4" /> @ariyan.xlx
+                </a>
+                <a
+                    href="https://www.snapchat.com/add/ariyan.xlx"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-1 hover:text-primary transition-colors"
+                >
+                    <SnapchatIcon className="h-4 w-4" /> @ariyan.xlx
+                </a>
+            </div>
+        </div>
       </CardFooter>
     </Card>
   );
