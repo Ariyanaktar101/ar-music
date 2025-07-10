@@ -18,19 +18,15 @@ export default function ProfilePage() {
             </CardDescription>
           </CardHeader>
           <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-4 p-6">
-            <Link href="/login" legacyBehavior>
-              <a className="flex flex-col items-center justify-center p-6 bg-secondary hover:bg-secondary/80 rounded-lg transition-colors text-center space-y-3">
-                <LogIn className="h-10 w-10 text-primary" />
-                <h3 className="text-lg font-semibold">Log In</h3>
-                <p className="text-sm text-muted-foreground">Already have an account? Welcome back!</p>
-              </a>
+            <Link href="/login" className="flex flex-col items-center justify-center p-6 bg-secondary hover:bg-secondary/80 rounded-lg transition-colors text-center space-y-3">
+              <LogIn className="h-10 w-10 text-primary" />
+              <h3 className="text-lg font-semibold">Log In</h3>
+              <p className="text-sm text-muted-foreground">Already have an account? Welcome back!</p>
             </Link>
-            <Link href="/signup" legacyBehavior>
-                <a className="flex flex-col items-center justify-center p-6 bg-secondary hover:bg-secondary/80 rounded-lg transition-colors text-center space-y-3">
-                    <UserPlus className="h-10 w-10 text-primary" />
-                    <h3 className="text-lg font-semibold">Sign Up</h3>
-                    <p className="text-sm text-muted-foreground">New to AR Music? Create an account to get started.</p>
-                </a>
+            <Link href="/signup" className="flex flex-col items-center justify-center p-6 bg-secondary hover:bg-secondary/80 rounded-lg transition-colors text-center space-y-3">
+                <UserPlus className="h-10 w-10 text-primary" />
+                <h3 className="text-lg font-semibold">Sign Up</h3>
+                <p className="text-sm text-muted-foreground">New to AR Music? Create an account to get started.</p>
             </Link>
           </CardContent>
         </Card>
