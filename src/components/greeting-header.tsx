@@ -13,9 +13,15 @@ const thoughts = {
 };
 
 const greetings: Record<TimeOfDay, string> = {
-    morning: "Good Morning ☀️",
-    afternoon: "Good Afternoon ☕",
-    evening: "Good Evening 🌓"
+    morning: "Good Morning",
+    afternoon: "Good Afternoon",
+    evening: "Good Evening"
+}
+
+const emojis: Record<TimeOfDay, string> = {
+    morning: "☀️",
+    afternoon: "☕",
+    evening: "🌙"
 }
 
 export function GreetingHeader() {
@@ -60,10 +66,15 @@ export function GreetingHeader() {
     <div className="relative mb-8">
       <div>
         <h1 className={cn(
-            "text-4xl tracking-tight",
+            "text-4xl tracking-tight flex items-baseline gap-2",
             timeOfDay === 'evening' ? 'font-display' : 'font-bold font-headline'
         )}>
-            {greetings[timeOfDay]}
+            <span>{greetings[timeOfDay]}</span>
+            <span className={cn(
+                timeOfDay === 'evening' ? 'text-3xl' : 'text-3xl'
+            )}>
+                {emojis[timeOfDay]}
+            </span>
         </h1>
         <p className="text-muted-foreground mt-1">{thoughts[timeOfDay]}</p>
       </div>
