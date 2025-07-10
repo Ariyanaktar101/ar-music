@@ -62,8 +62,9 @@ export function GreetingHeader() {
   return (
     <div className="relative mb-8">
       <div>
-        <h1 className="text-4xl font-display tracking-tight">
+        <h1 className="text-4xl font-headline tracking-tight">
             <span>{getGreeting(timeOfDay)}</span>
+            {user && <span className="text-primary font-display ml-2">{user.name}</span>}
         </h1>
         <p className="text-muted-foreground mt-1">{thoughts[timeOfDay]}</p>
       </div>
