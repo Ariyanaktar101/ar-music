@@ -1,7 +1,6 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { Clock } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 type TimeOfDay = 'morning' | 'afternoon' | 'evening';
@@ -79,7 +78,6 @@ export function GreetingHeader() {
         <p className="text-muted-foreground mt-1">{thoughts[timeOfDay]}</p>
       </div>
       <div className="absolute top-1 right-1 flex items-center gap-1 text-xs text-muted-foreground font-medium">
-        <Clock className="h-3 w-3" />
         <span>{time}</span>
       </div>
     </div>
