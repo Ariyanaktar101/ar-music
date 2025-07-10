@@ -25,7 +25,7 @@ export default async function Home() {
           <h2 className="text-2xl font-semibold font-headline tracking-tight uppercase mb-4">
             Hindi Hits
           </h2>
-          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4">
+          <div className="grid grid-cols-3 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4">
             {hindiHits.map((song) => (
               <SongCard key={song.id} song={song} />
             ))}
