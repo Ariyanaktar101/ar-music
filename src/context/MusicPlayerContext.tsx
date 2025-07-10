@@ -1,7 +1,8 @@
 'use client';
 
-import React, { createContext, useContext, useState, useRef, useEffect } from 'react';
+import React, { createContext, useContext, useState, useRef, useEffect, useCallback } from 'react';
 import type { Song } from '@/lib/types';
+import { getLyrics } from '@/ai/flows/get-lyrics-flow';
 
 interface MusicPlayerContextType {
   currentSong: Song | null;
@@ -24,6 +25,10 @@ interface MusicPlayerContextType {
   toggleFavorite: (songId: string) => void;
   isExpanded: boolean;
   toggleExpandPlayer: () => void;
+  showLyrics: boolean;
+  lyrics: string | null;
+  loadingLyrics: boolean;
+  toggleLyricsView: () => void;
 }
 
 const MusicPlayerContext = createContext<MusicPlayerContextType | undefined>(undefined);
@@ -37,6 +42,12 @@ export const MusicPlayerProvider = ({ children }: { children: React.ReactNode })
   const [isMuted, setIsMuted] = useState(false);
   const [favoriteSongs, setFavoriteSongs] = useState<string[]>([]);
   const [isExpanded, setIsExpanded] = useState(false);
+  
+  // Lyrics State
+  const [showLyrics, setShowLyrics] = useState(false);
+  const [lyrics, setLyrics] = useState<string | null>(null);
+  const [loadingLyrics, setLoadingLyrics] = useState(false);
+
   const audioRef = useRef<HTMLAudioElement>(null);
 
   useEffect(() => {
@@ -86,6 +97,9 @@ export const MusicPlayerProvider = ({ children }: { children: React.ReactNode })
     }
     setCurrentSong(song);
     setIsPlaying(true);
+    // Reset lyrics view when song changes
+    setShowLyrics(false);
+    setLyrics(null);
     if (audioRef.current) {
       audioRef.current.src = song.url;
       audioRef.current.load();
@@ -146,7 +160,35 @@ export const MusicPlayerProvider = ({ children }: { children: React.ReactNode })
 
   const toggleExpandPlayer = () => {
     setIsExpanded(prev => !prev);
+    // Close lyrics view when player is collapsed
+    if (isExpanded) {
+      setShowLyrics(false);
+    }
   }
+
+  const fetchLyrics = useCallback(async () => {
+    if (!currentSong) return;
+    setLoadingLyrics(true);
+    setLyrics(null);
+    try {
+        const result = await getLyrics({ songTitle: currentSong.title, artist: currentSong.artist });
+        setLyrics(result.lyrics || null);
+    } catch (error) {
+        console.error("Failed to fetch lyrics:", error);
+        setLyrics(null);
+    } finally {
+        setLoadingLyrics(false);
+    }
+  }, [currentSong]);
+
+  const toggleLyricsView = () => {
+      const willShow = !showLyrics;
+      setShowLyrics(willShow);
+      if(willShow && !lyrics && !loadingLyrics) {
+          fetchLyrics();
+      }
+  }
+
 
   return (
     <MusicPlayerContext.Provider
@@ -170,7 +212,11 @@ export const MusicPlayerProvider = ({ children }: { children: React.ReactNode })
         isFavorite,
         toggleFavorite,
         isExpanded,
-        toggleExpandPlayer
+        toggleExpandPlayer,
+        showLyrics,
+        lyrics,
+        loadingLyrics,
+        toggleLyricsView,
       }}
     >
       {children}

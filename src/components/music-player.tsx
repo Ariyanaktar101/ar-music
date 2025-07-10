@@ -2,12 +2,13 @@
 
 import React from 'react';
 import Image from 'next/image';
-import { Play, Pause, SkipBack, SkipForward, Volume2, VolumeX, X, Heart, ChevronDown, Shuffle, Repeat } from 'lucide-react';
+import { Play, Pause, SkipBack, SkipForward, Volume2, VolumeX, X, Heart, ChevronDown, Shuffle, Repeat, Mic2, Loader, Music } from 'lucide-react';
 import { Slider } from '@/components/ui/slider';
 import { Button } from '@/components/ui/button';
 import { useMusicPlayer } from '@/context/MusicPlayerContext';
 import { cn } from '@/lib/utils';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { ScrollArea } from './ui/scroll-area';
 
 
 function ExpandedPlayer() {
@@ -29,6 +30,10 @@ function ExpandedPlayer() {
     isMuted,
     handleVolumeChange,
     handleMuteToggle,
+    showLyrics,
+    lyrics,
+    loadingLyrics,
+    toggleLyricsView
   } = useMusicPlayer();
 
   if (!currentSong) return null;
@@ -60,14 +65,34 @@ function ExpandedPlayer() {
         </Button>
       </div>
 
-      <div className="flex-1 flex flex-col justify-center items-center px-8 gap-8">
+      <div className="flex-1 flex flex-col justify-center items-center px-8 gap-8 overflow-hidden">
         <div className="relative w-full aspect-square rounded-lg overflow-hidden shadow-2xl">
-          <Image
-            src={currentSong.coverArt}
-            alt={currentSong.title}
-            fill
-            className="object-cover"
-          />
+          {showLyrics ? (
+            <div className="absolute inset-0 bg-muted/50 flex items-center justify-center">
+              {loadingLyrics ? (
+                <Loader className="h-10 w-10 animate-spin text-primary" />
+              ) : lyrics ? (
+                 <ScrollArea className="h-full w-full">
+                    <pre className="text-center font-sans p-6 text-lg whitespace-pre-wrap text-muted-foreground">
+                        {lyrics}
+                    </pre>
+                 </ScrollArea>
+              ) : (
+                <div className="text-center text-muted-foreground flex flex-col items-center gap-2">
+                    <Music className="h-8 w-8" />
+                    <p className="font-medium">No lyrics found</p>
+                    <p className="text-sm">Sorry, we couldn't find lyrics for this song.</p>
+                </div>
+              )}
+            </div>
+          ) : (
+             <Image
+                src={currentSong.coverArt}
+                alt={currentSong.title}
+                fill
+                className="object-cover"
+              />
+          )}
         </div>
 
         <div className="w-full">
@@ -127,6 +152,9 @@ function ExpandedPlayer() {
               onValueChange={handleVolumeChange}
               className="w-full h-1 relative [&>span:first-child]:h-1 [&>span>span]:h-1 [&>span>span]:bg-white/40 [&>a]:h-3 [&>a]:w-3"
             />
+             <Button variant="ghost" size="icon" onClick={toggleLyricsView} className={cn(showLyrics && "text-primary")}>
+                <Mic2 className="h-5 w-5" />
+            </Button>
         </div>
       </div>
     </div>
@@ -180,7 +208,7 @@ export function MusicPlayer() {
         className="md:hidden fixed bottom-16 left-0 right-0 h-auto bg-background/90 backdrop-blur-md border-t z-50 animate-in slide-in-from-bottom-4"
        >
          <div className="flex flex-col p-2 gap-2">
-            <div className="flex items-center gap-3">
+             <div className="flex items-center gap-3">
                 <Image
                     src={currentSong.coverArt}
                     alt={currentSong.title}
@@ -265,16 +293,22 @@ export function MusicPlayer() {
           </div>
 
           <div className="flex items-center gap-2 w-1/4 justify-end">
-            <Button variant="ghost" size="icon" onClick={handleMuteToggle}>
-              {isMuted || volume === 0 ? <VolumeX className="h-5 w-5" /> : <Volume2 className="h-5 w-5" />}
-            </Button>
-            <Slider
-              value={[isMuted ? 0 : volume]}
-              max={100}
-              step={1}
-              onValueChange={handleVolumeChange}
-              className="w-24 h-1 relative [&>span:first-child]:h-1 [&>span>span]:h-1 [&>span>span]:bg-white [&>a]:h-3 [&>a]:w-3"
-            />
+            <Popover>
+                <PopoverTrigger asChild>
+                    <Button variant="ghost" size="icon">
+                        {isMuted || volume === 0 ? <VolumeX className="h-5 w-5" /> : <Volume2 className="h-5 w-5" />}
+                    </Button>
+                </PopoverTrigger>
+                <PopoverContent className="w-40 p-2 mb-2">
+                    <Slider
+                      value={[isMuted ? 0 : volume]}
+                      max={100}
+                      step={1}
+                      onValueChange={handleVolumeChange}
+                      className="w-full h-1 relative [&>span:first-child]:h-1 [&>span>span]:h-1 [&>span>span]:bg-white [&>a]:h-3 [&>a]:w-3"
+                    />
+                </PopoverContent>
+            </Popover>
              <Button variant="ghost" size="icon" onClick={closePlayer}>
               <X className="h-5 w-5" />
             </Button>
