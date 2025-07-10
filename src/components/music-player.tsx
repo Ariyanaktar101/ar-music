@@ -117,7 +117,7 @@ function ExpandedPlayer() {
                     src={currentSong.coverArt}
                     alt={currentSong.title}
                     fill
-                    className="object-contain rounded-lg shadow-[0_10px_40px_-10px_hsl(var(--accent)/0.5)]"
+                    className="object-cover rounded-lg shadow-[0_0_25px_5px_hsl(var(--primary)/0.4),_0_0_45px_10px_hsl(var(--accent)/0.3)]"
                 />
             </div>
           )}
@@ -208,8 +208,8 @@ export function MusicPlayer() {
     isFavorite,
     toggleFavorite,
     toggleExpandPlayer,
-    toggleLyricsView,
     showLyrics,
+    toggleLyricsView,
   } = useMusicPlayer();
   
   const formatTime = (seconds: number) => {
@@ -225,6 +225,15 @@ export function MusicPlayer() {
   
   const currentSongIsFavorite = isFavorite(currentSong.id);
 
+  const handleDoubleClick = (e: React.MouseEvent) => {
+      // Prevent click events from firing on the children.
+      if (e.target === e.currentTarget) {
+        toggleExpandPlayer();
+      }
+  };
+
+  const stopPropagation = (e: React.MouseEvent) => e.stopPropagation();
+
   return (
     <>
       <audio ref={audioRef} src={currentSong.url} preload="metadata" />
@@ -234,7 +243,8 @@ export function MusicPlayer() {
 
       {/* Mobile Player */}
        <div 
-        onClick={toggleExpandPlayer}
+        onClick={handleDoubleClick}
+        onDoubleClick={handleDoubleClick}
         className="md:hidden fixed bottom-16 left-0 right-0 h-auto bg-background/90 backdrop-blur-md border-t z-50 animate-in slide-in-from-bottom-4"
        >
          <div className="flex flex-col p-2 gap-2">
@@ -250,31 +260,28 @@ export function MusicPlayer() {
                     <p className="font-semibold truncate text-sm">{currentSong.title}</p>
                     <p className="text-xs text-muted-foreground truncate">{currentSong.artist}</p>
                 </div>
-                <div className="flex items-center">
-                    <Button variant="ghost" size="icon" className="w-8 h-8 flex-shrink-0" onClick={(e) => { e.stopPropagation(); toggleFavorite(currentSong.id); }}>
+                <div className="flex items-center" onClick={stopPropagation}>
+                    <Button variant="ghost" size="icon" className="w-8 h-8 flex-shrink-0" onClick={() => toggleFavorite(currentSong.id)}>
                         <Heart className={cn("h-5 w-5", currentSongIsFavorite ? "fill-red-500 text-red-500" : "text-muted-foreground")} />
                     </Button>
-                    <Button variant="ghost" size="icon" className="w-8 h-8 flex-shrink-0" onClick={(e) => { e.stopPropagation(); togglePlayPause(); }}>
+                    <Button variant="ghost" size="icon" className="w-8 h-8 flex-shrink-0" onClick={togglePlayPause}>
                         {isPlaying ? <Pause className="h-5 w-5" /> : <Play className="h-5 w-5" />}
                     </Button>
-                    <Button variant="ghost" size="icon" className="w-8 h-8 flex-shrink-0" onClick={(e) => { e.stopPropagation(); skipForward(); }}>
-                        <SkipForward className="h-5 w-5" />
-                    </Button>
-                    <Button variant="ghost" size="icon" className="w-8 h-8 flex-shrink-0" onClick={(e) => { e.stopPropagation(); closePlayer(); }}>
+                    <Button variant="ghost" size="icon" className="w-8 h-8 flex-shrink-0" onClick={closePlayer}>
                         <X className="h-5 w-5 text-muted-foreground" />
                     </Button>
                 </div>
             </div>
             <div className="flex items-center gap-2">
-                <span className="text-xs font-mono text-muted-foreground">{formatTime(progress)}</span>
+                <Button variant="ghost" size="icon" className="w-6 h-6 flex-shrink-0" onClick={skipBackward}><SkipBack className="h-4 w-4" /></Button>
                 <Slider
                     value={[progress]}
                     max={duration}
                     step={1}
-                    onValueChange={(value) => { handleProgressChange(value); }}
+                    onValueChange={(value) => { stopPropagation(); handleProgressChange(value); }}
                     className="w-full h-1 relative [&>span:first-child]:h-1 [&>span>span]:h-1 [&>span>span]:bg-accent [&>a]:h-2.5 [&>a]:w-2.5"
                 />
-                <span className="text-xs font-mono text-muted-foreground">{formatTime(duration)}</span>
+                 <Button variant="ghost" size="icon" className="w-6 h-6 flex-shrink-0" onClick={skipForward}><SkipForward className="h-4 w-4" /></Button>
             </div>
         </div>
       </div>

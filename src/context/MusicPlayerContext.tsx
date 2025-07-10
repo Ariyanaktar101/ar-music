@@ -64,12 +64,15 @@ export const MusicPlayerProvider = ({ children }: { children: React.ReactNode })
     const setAudioTime = () => {
       setProgress(audio.currentTime);
 
-      if (lyrics && duration > 0) {
-        const lines = lyrics.split('\n');
-        const numLines = lines.length;
-        const lineDuration = duration / numLines;
-        const currentLine = Math.floor(audio.currentTime / lineDuration);
-        setCurrentLineIndex(currentLine);
+      if (lyrics && duration > 0 && isPlaying) {
+        const lines = lyrics.split('\n').filter(line => line.trim() !== '');
+        if (lines.length > 0) {
+            const timePerLine = duration / lines.length;
+            const currentLine = Math.floor(audio.currentTime / timePerLine);
+            if (currentLine < lines.length) {
+              setCurrentLineIndex(currentLine);
+            }
+        }
       }
     };
     const handleSongEnd = () => setIsPlaying(false);
@@ -83,7 +86,7 @@ export const MusicPlayerProvider = ({ children }: { children: React.ReactNode })
       audio.removeEventListener('timeupdate', setAudioTime);
       audio.removeEventListener('ended', handleSongEnd);
     };
-  }, [currentSong, lyrics, duration]);
+  }, [currentSong, lyrics, duration, isPlaying]);
 
   useEffect(() => {
     if (audioRef.current) {
