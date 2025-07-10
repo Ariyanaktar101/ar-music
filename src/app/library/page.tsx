@@ -8,13 +8,17 @@ import { Heart, Clock, Plus, Library as LibraryIcon } from 'lucide-react';
 import Link from 'next/link';
 import { useMusicPlayer } from '@/context/MusicPlayerContext';
 import React from 'react';
+import { cn } from '@/lib/utils';
 
-function QuickAccessCard({ icon: Icon, title, subtitle, href }: { icon: React.ElementType, title: string, subtitle: string, href: string }) {
+function QuickAccessCard({ icon: Icon, title, subtitle, href, variant }: { icon: React.ElementType, title: string, subtitle: string, href: string, variant: 'primary' | 'secondary' }) {
     return (
         <Link href={href}>
             <Card className="p-3 hover:bg-secondary/80 transition-colors cursor-pointer">
                 <div className="flex items-center gap-4">
-                    <div className="p-3 bg-primary rounded-md flex items-center justify-center">
+                    <div className={cn(
+                        "p-3 rounded-md flex items-center justify-center",
+                        variant === 'primary' ? 'bg-primary' : 'bg-muted-foreground/20'
+                    )}>
                         <Icon className="h-6 w-6 text-primary-foreground" />
                     </div>
                     <div>
@@ -35,6 +39,11 @@ function EmptyLibrary() {
                 <h3 className="text-xl font-bold text-foreground">Start building your library</h3>
                 <p className="text-sm">Save songs and create playlists to see them here.</p>
             </div>
+             <Button asChild size="lg" className="rounded-full mt-4">
+              <Link href="#">
+                <Plus className="mr-2" /> Create Your First Playlist
+              </Link>
+            </Button>
         </div>
     )
 }
@@ -57,31 +66,26 @@ export default function LibraryPage() {
             </h1>
             <p className="text-muted-foreground mt-1">Your playlists and saved music</p>
         </div>
-        
-        <Button variant="outline" className="w-full justify-start text-muted-foreground">
-            <Plus className="mr-2" /> Create Playlist
-        </Button>
 
-        <div>
-            <h2 className="text-xl font-bold font-headline mb-4">Quick Access</h2>
-            <div className="space-y-3">
+        <div className="space-y-3">
+            <QuickAccessCard 
+                icon={Heart}
+                title="Liked Songs"
+                subtitle={`${favoriteSongs.length} songs`}
+                href="/library/liked"
+                variant="primary"
+            />
+            <div className="relative">
                 <QuickAccessCard 
-                    icon={Heart}
-                    title="Liked Songs"
-                    subtitle={`${favoriteSongs.length} songs`}
+                    icon={Clock}
+                    title="Recently Played"
+                    subtitle={`${recentlyPlayedCount} songs`}
                     href="#"
+                    variant="secondary"
                 />
-                <div className="relative">
-                    <QuickAccessCard 
-                        icon={Clock}
-                        title="Recently Played"
-                        subtitle={`${recentlyPlayedCount} songs`}
-                        href="#"
-                    />
-                    {recentlyPlayedCount > 0 && 
-                        <span className="absolute top-1/2 right-4 -translate-y-1/2 w-2 h-2 rounded-full bg-red-500"></span>
-                    }
-                </div>
+                {recentlyPlayedCount > 0 && 
+                    <span className="absolute top-1/2 right-4 -translate-y-1/2 w-2 h-2 rounded-full bg-red-500"></span>
+                }
             </div>
         </div>
 
