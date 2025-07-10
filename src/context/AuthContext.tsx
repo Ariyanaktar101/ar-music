@@ -4,6 +4,8 @@ import React, { createContext, useContext, useState, useEffect, ReactNode } from
 
 interface User {
   name: string;
+  email?: string;
+  phone?: string;
   avatarSeed?: string;
   username?: string;
   bio?: string;
@@ -39,6 +41,8 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const login = (userData: User) => {
     const userToSave = {
         name: userData.name,
+        email: userData.email,
+        phone: userData.phone,
         avatarSeed: userData.avatarSeed || userData.name, // use name as seed if not provided
         username: userData.username,
         bio: userData.bio,

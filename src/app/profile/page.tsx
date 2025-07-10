@@ -16,11 +16,11 @@ import {
   UserPlus,
   Instagram,
   LogOut,
-  UserCircle,
   Settings,
   Edit,
   RefreshCw,
   AtSign,
+  Mail,
 } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
@@ -44,11 +44,13 @@ function LoggedInView() {
   const [name, setName] = useState(user?.name || '');
   const [username, setUsername] = useState(user?.username || '');
   const [bio, setBio] = useState(user?.bio || '');
+  const [email, setEmail] = useState(user?.email || '');
+  const [phone, setPhone] = useState(user?.phone || '');
   const [avatarSeed, setAvatarSeed] = useState(user?.avatarSeed || 'default');
 
   const handleSaveChanges = () => {
     if (user) {
-      const updatedUser = { ...user, name, username, bio, avatarSeed };
+      const updatedUser = { ...user, name, username, bio, email, phone, avatarSeed };
       login(updatedUser); // login function also updates the user
     }
   };
@@ -70,11 +72,18 @@ function LoggedInView() {
         <CardTitle className="text-3xl font-bold font-headline">
           {user?.name}
         </CardTitle>
-        {user?.username && (
-           <CardDescription className="text-md text-muted-foreground flex items-center gap-1">
-             <AtSign className="h-4 w-4" />{user.username}
-           </CardDescription>
-        )}
+        <CardDescription className="flex flex-col gap-1 text-md text-muted-foreground pt-1">
+            {user?.username && (
+                <span className="flex items-center gap-1 justify-center">
+                    <AtSign className="h-4 w-4" />{user.username}
+                </span>
+            )}
+            {user?.email && (
+                <span className="flex items-center gap-1 justify-center">
+                    <Mail className="h-4 w-4" />{user.email}
+                </span>
+            )}
+        </CardDescription>
       </CardHeader>
       <CardContent className="px-6 pt-4 space-y-4">
         {user?.bio && (
@@ -119,6 +128,32 @@ function LoggedInView() {
                       onChange={(e) => setUsername(e.target.value)}
                       className="col-span-3"
                       placeholder="e.g. musiclover123"
+                    />
+                  </div>
+                  <div className="grid grid-cols-4 items-center gap-4">
+                    <Label htmlFor="email" className="text-right">
+                      Email
+                    </Label>
+                    <Input
+                      id="email"
+                      type="email"
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
+                      className="col-span-3"
+                      placeholder="m@example.com"
+                    />
+                  </div>
+                  <div className="grid grid-cols-4 items-center gap-4">
+                    <Label htmlFor="phone" className="text-right">
+                      Phone
+                    </Label>
+                    <Input
+                      id="phone"
+                      type="tel"
+                      value={phone}
+                      onChange={(e) => setPhone(e.target.value)}
+                      className="col-span-3"
+                      placeholder="(123) 456-7890"
                     />
                   </div>
                   <div className="grid grid-cols-4 items-start gap-4">
