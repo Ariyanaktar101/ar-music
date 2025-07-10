@@ -4,7 +4,7 @@ import React from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { MusicPlayer } from '@/components/music-player';
-import { Home, Search, Library, Plus, Heart, Music } from 'lucide-react';
+import { Home, Search, Library, Plus, Heart, Music, User } from 'lucide-react';
 import Image from 'next/image';
 import { cn } from '@/lib/utils';
 import { useMusicPlayer } from '@/context/MusicPlayerContext';
@@ -44,6 +44,9 @@ export function AppShell({ children }: { children: React.ReactNode }) {
                     </Link>
                     <Link href="/library" className={cn(buttonBaseClasses, pathname === '/library' ? activeClasses : inactiveClasses)}>
                         <Library className="h-5 w-5" /> <span>Your Library</span>
+                    </Link>
+                    <Link href="/profile" className={cn(buttonBaseClasses, pathname === '/profile' ? activeClasses : inactiveClasses)}>
+                        <User className="h-5 w-5" /> <span>Profile</span>
                     </Link>
                 </nav>
 
