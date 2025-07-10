@@ -2,10 +2,11 @@
 
 import React from 'react';
 import Image from 'next/image';
-import { Play, Pause, SkipBack, SkipForward, Volume2, VolumeX, X } from 'lucide-react';
+import { Play, Pause, SkipBack, SkipForward, Volume2, VolumeX, X, Heart } from 'lucide-react';
 import { Slider } from '@/components/ui/slider';
 import { Button } from '@/components/ui/button';
 import { useMusicPlayer } from '@/context/MusicPlayerContext';
+import { cn } from '@/lib/utils';
 
 export function MusicPlayer() {
   const {
@@ -22,7 +23,9 @@ export function MusicPlayer() {
     handleMuteToggle,
     skipForward,
     skipBackward,
-    closePlayer
+    closePlayer,
+    isFavorite,
+    toggleFavorite
   } = useMusicPlayer();
   
   const formatTime = (seconds: number) => {
@@ -35,6 +38,8 @@ export function MusicPlayer() {
   if (!currentSong) {
     return null;
   }
+  
+  const currentSongIsFavorite = isFavorite(currentSong.id);
 
   return (
     <>
@@ -56,11 +61,14 @@ export function MusicPlayer() {
                     <p className="text-xs text-muted-foreground truncate">{currentSong.artist}</p>
                 </div>
                 <div className="flex items-center gap-0">
+                    <Button variant="ghost" size="icon" className="w-9 h-9" onClick={() => toggleFavorite(currentSong.id)}>
+                        <Heart className={cn("h-5 w-5", currentSongIsFavorite ? "fill-red-500 text-red-500" : "text-muted-foreground")} />
+                    </Button>
                     <Button variant="ghost" size="icon" className="w-11 h-11" onClick={togglePlayPause}>
                         {isPlaying ? <Pause className="h-6 w-6" /> : <Play className="h-6 w-6" />}
                     </Button>
-                    <Button variant="ghost" size="icon" className="w-11 h-11" onClick={skipForward}>
-                        <SkipForward className="h-5 w-5" />
+                     <Button variant="ghost" size="icon" className="w-9 h-9" onClick={closePlayer}>
+                        <X className="h-5 w-5 text-muted-foreground" />
                     </Button>
                 </div>
             </div>
@@ -91,6 +99,9 @@ export function MusicPlayer() {
               <p className="font-semibold truncate">{currentSong.title}</p>
               <p className="text-sm text-muted-foreground truncate">{currentSong.artist}</p>
             </div>
+             <Button variant="ghost" size="icon" onClick={() => toggleFavorite(currentSong.id)}>
+                <Heart className={cn("h-5 w-5", currentSongIsFavorite ? "fill-red-500 text-red-500" : "text-muted-foreground")} />
+            </Button>
           </div>
 
           <div className="flex flex-col items-center gap-2 w-1/2">

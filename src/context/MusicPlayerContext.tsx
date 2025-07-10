@@ -19,6 +19,9 @@ interface MusicPlayerContextType {
   skipForward: () => void;
   skipBackward: () => void;
   closePlayer: () => void;
+  favoriteSongs: string[];
+  isFavorite: (songId: string) => boolean;
+  toggleFavorite: (songId: string) => void;
 }
 
 const MusicPlayerContext = createContext<MusicPlayerContextType | undefined>(undefined);
@@ -30,6 +33,7 @@ export const MusicPlayerProvider = ({ children }: { children: React.ReactNode })
   const [duration, setDuration] = useState(0);
   const [volume, setVolume] = useState(50);
   const [isMuted, setIsMuted] = useState(false);
+  const [favoriteSongs, setFavoriteSongs] = useState<string[]>([]);
   const audioRef = useRef<HTMLAudioElement>(null);
 
   useEffect(() => {
@@ -126,6 +130,16 @@ export const MusicPlayerProvider = ({ children }: { children: React.ReactNode })
       setIsPlaying(false);
   }
 
+  const isFavorite = (songId: string) => {
+    return favoriteSongs.includes(songId);
+  }
+
+  const toggleFavorite = (songId: string) => {
+    setFavoriteSongs(prev => 
+      prev.includes(songId) ? prev.filter(id => id !== songId) : [...prev, songId]
+    )
+  }
+
   return (
     <MusicPlayerContext.Provider
       value={{
@@ -143,7 +157,10 @@ export const MusicPlayerProvider = ({ children }: { children: React.ReactNode })
         handleMuteToggle,
         skipForward,
         skipBackward,
-        closePlayer
+        closePlayer,
+        favoriteSongs,
+        isFavorite,
+        toggleFavorite,
       }}
     >
       {children}
