@@ -89,10 +89,17 @@ export default {
             height: '0',
           },
         },
+        'rgb-glow': {
+          '0%': { boxShadow: '0 0 10px 0px rgba(255, 0, 255, 0.7), 0 0 20px 5px rgba(255, 0, 0, 0.7), 0 0 30px 10px rgba(0, 255, 255, 0.7)' },
+          '33%': { boxShadow: '0 0 10px 0px rgba(0, 255, 0, 0.7), 0 0 20px 5px rgba(0, 255, 255, 0.7), 0 0 30px 10px rgba(255, 0, 255, 0.7)' },
+          '66%': { boxShadow: '0 0 10px 0px rgba(255, 0, 0, 0.7), 0 0 20px 5px rgba(255, 255, 0, 0.7), 0 0 30px 10px rgba(0, 255, 0, 0.7)' },
+          '100%': { boxShadow: '0 0 10px 0px rgba(255, 0, 255, 0.7), 0 0 20px 5px rgba(255, 0, 0, 0.7), 0 0 30px 10px rgba(0, 255, 255, 0.7)' },
+        },
       },
       animation: {
         'accordion-down': 'accordion-down 0.2s ease-out',
         'accordion-up': 'accordion-up 0.2s ease-out',
+        'rgb-glow': 'rgb-glow 6s linear infinite',
       },
     },
   },

@@ -207,7 +207,7 @@ function ExpandedPlayer() {
                     src={currentSong.coverArt}
                     alt={currentSong.title}
                     fill
-                    className="object-cover rounded-lg shadow-[0_0_25px_5px_hsl(var(--primary)/0.6),_0_0_45px_10px_hsl(var(--accent)/0.5),_0_0_80px_20px_hsl(240,100%,70%)/0.4]"
+                    className="object-cover rounded-lg animate-rgb-glow"
                 />
             </div>
           )}
