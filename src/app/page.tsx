@@ -75,7 +75,7 @@ export default function Home() {
 
   const fetchHindiHits = async () => {
     setLoadingHits(true);
-    const songs = await searchSongs("hindi pakistani pop", 12); // Fetch more songs initially
+    const songs = await searchSongs("top hindi songs", 12); // Fetch more songs initially
     setHindiHits(songs);
     setLoadingHits(false);
   };
