@@ -312,6 +312,9 @@ function ExpandedPlayer() {
                 <Mic2 className="h-5 w-5" />
             </Button>
         </div>
+         <p className="text-center font-display text-muted-foreground text-lg pt-2">
+            designed by ariyan
+        </p>
       </motion.div>
     </motion.div>
   )
