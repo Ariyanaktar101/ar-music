@@ -1,3 +1,4 @@
+
 import type {Config} from 'tailwindcss';
 
 export default {
@@ -93,11 +94,17 @@ export default {
           '0%, 100%': { boxShadow: '0 0 20px 5px hsl(var(--primary) / 0.4), 0 0 40px 10px hsl(var(--accent) / 0.2)' },
           '50%': { boxShadow: '0 0 30px 8px hsl(var(--primary) / 0.6), 0 0 50px 15px hsl(var(--accent) / 0.4)' },
         },
+        'wave-hand': {
+          '0%, 100%': { transform: 'rotate(0deg)' },
+          '25%': { transform: 'rotate(15deg)' },
+          '75%': { transform: 'rotate(-15deg)' },
+        },
       },
       animation: {
         'accordion-down': 'accordion-down 0.2s ease-out',
         'accordion-up': 'accordion-up 0.2s ease-out',
         'aurora-glow': 'aurora-glow 4s ease-in-out infinite',
+        'wave-hand': 'wave-hand 1.5s ease-in-out infinite',
       },
     },
   },

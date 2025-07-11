@@ -21,6 +21,45 @@ const getGreeting = (timeOfDay: TimeOfDay) => {
     }[timeOfDay];
 }
 
+function WavingDoraemon() {
+    return (
+        <div className="relative w-24 h-24">
+            <svg viewBox="0 0 100 100" className="w-full h-full">
+                {/* Waving Hand */}
+                <g className="origin-center animate-wave-hand" style={{ transformOrigin: '25px 80px' }}>
+                     <circle cx="20" cy="85" r="10" fill="#fff" stroke="#000" strokeWidth="1" />
+                </g>
+                {/* Head */}
+                <circle cx="50" cy="50" r="40" fill="#36A9E1" stroke="#000" strokeWidth="2" />
+                {/* Face */}
+                <circle cx="50" cy="55" r="30" fill="#fff" />
+                 {/* Collar */}
+                <path d="M25 75 Q50 85 75 75 L 75 80 Q50 90 25 80 Z" fill="#D81E05" stroke="#000" strokeWidth="1.5" />
+                <circle cx="50" cy="80" r="5" fill="#F9D900" stroke="#000" strokeWidth="1" />
+                {/* Eyes */}
+                <ellipse cx="40" cy="40" rx="10" ry="12" fill="#fff" stroke="#000" strokeWidth="1.5" />
+                <ellipse cx="60" cy="40" rx="10" ry="12" fill="#fff" stroke="#000" strokeWidth="1.5" />
+                <circle cx="42" cy="42" r="3" fill="#000" />
+                <circle cx="58" cy="42" r="3" fill="#000" />
+                {/* Nose */}
+                <circle cx="50" cy="50" r="5" fill="#D81E05" stroke="#000" strokeWidth="1" />
+                {/* Mouth Line */}
+                <line x1="50" y1="55" x2="50" y2="70" stroke="#000" strokeWidth="1.5" />
+                {/* Mouth Smile */}
+                <path d="M35 65 Q50 75 65 65" stroke="#000" strokeWidth="1.5" fill="none" />
+                {/* Whiskers */}
+                <line x1="20" y1="55" x2="35" y2="50" stroke="#000" strokeWidth="1" />
+                <line x1="20" y1="60" x2="35" y2="60" stroke="#000" strokeWidth="1" />
+                <line x1="20" y1="65" x2="35" y2="70" stroke="#000" strokeWidth="1" />
+                <line x1="80" y1="55" x2="65" y2="50" stroke="#000" strokeWidth="1" />
+                <line x1="80" y1="60" x2="65" y2="60" stroke="#000" strokeWidth="1" />
+                <line x1="80" y1="65" x2="65" y2="70" stroke="#000" strokeWidth="1" />
+            </svg>
+        </div>
+    );
+}
+
+
 export function GreetingHeader() {
   const [timeOfDay, setTimeOfDay] = useState<TimeOfDay | null>(null);
   const [time, setTime] = useState('');
@@ -61,7 +100,8 @@ export function GreetingHeader() {
   }
 
   return (
-    <div className="relative mb-8">
+    <div className="relative mb-8 flex items-center gap-4">
+      <WavingDoraemon />
       <div>
         <h1 className="text-4xl font-display tracking-tight text-foreground">
             {getGreeting(timeOfDay)}
