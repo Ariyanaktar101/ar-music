@@ -14,6 +14,7 @@ import { cn } from '@/lib/utils';
 import { useDebounce } from '@/hooks/use-debounce';
 import Image from 'next/image';
 import { Button } from '@/components/ui/button';
+import { Skeleton } from '@/components/ui/skeleton';
 
 const specialGenres = [
   { name: 'Bollywood', hint: 'indian dance', imageUrl: 'https://images.unsplash.com/photo-1616837874253-908d13b8364f?w=800' },
@@ -29,6 +30,23 @@ const genres = [
   { name: 'Workout', hint: 'gym workout', imageUrl: 'https://images.unsplash.com/photo-1571902943202-507ec2618e8f?w=800' },
 ];
 
+function NewlyAddedSkeleton() {
+    return (
+        <div className="space-y-2">
+            {Array.from({ length: 10 }).map((_, i) => (
+                 <div key={i} className="flex items-center gap-4 p-2">
+                    <Skeleton className="h-11 w-11" />
+                    <div className="flex-1 space-y-2">
+                        <Skeleton className="h-4 w-3/4" />
+                        <Skeleton className="h-3 w-1/2" />
+                    </div>
+                    <Skeleton className="h-4 w-12" />
+                </div>
+            ))}
+        </div>
+    )
+}
+
 function SearchPageComponent() {
   const searchParams = useSearchParams();
   const initialGenre = searchParams.get('genre');
@@ -38,6 +56,8 @@ function SearchPageComponent() {
   const [query, setQuery] = useState(initialGenre || '');
   const debouncedQuery = useDebounce(query, 300);
   const [hasSearched, setHasSearched] = useState(!!initialGenre);
+  const [newlyAdded, setNewlyAdded] = useState<Song[]>([]);
+  const [loadingNewlyAdded, setLoadingNewlyAdded] = useState(true);
 
   const performSearch = useCallback((searchTerm: string) => {
     if (!searchTerm) {
@@ -50,6 +70,16 @@ function SearchPageComponent() {
       const searchResults = await handleSearch(searchTerm);
       setResults(searchResults);
     });
+  }, []);
+
+  useEffect(() => {
+    const fetchNewlyAdded = async () => {
+        setLoadingNewlyAdded(true);
+        const songs = await handleSearch("latest songs");
+        setNewlyAdded(songs.slice(0, 10));
+        setLoadingNewlyAdded(false);
+    }
+    fetchNewlyAdded();
   }, []);
 
   useEffect(() => {
@@ -75,7 +105,7 @@ function SearchPageComponent() {
     setQuery(genre);
   }
 
-  const showGenreGrid = !hasSearched && query === '';
+  const showInitialView = !hasSearched && query === '';
 
   return (
     <div>
@@ -109,9 +139,9 @@ function SearchPageComponent() {
                   <p className="text-sm">Please make sure your words are spelled correctly, or use fewer or different keywords.</p>
               </div>
           )
-        ) : showGenreGrid ? (
-          <div>
-              <div className="grid grid-cols-2 gap-4 mb-8">
+        ) : showInitialView ? (
+          <div className="space-y-8">
+              <div className="grid grid-cols-2 gap-4">
                   {specialGenres.map(genre => (
                       <Button key={genre.name} variant="outline" className="rounded-full h-14 text-lg font-bold" onClick={() => onGenreClick(genre.name)}>
                           {genre.name}
@@ -119,30 +149,43 @@ function SearchPageComponent() {
                   ))}
               </div>
 
-              <h2 className="text-2xl font-semibold font-headline tracking-tight">
-              Browse all
-            </h2>
-            <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 xl:grid-cols-6 gap-4 mt-4">
-              {genres.map((genre) => (
-                <div
-                  key={genre.name}
-                  onClick={() => onGenreClick(genre.name)}
-                  className="group aspect-[10/12] rounded-lg overflow-hidden relative cursor-pointer transition-all duration-300 hover:shadow-xl hover:-translate-y-1"
-                >
-                  <Image
-                    src={genre.imageUrl}
-                    alt={genre.name}
-                    fill
-                    data-ai-hint={genre.hint}
-                    className="object-cover transition-transform duration-500 group-hover:scale-110"
-                  />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent" />
-                  <div className="absolute inset-0 flex flex-col justify-end p-4">
-                     <h3 className="relative z-10 font-extrabold text-2xl text-white drop-shadow-md">{genre.name}</h3>
-                  </div>
+              <div>
+                <h2 className="text-2xl font-semibold font-headline tracking-tight mb-4">
+                  Newly Added
+                </h2>
+                {loadingNewlyAdded ? (
+                    <NewlyAddedSkeleton />
+                ) : (
+                    <SongList songs={newlyAdded} />
+                )}
+              </div>
+              
+              <div>
+                <h2 className="text-2xl font-semibold font-headline tracking-tight">
+                Browse all
+                </h2>
+                <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 xl:grid-cols-6 gap-4 mt-4">
+                {genres.map((genre) => (
+                    <div
+                    key={genre.name}
+                    onClick={() => onGenreClick(genre.name)}
+                    className="group aspect-[10/12] rounded-lg overflow-hidden relative cursor-pointer transition-all duration-300 hover:shadow-xl hover:-translate-y-1"
+                    >
+                    <Image
+                        src={genre.imageUrl}
+                        alt={genre.name}
+                        fill
+                        data-ai-hint={genre.hint}
+                        className="object-cover transition-transform duration-500 group-hover:scale-110"
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent" />
+                    <div className="absolute inset-0 flex flex-col justify-end p-4">
+                        <h3 className="relative z-10 font-extrabold text-2xl text-white drop-shadow-md">{genre.name}</h3>
+                    </div>
+                    </div>
+                ))}
                 </div>
-              ))}
-            </div>
+              </div>
           </div>
         ) : null}
       </section>
