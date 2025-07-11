@@ -109,11 +109,9 @@ function ExpandedPlayer() {
     const dragDistance = info.offset.y;
     const velocity = info.velocity.y;
 
-    // If dragged down more than 50% of the screen height, or with a high velocity, close it.
-    if (dragDistance > window.innerHeight / 2 || velocity > 500) {
+    if (dragDistance > window.innerHeight / 3 || velocity > 400) {
       closePlayer();
     } else {
-      // Otherwise, snap back to the original position.
       controls.start({ y: 0 });
     }
   };
@@ -153,7 +151,7 @@ function ExpandedPlayer() {
       className="fixed inset-0 bg-background z-[60] flex flex-col md:hidden"
       initial={{ y: '100%' }}
       animate={controls}
-      transition={{ type: 'spring', damping: 25, stiffness: 250 }}
+      transition={{ type: 'spring', damping: 30, stiffness: 250 }}
       drag="y"
       dragConstraints={{ top: 0, bottom: 0 }}
       dragElastic={0.2}
@@ -355,7 +353,7 @@ export function MusicPlayer() {
                 </div>
             </div>
             <div className="flex items-center gap-2 text-xs font-mono text-muted-foreground">
-                <span>{formatTime(progress)}</span>
+                <span className="text-[10px]">{formatTime(progress)}</span>
                 <Slider
                     value={[progress]}
                     max={duration}
@@ -365,7 +363,7 @@ export function MusicPlayer() {
                     onTouchStart={stopPropagation}
                     className="w-full h-1 relative [&>span:first-child]:h-1 [&>span>span]:h-1 [&>span>span]:bg-accent [&>a]:h-2.5 [&>a]:w-2.5"
                 />
-                <span>{formatTime(duration)}</span>
+                <span className="text-[10px]">{formatTime(duration)}</span>
             </div>
         </div>
       </div>
