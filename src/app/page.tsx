@@ -15,7 +15,7 @@ import { RefreshCw, Loader } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
 
 const genres = [
-  'Pop', 'Rock', 'Hip-Hop', 'Jazz', 'Classical', 'Electronic', 'R&B', 'Country', 
+  'Pop', 'Rock', 'Hip-Hop', 'Electronic', 'R&B', 'Country', 
   'Lofi', 'Workout'
 ];
 
@@ -75,7 +75,7 @@ export default function Home() {
 
   const fetchHindiHits = async () => {
     setLoadingHits(true);
-    const songs = await searchSongs("top hindi songs", 12); // Fetch more songs initially
+    const songs = await searchSongs("hindi pakistani pop", 12); // Fetch more songs initially
     setHindiHits(songs);
     setLoadingHits(false);
   };
@@ -97,7 +97,7 @@ export default function Home() {
         <section>
           <div className="flex items-center justify-between mb-4">
             <h2 className="text-2xl font-bold font-headline tracking-wide uppercase">
-              Hindi Hits
+              Top Hits
             </h2>
             <Button variant="ghost" size="icon" onClick={refreshHindiHits} disabled={loadingHits}>
               {loadingHits ? <Loader className="h-5 w-5 animate-spin" /> : <RefreshCw className="h-5 w-5" />}
