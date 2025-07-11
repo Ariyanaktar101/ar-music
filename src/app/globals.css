@@ -99,4 +99,13 @@
       box-shadow: 0 0 10px 0px rgba(255, 0, 255, 0.7), 0 0 20px 5px rgba(255, 0, 0, 0.7), 0 0 30px 10px rgba(0, 255, 255, 0.7);
     }
   }
+
+  @keyframes shimmer {
+    0% {
+      background-position: -1000px 0;
+    }
+    100% {
+      background-position: 1000px 0;
+    }
+  }
 }
