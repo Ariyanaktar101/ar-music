@@ -13,17 +13,20 @@ import { Search, Loader, Music } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useDebounce } from '@/hooks/use-debounce';
 import Image from 'next/image';
+import { Button } from '@/components/ui/button';
+
+const specialGenres = [
+  { name: 'Bollywood', hint: 'indian dance', imageUrl: 'https://images.unsplash.com/photo-1616837874253-908d13b8364f?w=800' },
+  { name: 'Punjabi', hint: 'punjabi culture', imageUrl: 'https://images.unsplash.com/photo-1609148383348-185a0521369a?w=800' },
+];
 
 const genres = [
   { name: 'Pop', hint: 'pop music', imageUrl: 'https://images.unsplash.com/photo-1598488035139-bdbb2231ce04?w=800' },
   { name: 'Rock', hint: 'rock concert', imageUrl: 'https://images.unsplash.com/photo-1459749411175-04bf5292ceea?w=800' },
-  { name: 'Jazz', hint: 'jazz club', imageUrl: 'https://images.unsplash.com/photo-1511174511562-5f7f18b874f8?w=800' },
   { name: 'Electronic', hint: 'dj setup', imageUrl: 'https://images.unsplash.com/photo-1514525253161-7a46d19cd819?w=800' },
   { name: 'Country', hint: 'country guitar', imageUrl: 'https://images.unsplash.com/photo-1525994886773-080587e161c2?w=800' },
   { name: 'Lofi', hint: 'lofi aesthetic', imageUrl: 'https://images.unsplash.com/photo-1507608869274-d3177c8bb4c7?w=800' },
   { name: 'Workout', hint: 'gym workout', imageUrl: 'https://images.unsplash.com/photo-1571902943202-507ec2618e8f?w=800' },
-  { name: 'Bollywood', hint: 'indian dance', imageUrl: 'https://images.unsplash.com/photo-1616837874253-908d13b8364f?w=800' },
-  { name: 'Punjabi', hint: 'punjabi culture', imageUrl: 'https://images.unsplash.com/photo-1609148383348-185a0521369a?w=800' },
 ];
 
 function SearchPageComponent() {
@@ -108,6 +111,14 @@ function SearchPageComponent() {
           )
         ) : showGenreGrid ? (
           <div>
+              <div className="grid grid-cols-2 gap-4 mb-8">
+                  {specialGenres.map(genre => (
+                      <Button key={genre.name} variant="outline" className="rounded-full h-14 text-lg font-bold" onClick={() => onGenreClick(genre.name)}>
+                          {genre.name}
+                      </Button>
+                  ))}
+              </div>
+
               <h2 className="text-2xl font-semibold font-headline tracking-tight">
               Browse all
             </h2>
