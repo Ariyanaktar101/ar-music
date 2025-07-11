@@ -56,7 +56,6 @@ export function GreetingHeader() {
             <div className="h-5 w-96 bg-muted rounded-md animate-pulse"></div>
              <div className="h-6 w-40 bg-muted rounded-md animate-pulse mt-2"></div>
         </div>
-        <div className="absolute top-0 right-0 h-6 w-20 bg-muted rounded-md animate-pulse"></div>
       </div>
     );
   }
@@ -69,9 +68,7 @@ export function GreetingHeader() {
         </h1>
         <p className="text-muted-foreground mt-1">{thoughts[timeOfDay]}</p>
         <p className="font-display text-muted-foreground mt-2 text-lg">created by ariyan</p>
-      </div>
-      <div className="absolute top-1 right-1 flex items-center gap-1 text-xs text-muted-foreground font-medium">
-        <span>{time}</span>
+        <p className="text-xs text-muted-foreground font-medium mt-2">{time}</p>
       </div>
     </div>
   );
