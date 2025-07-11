@@ -231,7 +231,7 @@ function ExpandedPlayer() {
             </div>
           ) : (
              <motion.div 
-                className="relative w-full h-full aspect-square rounded-lg animate-aurora-glow"
+                className="relative w-full h-full rounded-lg shadow-[0_10px_30px_hsl(var(--primary)/0.2)]"
                 initial={{ scale: 0.8, opacity: 0 }}
                 animate={{ scale: 1, opacity: 1 }}
                 transition={{ type: 'spring', duration: 0.8 }}
