@@ -145,6 +145,29 @@ function ExpandedPlayer() {
         controls.start({ y: '100%' });
     }
   }, [isExpanded, controls]);
+  
+  const containerVariants = {
+    hidden: { opacity: 0 },
+    visible: {
+      opacity: 1,
+      transition: {
+        staggerChildren: 0.1,
+        delayChildren: 0.2,
+      },
+    },
+  };
+
+  const itemVariants = {
+    hidden: { y: 20, opacity: 0 },
+    visible: {
+      y: 0,
+      opacity: 1,
+      transition: {
+        type: 'spring',
+        stiffness: 100,
+      },
+    },
+  };
 
   return (
     <motion.div 
@@ -168,8 +191,13 @@ function ExpandedPlayer() {
          <MoreOptionsButton />
       </div>
 
-      <div className="flex-1 flex flex-col justify-center items-center px-8 gap-8 overflow-hidden">
-        <div className="relative w-full max-w-sm aspect-square">
+      <motion.div 
+        className="flex-1 flex flex-col justify-center items-center px-8 gap-8 overflow-hidden"
+        variants={containerVariants}
+        initial="hidden"
+        animate={isExpanded ? "visible" : "hidden"}
+      >
+        <motion.div className="relative w-full max-w-sm aspect-square" variants={itemVariants}>
           {showLyrics ? (
             <div className="absolute inset-0 bg-muted/50 flex items-center justify-center text-center rounded-lg">
               {loadingLyrics ? (
@@ -202,18 +230,23 @@ function ExpandedPlayer() {
               )}
             </div>
           ) : (
-             <div className="relative w-full h-full aspect-square">
+             <motion.div 
+                className="relative w-full h-full aspect-square rounded-lg animate-aurora-glow"
+                initial={{ scale: 0.8, opacity: 0 }}
+                animate={{ scale: 1, opacity: 1 }}
+                transition={{ type: 'spring', duration: 0.8 }}
+             >
                 <Image
                     src={currentSong.coverArt}
                     alt={currentSong.title}
                     fill
-                    className="object-cover rounded-lg animate-rgb-glow"
+                    className="object-cover rounded-lg"
                 />
-            </div>
+            </motion.div>
           )}
-        </div>
+        </motion.div>
 
-        <div className="w-full">
+        <motion.div className="w-full" variants={itemVariants}>
           <div className="flex justify-between items-center">
             <div className="flex-1 text-left overflow-hidden">
               <h2 className="text-2xl font-bold truncate">{currentSong.title}</h2>
@@ -223,10 +256,15 @@ function ExpandedPlayer() {
               <Heart className={cn("h-6 w-6", currentSongIsFavorite ? "fill-red-500 text-red-500" : "text-muted-foreground")} />
             </Button>
           </div>
-        </div>
-      </div>
+        </motion.div>
+      </motion.div>
       
-      <div className="flex-shrink-0 p-8 space-y-4">
+      <motion.div 
+         className="flex-shrink-0 p-8 space-y-4"
+         variants={itemVariants}
+         initial="hidden"
+         animate={isExpanded ? "visible" : "hidden"}
+      >
         <div className="space-y-2">
             <Slider
                 value={[progress]}
@@ -274,7 +312,7 @@ function ExpandedPlayer() {
                 <Mic2 className="h-5 w-5" />
             </Button>
         </div>
-      </div>
+      </motion.div>
     </motion.div>
   )
 }
