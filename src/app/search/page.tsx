@@ -22,6 +22,8 @@ const genres = [
   { name: 'Country', hint: 'country guitar', imageUrl: 'https://images.unsplash.com/photo-1525994886773-080587e161c2?w=800' },
   { name: 'Lofi', hint: 'lofi aesthetic', imageUrl: 'https://images.unsplash.com/photo-1507608869274-d3177c8bb4c7?w=800' },
   { name: 'Workout', hint: 'gym workout', imageUrl: 'https://images.unsplash.com/photo-1571902943202-507ec2618e8f?w=800' },
+  { name: 'Bollywood', hint: 'indian dance', imageUrl: 'https://images.unsplash.com/photo-1616837874253-908d13b8364f?w=800' },
+  { name: 'Punjabi', hint: 'punjabi culture', imageUrl: 'https://images.unsplash.com/photo-1609148383348-185a0521369a?w=800' },
 ];
 
 function SearchPageComponent() {
