@@ -1,3 +1,4 @@
+
 'use client';
 
 import Link from 'next/link';
@@ -262,21 +263,29 @@ function GuestView() {
           Join the Music
         </CardTitle>
         <CardDescription className="text-md text-muted-foreground pt-2">
-          Sign up or log in to save your favorite songs and create playlists.
+          Sign up or log in to customize your experience.
         </CardDescription>
       </CardHeader>
-      <CardContent className="flex justify-center items-center gap-4 px-6 pt-4">
-        <Button asChild className="w-full">
-          <Link href="/login">
-            <LogIn />
-            Log In
-          </Link>
-        </Button>
-        <Button asChild variant="secondary" className="w-full">
-          <Link href="/signup">
-            <UserPlus />
-            Sign Up
-          </Link>
+      <CardContent className="flex flex-col gap-4 px-6 pt-4">
+        <div className="flex justify-center items-center gap-4">
+            <Button asChild className="w-full">
+            <Link href="/login">
+                <LogIn />
+                Log In
+            </Link>
+            </Button>
+            <Button asChild variant="secondary" className="w-full">
+            <Link href="/signup">
+                <UserPlus />
+                Sign Up
+            </Link>
+            </Button>
+        </div>
+        <Button asChild variant="outline" className="w-full">
+            <Link href="/settings">
+                <Settings />
+                Settings
+            </Link>
         </Button>
       </CardContent>
       <CardFooter className="flex-col gap-2 text-center text-sm text-muted-foreground pt-6">
