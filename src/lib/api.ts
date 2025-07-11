@@ -27,11 +27,16 @@ type JioSong = {
 };
 
 function mapJioSongToSong(song: JioSong): Song {
-  let artists = 'Unknown Artist';
+  let artists = '';
   if (typeof song.primaryArtists === 'string' && song.primaryArtists) {
     artists = song.primaryArtists;
   } else if (Array.isArray(song.primaryArtists) && song.primaryArtists.length > 0) {
     artists = song.primaryArtists.map((a) => a.name).join(', ');
+  }
+
+  // If after all checks, artists is still 'Unknown Artist', make it an empty string.
+  if (artists.toLowerCase() === 'unknown artist') {
+    artists = '';
   }
 
   const image = song.image.find((i) => i.quality === '500x500') || song.image.slice(-1)[0];

@@ -27,7 +27,7 @@ import { motion, PanInfo, useAnimation } from 'framer-motion';
 
 function WavingDoraemon() {
     return (
-        <div className="relative w-16 h-16">
+        <div className="relative w-12 h-12">
             <svg viewBox="0 0 100 100" className="w-full h-full">
                 {/* Waving Hand */}
                 <g className="origin-center animate-wave-hand" style={{ transformOrigin: '25px 80px' }}>
@@ -61,6 +61,22 @@ function WavingDoraemon() {
             </svg>
         </div>
     );
+}
+
+function RunningPikachu({ className }: { className?: string }) {
+  return (
+    <svg 
+      className={cn("w-4 h-4", className)} 
+      viewBox="0 0 32 32"
+      xmlns="http://www.w3.org/2000/svg"
+    >
+      <path d="M16 4.6c-1.3 0-2.6.4-3.7 1.1C8.2 8.3 5 13.9 5 20.4c0 6.6 5.4 12 12 12s12-5.4 12-12c0-6.5-3.2-12.1-7.3-14.7-1.1-.7-2.4-1.1-3.7-1.1z" fill="#ffcb05"/>
+      <path d="M22.9 8.2c.4-.3.9-.6 1.3-.9.7-.5 1.4-1.1 2.1-1.8.3-.3.6-.6.8-.9-1.2-1-2.6-1.8-4-2.4-1.2-.5-2.5-.8-3.8-.8-1.3 0-2.6.3-3.8.8-1.4.6-2.8 1.4-4 2.4.2.3.5.6.8.9.7.7 1.4 1.3 2.1 1.8.5.3.9.6 1.3.9C15.6 6.5 19.3 6.5 22.9 8.2z" fill="#333"/>
+      <circle cx="11" cy="15" r="2" fill="#333"/>
+      <circle cx="21" cy="15" r="2" fill="#333"/>
+      <path d="M14 20c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm4 0c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2z" fill="#d9534f"/>
+    </svg>
+  );
 }
 
 function MoreOptionsButton() {
@@ -230,7 +246,7 @@ function ExpandedPlayer() {
       </div>
 
       <motion.div 
-        className="flex-1 flex flex-col justify-center items-center px-8 gap-8 overflow-hidden"
+        className="flex-1 flex flex-col justify-center items-center px-8 gap-6 overflow-hidden"
         variants={containerVariants}
         initial="hidden"
         animate={isExpanded ? "visible" : "hidden"}
@@ -269,7 +285,7 @@ function ExpandedPlayer() {
             </div>
           ) : (
              <motion.div 
-                className="relative w-full h-full rounded-lg shadow-[0_10px_30px_hsl(var(--primary)/0.3)]"
+                className="relative w-full h-full rounded-lg animate-aurora-glow"
                 initial={{ scale: 0.8, opacity: 0 }}
                 animate={{ scale: 1, opacity: 1 }}
                 transition={{ type: 'spring', duration: 0.8 }}
@@ -298,12 +314,16 @@ function ExpandedPlayer() {
       </motion.div>
       
       <motion.div 
-         className="flex-shrink-0 px-8 pb-8 pt-4 space-y-4"
+         className="flex-shrink-0 px-6 pb-6 space-y-3"
          variants={itemVariants}
          initial="hidden"
          animate={isExpanded ? "visible" : "hidden"}
       >
-        <div className="space-y-2">
+        <div className="space-y-1 relative">
+            <RunningPikachu 
+              className="absolute -top-1.5 z-10 transition-all duration-100"
+              style={{ left: `calc(${(progress / duration) * 100}% - 8px)` }} 
+            />
             <Slider
                 value={[progress]}
                 max={duration}
@@ -335,7 +355,7 @@ function ExpandedPlayer() {
             </Button>
         </div>
 
-        <div className="flex items-center justify-between gap-4 pt-2">
+        <div className="flex items-center justify-between gap-4 pt-1">
              <Button variant="ghost" size="icon" onClick={handleMuteToggle}>
                 {isMuted || volume === 0 ? <VolumeX className="h-5 w-5 text-muted-foreground" /> : <Volume2 className="h-5 w-5 text-muted-foreground" />}
             </Button>
@@ -350,13 +370,11 @@ function ExpandedPlayer() {
                 <Mic2 className="h-5 w-5" />
             </Button>
         </div>
-         <div className="flex items-center justify-center pt-2">
+         <div className="flex items-center justify-center pt-1">
             <p className="text-center font-display text-muted-foreground text-lg">
                 designed by ariyan
             </p>
-            <div className="w-12 h-12">
-                <WavingDoraemon />
-            </div>
+            <WavingDoraemon />
          </div>
       </motion.div>
     </motion.div>
