@@ -109,10 +109,10 @@ function ExpandedPlayer() {
     const dragDistance = info.offset.y;
     const velocity = info.velocity.y;
 
-    if (dragDistance > window.innerHeight / 3 || velocity > 400) {
+    if (dragDistance > window.innerHeight / 4 || velocity > 500) {
       closePlayer();
     } else {
-      controls.start({ y: 0 });
+      controls.start({ y: 0, transition: { type: 'spring', damping: 30, stiffness: 250 } });
     }
   };
 
@@ -151,7 +151,7 @@ function ExpandedPlayer() {
       className="fixed inset-0 bg-background z-[60] flex flex-col md:hidden"
       initial={{ y: '100%' }}
       animate={controls}
-      transition={{ type: 'spring', damping: 30, stiffness: 250 }}
+      transition={{ type: 'spring', damping: 30, stiffness: 300 }}
       drag="y"
       dragConstraints={{ top: 0, bottom: 0 }}
       dragElastic={0.2}
@@ -302,6 +302,25 @@ export function MusicPlayer() {
     toggleLyricsView,
   } = useMusicPlayer();
   
+  const compactPlayerControls = useAnimation();
+
+  const handleCompactPlayerDragEnd = (event: React.MouseEvent | React.TouchEvent | React.PointerEvent, info: PanInfo) => {
+    const dragDistance = info.offset.y;
+    const velocity = info.velocity.y;
+
+    // If dragged down by a significant amount or with high velocity
+    if (dragDistance > 60 || velocity > 500) {
+      compactPlayerControls.start({ y: "100%", transition: { type: 'tween', ease: 'easeInOut', duration: 0.3 } }).then(() => {
+        closePlayer();
+        // Reset position for next time it opens
+        compactPlayerControls.set({ y: 0 }); 
+      });
+    } else {
+      // Snap back to original position
+      compactPlayerControls.start({ y: 0, transition: { type: 'spring', damping: 30, stiffness: 250 } });
+    }
+  };
+
   const formatTime = (seconds: number) => {
     if (isNaN(seconds) || seconds === 0) return '0:00';
     const minutes = Math.floor(seconds / 60);
@@ -325,11 +344,16 @@ export function MusicPlayer() {
       <ExpandedPlayer />
 
       {/* Mobile Player */}
-       <div 
-        onClick={toggleExpandPlayer}
-        className="md:hidden fixed bottom-16 left-0 right-0 h-auto bg-background/90 backdrop-blur-md border-t z-50 animate-in slide-in-from-bottom-4"
+       <motion.div 
+        animate={compactPlayerControls}
+        drag="y"
+        onDragEnd={handleCompactPlayerDragEnd}
+        dragConstraints={{ top: 0, bottom: 0 }}
+        dragElastic={{ top: 0, bottom: 0.5 }}
+        className="md:hidden fixed bottom-16 left-0 right-0 h-auto bg-background/90 backdrop-blur-md border-t z-50"
+        style={{ touchAction: 'pan-y' }}
        >
-         <div className="flex flex-col p-2 gap-2">
+         <div className="flex flex-col p-2 gap-2" onClick={toggleExpandPlayer}>
              <div className="flex items-center gap-3">
                 <Image
                     src={currentSong.coverArt}
@@ -366,7 +390,7 @@ export function MusicPlayer() {
                 <span className="text-[10px]">{formatTime(duration)}</span>
             </div>
         </div>
-      </div>
+      </motion.div>
 
 
       {/* Desktop Player */}
