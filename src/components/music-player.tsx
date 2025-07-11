@@ -354,8 +354,8 @@ export function MusicPlayer() {
                     <MoreOptionsButton />
                 </div>
             </div>
-            <div className="flex items-center gap-2">
-                <Button variant="ghost" size="icon" className="w-6 h-6 flex-shrink-0" onClick={(e) => { e.stopPropagation(); skipBackward(); }}><SkipBack className="h-4 w-4" /></Button>
+            <div className="flex items-center gap-2 text-xs font-mono text-muted-foreground">
+                <span>{formatTime(progress)}</span>
                 <Slider
                     value={[progress]}
                     max={duration}
@@ -365,7 +365,7 @@ export function MusicPlayer() {
                     onTouchStart={stopPropagation}
                     className="w-full h-1 relative [&>span:first-child]:h-1 [&>span>span]:h-1 [&>span>span]:bg-accent [&>a]:h-2.5 [&>a]:w-2.5"
                 />
-                 <Button variant="ghost" size="icon" className="w-6 h-6 flex-shrink-0" onClick={(e) => { e.stopPropagation(); skipForward(); }}><SkipForward className="h-4 w-4" /></Button>
+                <span>{formatTime(duration)}</span>
             </div>
         </div>
       </div>
