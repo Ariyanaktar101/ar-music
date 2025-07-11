@@ -269,7 +269,7 @@ function ExpandedPlayer() {
             </div>
           ) : (
              <motion.div 
-                className="relative w-full h-full rounded-lg animate-aurora-glow"
+                className="relative w-full h-full rounded-lg shadow-[0_10px_30px_hsl(var(--primary)/0.3)]"
                 initial={{ scale: 0.8, opacity: 0 }}
                 animate={{ scale: 1, opacity: 1 }}
                 transition={{ type: 'spring', duration: 0.8 }}
@@ -298,7 +298,7 @@ function ExpandedPlayer() {
       </motion.div>
       
       <motion.div 
-         className="flex-shrink-0 p-8 space-y-4"
+         className="flex-shrink-0 px-8 pb-8 pt-4 space-y-4"
          variants={itemVariants}
          initial="hidden"
          animate={isExpanded ? "visible" : "hidden"}
@@ -322,13 +322,13 @@ function ExpandedPlayer() {
                 <Shuffle className="h-5 w-5 text-muted-foreground" />
             </Button>
             <Button variant="ghost" size="icon" onClick={skipBackward}>
-                <SkipBack className="h-8 w-8" />
+                <SkipBack className="h-6 w-6" />
             </Button>
-            <Button size="icon" className="w-16 h-16 bg-primary hover:bg-primary/90 rounded-full shadow-lg" onClick={togglePlayPause}>
-                {isPlaying ? <Pause className="h-8 w-8 fill-primary-foreground" /> : <Play className="h-8 w-8 fill-primary-foreground" />}
+            <Button size="icon" className="w-14 h-14 bg-primary hover:bg-primary/90 rounded-full shadow-lg" onClick={togglePlayPause}>
+                {isPlaying ? <Pause className="h-7 w-7 fill-primary-foreground" /> : <Play className="h-7 w-7 fill-primary-foreground" />}
             </Button>
             <Button variant="ghost" size="icon" onClick={skipForward}>
-                <SkipForward className="h-8 w-8" />
+                <SkipForward className="h-6 w-6" />
             </Button>
             <Button variant="ghost" size="icon">
                 <Repeat className="h-5 w-5 text-muted-foreground" />
@@ -354,7 +354,9 @@ function ExpandedPlayer() {
             <p className="text-center font-display text-muted-foreground text-lg">
                 designed by ariyan
             </p>
-            <WavingDoraemon />
+            <div className="w-12 h-12">
+                <WavingDoraemon />
+            </div>
          </div>
       </motion.div>
     </motion.div>
