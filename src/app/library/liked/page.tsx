@@ -48,8 +48,7 @@ export default function LikedSongsPage() {
     };
 
     fetchLikedSongs();
-    // By stringifying the dependency, we ensure the effect runs on content change, not just reference change.
-  }, [JSON.stringify(favoriteSongs)]);
+  }, [favoriteSongs]);
 
   return (
     <div className="space-y-6">
