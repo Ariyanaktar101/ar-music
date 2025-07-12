@@ -1,7 +1,7 @@
 
 import type { Song } from './types';
 
-// This is the raw type from the JioSaavn API
+// This is the raw type from the JioSaavn API for reference
 type JioSong = {
   id: string;
   name: string;
@@ -21,78 +21,139 @@ type JioSong = {
     url: string;
   }[];
   downloadUrl: {
-    quality: string;
-    url: string;
+    quality:string;
+    url:string;
   }[];
 };
 
-function mapJioSongToSong(song: JioSong): Song {
-  let artists = '';
-  if (typeof song.primaryArtists === 'string' && song.primaryArtists) {
-    artists = song.primaryArtists;
-  } else if (Array.isArray(song.primaryArtists) && song.primaryArtists.length > 0) {
-    artists = song.primaryArtists.map((a) => a.name).join(', ');
-  }
+// Spotify API types
+type SpotifyTrack = {
+    id: string;
+    name: string;
+    artists: { name: string }[];
+    album: {
+        name: string;
+        images: { url: string }[];
+    };
+    duration_ms: number;
+    preview_url: string;
+};
 
-  // If after all checks, artists is still 'Unknown Artist', make it an empty string.
-  if (artists.toLowerCase() === 'unknown artist') {
-    artists = '';
-  }
+// --- Spotify API Integration ---
 
-  const image = song.image.find((i) => i.quality === '500x500') || song.image.slice(-1)[0];
-  const audio = song.downloadUrl.find((d) => d.quality === '320kbps') || song.downloadUrl.slice(-1)[0];
+let spotifyAccessToken = '';
 
-  const formatDuration = (durationInSeconds: string) => {
-    const seconds = parseInt(durationInSeconds, 10);
-    if (isNaN(seconds)) return '0:00';
-    const minutes = Math.floor(seconds / 60);
-    const remainingSeconds = seconds % 60;
-    return `${minutes}:${remainingSeconds.toString().padStart(2, '0')}`;
-  };
+async function getSpotifyToken() {
+    if (spotifyAccessToken) {
+        // Here you might want to check if the token is expired.
+        // For simplicity, we'll just reuse it. A robust implementation
+        // would store the expiry time and refresh it.
+        return spotifyAccessToken;
+    }
 
-  return {
-    id: song.id,
-    title: song.name.replace(/&quot;/g, '"').replace(/&amp;/g, '&'),
-    artist: artists.replace(/&quot;/g, '"').replace(/&amp;/g, '&'),
-    album: song.album.name.replace(/&quot;/g, '"').replace(/&amp;/g, '&'),
-    duration: formatDuration(song.duration),
-    coverArt: image.url.replace('http:', 'https:'),
-    url: audio.url.replace('http:', 'https:'),
-    data_ai_hint: 'music song',
-  };
+    const clientId = process.env.SPOTIFY_CLIENT_ID;
+    const clientSecret = process.env.SPOTIFY_CLIENT_SECRET;
+    
+    if (!clientId || !clientSecret) {
+        console.error("Spotify API credentials are not set in .env file.");
+        return null;
+    }
+
+    const response = await fetch('https://accounts.spotify.com/api/token', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+            'Authorization': 'Basic ' + Buffer.from(clientId + ':' + clientSecret).toString('base64')
+        },
+        body: 'grant_type=client_credentials',
+        next: { revalidate: 3500 } // Re-fetch token every ~hour
+    });
+
+    if (!response.ok) {
+        console.error('Failed to get Spotify token');
+        return null;
+    }
+
+    const data = await response.json();
+    spotifyAccessToken = data.access_token;
+    return spotifyAccessToken;
 }
 
-export async function searchSongs(query: string, limit: number = 20): Promise<Song[]> {
-  try {
-    const response = await fetch(`https://saavn.dev/api/search/songs?query=${encodeURIComponent(query)}&page=1&limit=${limit}`, { next: { revalidate: 3600 } });
-    if (!response.ok) {
-      console.error(`Failed to fetch songs from JioSaavn API, status: ${response.status}`);
-      return [];
+
+function mapSpotifyTrackToSong(track: SpotifyTrack): Song | null {
+    if (!track.preview_url) {
+        // Spotify doesn't provide a preview for every song.
+        // We'll have to skip these ones.
+        return null;
     }
+
+    const formatDuration = (durationInMs: number) => {
+        const seconds = Math.floor(durationInMs / 1000);
+        const minutes = Math.floor(seconds / 60);
+        const remainingSeconds = seconds % 60;
+        return `${minutes}:${remainingSeconds.toString().padStart(2, '0')}`;
+    };
+
+    return {
+        id: track.id,
+        title: track.name,
+        artist: track.artists.map(a => a.name).join(', '),
+        album: track.album.name,
+        duration: formatDuration(track.duration_ms),
+        coverArt: track.album.images?.[0]?.url || 'https://placehold.co/500x500.png',
+        url: track.preview_url, // IMPORTANT: This is a 30-second preview
+        data_ai_hint: 'music song',
+    };
+}
+
+
+export async function searchSongs(query: string, limit: number = 20): Promise<Song[]> {
+  const token = await getSpotifyToken();
+  if (!token) return [];
+
+  try {
+    const response = await fetch(`https://api.spotify.com/v1/search?q=${encodeURIComponent(query)}&type=track&limit=${limit}`, {
+        headers: { 'Authorization': `Bearer ${token}` }
+    });
+    
+    if (!response.ok) {
+        console.error(`Failed to search Spotify, status: ${response.status}`);
+        return [];
+    }
+
     const json = await response.json();
-    const results = json.data?.results || [];
-    return results
-      .filter((song: JioSong) => song.name.toLowerCase() !== 'shree hanuman chalisa')
-      .map(mapJioSongToSong);
+    const results = json.tracks?.items || [];
+    
+    return results.map(mapSpotifyTrackToSong).filter((song): song is Song => song !== null);
+
   } catch (error) {
-    console.error('Error searching songs:', error);
+    console.error('Error searching songs on Spotify:', error);
     return [];
   }
 }
 
 export async function getSongsByIds(ids: string[]): Promise<Song[]> {
   if (ids.length === 0) return [];
+  const token = await getSpotifyToken();
+  if (!token) return [];
+
   try {
-    const response = await fetch(`https://saavn.dev/api/songs?ids=${ids.join(',')}`, { next: { revalidate: 3600 } });
+    const response = await fetch(`https://api.spotify.com/v1/tracks?ids=${ids.join(',')}`, {
+        headers: { 'Authorization': `Bearer ${token}` }
+    });
+
     if (!response.ok) {
-      console.error(`Failed to fetch songs by IDs, status: ${response.status}`);
+      console.error(`Failed to fetch songs by IDs from Spotify, status: ${response.status}`);
       return [];
     }
+
     const json = await response.json();
-    const results = json.data || [];
-    return results.map(mapJioSongToSong);
+    const results = json.tracks || [];
+
+    return results.map(mapSpotifyTrackToSong).filter((song): song is Song => song !== null);
+
   } catch (error) {
-    console.error('Error fetching songs by IDs:', error);
+    console.error('Error fetching songs by IDs from Spotify:', error);
     return [];
   }
 }
