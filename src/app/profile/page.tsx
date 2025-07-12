@@ -333,8 +333,9 @@ function GuestView() {
   return (
     <Card className="w-full max-w-md animate-in fade-in-50 zoom-in-95">
       <CardHeader className="text-center">
-        <CardTitle className="text-3xl font-bold font-headline">
-          Join the Music
+        <CardTitle className="text-3xl font-bold font-headline flex items-center justify-center">
+          <span>Join the Music</span>
+          <WavingDoraemon />
         </CardTitle>
         <CardDescription className="text-md text-muted-foreground pt-2">
           Sign up or log in to customize your experience.
