@@ -1,3 +1,4 @@
+
 "use client";
 
 import Image from 'next/image';
@@ -6,10 +7,19 @@ import type { Song } from '@/lib/types';
 import { useMusicPlayer } from '@/context/MusicPlayerContext';
 import { Play, Pause } from 'lucide-react';
 import React from 'react';
+import { motion } from 'framer-motion';
 
 interface SongCardProps {
   song: Song;
 }
+
+const itemVariants = {
+  hidden: { y: 20, opacity: 0 },
+  visible: {
+    y: 0,
+    opacity: 1,
+  },
+};
 
 export const SongCard = React.memo(function SongCard({ song }: SongCardProps) {
   const { playSong, currentSong, isPlaying } = useMusicPlayer();
@@ -21,11 +31,14 @@ export const SongCard = React.memo(function SongCard({ song }: SongCardProps) {
   };
 
   return (
-    <div
+    <motion.div
       onClick={handlePlay}
       className="group cursor-pointer"
+      variants={itemVariants}
+      whileHover={{ y: -5 }}
+      transition={{ type: 'spring', stiffness: 400, damping: 17 }}
     >
-      <Card className="overflow-hidden transition-all duration-300 hover:shadow-xl hover:-translate-y-1">
+      <Card className="overflow-hidden transition-all duration-300 shadow-sm hover:shadow-xl">
         <CardContent className="p-0">
           <div className="aspect-square relative">
             <Image
@@ -48,6 +61,6 @@ export const SongCard = React.memo(function SongCard({ song }: SongCardProps) {
           </div>
         </CardContent>
       </Card>
-    </div>
+    </motion.div>
   );
 });

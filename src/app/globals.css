@@ -99,12 +99,23 @@
   }
 
   @keyframes shimmer {
-    0% {
-      background-position: -1000px 0;
+    from {
+      background-position: -200% 0;
     }
-    100% {
-      background-position: 1000px 0;
+    to {
+      background-position: 200% 0;
     }
+  }
+  
+  .shimmer {
+      background: linear-gradient(
+      90deg,
+      hsl(var(--muted)) 25%,
+      hsl(var(--secondary)) 50%,
+      hsl(var(--muted)) 75%
+    );
+    background-size: 200% 100%;
+    animation: shimmer 1.5s infinite;
   }
   
   @keyframes wave-hand {

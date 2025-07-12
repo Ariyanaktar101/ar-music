@@ -14,6 +14,7 @@ import { RefreshCw, Loader, Moon, Sun } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useTheme } from '@/context/ThemeContext';
 import React from 'react';
+import { motion } from 'framer-motion';
 
 const genres = [
   'Pop', 'Rock', 'Hip-Hop', 'Electronic', 'R&B', 'Country', 
@@ -60,6 +61,16 @@ function TrendingSongsSkeleton() {
     )
 }
 
+const containerVariants = {
+  hidden: { opacity: 0 },
+  visible: {
+    opacity: 1,
+    transition: {
+      staggerChildren: 0.05,
+    },
+  },
+};
+
 
 function HomeComponent() {
   const [trendingSongs, setTrendingSongs] = useState<Song[]>([]);
@@ -70,7 +81,7 @@ function HomeComponent() {
 
   const fetchTrendingSongs = async () => {
     setLoadingTrending(true);
-    const songs = await searchSongs("latest bollywood songs", 50);
+    const songs = await searchSongs("latest bollywood songs", 100);
     setTrendingSongs(songs);
     setLoadingTrending(false);
   }
@@ -115,11 +126,16 @@ function HomeComponent() {
             </div>
           </div>
            {loadingHits ? <HindiHitsSkeleton /> : (
-            <div className="grid grid-cols-3 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4">
+            <motion.div 
+              className="grid grid-cols-3 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4"
+              variants={containerVariants}
+              initial="hidden"
+              animate="visible"
+            >
                 {hindiHits.slice(0, 6).map((song) => ( // Display first 6
                   <SongCard key={song.id} song={song} />
                 ))}
-            </div>
+            </motion.div>
            )}
         </section>
 

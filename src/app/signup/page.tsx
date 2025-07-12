@@ -1,3 +1,4 @@
+
 'use client';
 
 import React from 'react';
@@ -9,6 +10,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Music } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
+import { motion } from 'framer-motion';
 
 export default function SignupPage() {
   const { login } = useAuth();
@@ -34,48 +36,54 @@ export default function SignupPage() {
 
   return (
     <div className="flex items-center justify-center min-h-screen bg-secondary">
-      <Card className="w-full max-w-sm animate-in fade-in-50 zoom-in-95">
-        <CardHeader className="text-center">
-          <div className="flex justify-center mb-4">
-            <div className="p-3 bg-primary rounded-full">
-              <Music className="h-8 w-8 text-primary-foreground" />
+      <motion.div
+        initial={{ opacity: 0, scale: 0.95, y: 20 }}
+        animate={{ opacity: 1, scale: 1, y: 0 }}
+        transition={{ duration: 0.5, ease: 'easeOut' }}
+      >
+        <Card className="w-full max-w-sm">
+          <CardHeader className="text-center">
+            <div className="flex justify-center mb-4">
+              <div className="p-3 bg-primary rounded-full">
+                <Music className="h-8 w-8 text-primary-foreground" />
+              </div>
             </div>
-          </div>
-          <CardTitle className="text-2xl font-headline">Create an Account</CardTitle>
-          <CardDescription>Join AR Music and start listening.</CardDescription>
-        </CardHeader>
-        <CardContent>
-          <form className="space-y-4" onSubmit={handleSignup}>
-            <div className="space-y-2">
-              <Label htmlFor="name">Name</Label>
-              <Input id="name" name="name" type="text" placeholder="Your Name" required />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="email">Email</Label>
-              <Input id="email" name="email" type="email" placeholder="m@example.com" required />
-            </div>
-             <div className="space-y-2">
-              <Label htmlFor="phone">Phone (Optional)</Label>
-              <Input id="phone" name="phone" type="tel" placeholder="(123) 456-7890" />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="password">Password</Label>
-              <Input id="password" type="password" required />
-            </div>
-            <Button type="submit" className="w-full">
-              Sign Up
-            </Button>
-          </form>
-        </CardContent>
-        <CardFooter className="text-center text-sm">
-          <p className="w-full">
-            Already have an account?{' '}
-            <Button variant="link" asChild className="p-0">
-              <Link href="/login">Log in</Link>
-            </Button>
-          </p>
-        </CardFooter>
-      </Card>
+            <CardTitle className="text-2xl font-headline">Create an Account</CardTitle>
+            <CardDescription>Join AR Music and start listening.</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <form className="space-y-4" onSubmit={handleSignup}>
+              <div className="space-y-2">
+                <Label htmlFor="name">Name</Label>
+                <Input id="name" name="name" type="text" placeholder="Your Name" required />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="email">Email</Label>
+                <Input id="email" name="email" type="email" placeholder="m@example.com" required />
+              </div>
+               <div className="space-y-2">
+                <Label htmlFor="phone">Phone (Optional)</Label>
+                <Input id="phone" name="phone" type="tel" placeholder="(123) 456-7890" />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="password">Password</Label>
+                <Input id="password" type="password" required />
+              </div>
+              <Button type="submit" className="w-full">
+                Sign Up
+              </Button>
+            </form>
+          </CardContent>
+          <CardFooter className="text-center text-sm">
+            <p className="w-full">
+              Already have an account?{' '}
+              <Button variant="link" asChild className="p-0">
+                <Link href="/login">Log in</Link>
+              </Button>
+            </p>
+          </CardFooter>
+        </Card>
+      </motion.div>
     </div>
   );
 }

@@ -13,6 +13,7 @@ import { useDebounce } from '@/hooks/use-debounce';
 import Image from 'next/image';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
+import { motion } from 'framer-motion';
 
 const specialGenres = [
   { name: 'Bollywood', hint: 'indian dance', imageUrl: 'https://images.unsplash.com/photo-1616837874253-908d13b8364f?w=800' },
@@ -164,23 +165,25 @@ function SearchPageComponent() {
                 </h2>
                 <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 xl:grid-cols-6 gap-4 mt-4">
                 {genres.map((genre) => (
-                    <div
-                    key={genre.name}
-                    onClick={() => onGenreClick(genre.name)}
-                    className="group aspect-[10/12] rounded-lg overflow-hidden relative cursor-pointer transition-all duration-300 hover:shadow-xl hover:-translate-y-1"
+                    <motion.div
+                        key={genre.name}
+                        onClick={() => onGenreClick(genre.name)}
+                        className="group aspect-[10/12] rounded-lg overflow-hidden relative cursor-pointer"
+                        whileHover={{ y: -8, scale: 1.05, shadow: 'lg' }}
+                        transition={{ type: 'spring', stiffness: 300 }}
                     >
-                    <Image
-                        src={genre.imageUrl}
-                        alt={genre.name}
-                        fill
-                        data-ai-hint={genre.hint}
-                        className="object-cover transition-transform duration-500 group-hover:scale-110"
-                    />
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent" />
-                    <div className="absolute inset-0 flex flex-col justify-end p-4">
-                        <h3 className="relative z-10 font-extrabold text-2xl text-white drop-shadow-md">{genre.name}</h3>
-                    </div>
-                    </div>
+                      <Image
+                          src={genre.imageUrl}
+                          alt={genre.name}
+                          fill
+                          data-ai-hint={genre.hint}
+                          className="object-cover transition-transform duration-500 group-hover:scale-110"
+                      />
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent" />
+                      <div className="absolute inset-0 flex flex-col justify-end p-4">
+                          <h3 className="relative z-10 font-extrabold text-2xl text-white drop-shadow-md">{genre.name}</h3>
+                      </div>
+                    </motion.div>
                 ))}
                 </div>
               </div>

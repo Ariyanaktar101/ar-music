@@ -1,3 +1,4 @@
+
 'use client'
 
 import Image from 'next/image'
@@ -7,10 +8,26 @@ import { Play, Pause } from 'lucide-react'
 import { Table, TableBody, TableCell, TableRow } from '@/components/ui/table'
 import { cn } from '@/lib/utils'
 import React from 'react'
+import { motion } from 'framer-motion'
 
 interface SongListProps {
     songs: Song[]
 }
+
+const containerVariants = {
+    hidden: { opacity: 0 },
+    visible: {
+        opacity: 1,
+        transition: {
+            staggerChildren: 0.03,
+        },
+    },
+};
+
+const itemVariants = {
+    hidden: { opacity: 0, y: 10 },
+    visible: { opacity: 1, y: 0 },
+};
 
 export const SongList = React.memo(function SongList({ songs }: SongListProps) {
     const { playSong, currentSong, isPlaying } = useMusicPlayer()
@@ -21,18 +38,24 @@ export const SongList = React.memo(function SongList({ songs }: SongListProps) {
 
     return (
         <Table>
-            <TableBody>
+            <motion.tbody
+                variants={containerVariants}
+                initial="hidden"
+                animate="visible"
+            >
                 {songs.map((song, index) => {
                     const isThisSongPlaying = currentSong?.id === song.id && isPlaying;
                     const isThisCurrentSong = currentSong?.id === song.id;
                     return (
-                        <TableRow
+                        <motion.tr
                             key={song.id}
+                            variants={itemVariants}
                             onClick={() => handlePlay(song)}
                             className={cn(
                                 "cursor-pointer group border-b-0",
                                 isThisCurrentSong && "bg-secondary"
                             )}
+                            whileHover={{ backgroundColor: 'hsl(var(--secondary))', transition: { duration: 0.2 } }}
                         >
                             <TableCell className="w-10 align-middle text-center text-muted-foreground font-mono text-base">
                                 <span className="group-hover:hidden">{index + 1}</span>
@@ -62,10 +85,10 @@ export const SongList = React.memo(function SongList({ songs }: SongListProps) {
                             </TableCell>
                             <TableCell className="hidden md:table-cell text-muted-foreground align-middle">{song.album}</TableCell>
                             <TableCell className="text-right text-muted-foreground align-middle font-mono">{song.duration}</TableCell>
-                        </TableRow>
+                        </motion.tr>
                     )
                 })}
-            </TableBody>
+            </motion.tbody>
         </Table>
     )
 })
