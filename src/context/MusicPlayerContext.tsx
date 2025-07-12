@@ -516,7 +516,7 @@ export const MusicPlayerProvider = ({ children }: { children: React.ReactNode })
         toggleVisualizer,
       }}
     >
-      <audio ref={audioRef} src="" crossOrigin="anonymous" preload="metadata" />
+      <audio ref={audioRef} crossOrigin="anonymous" preload="metadata" />
       {children}
     </MusicPlayerContext.Provider>
   );
