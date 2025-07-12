@@ -70,7 +70,7 @@ export default function Home() {
 
   const fetchTrendingSongs = async () => {
     setLoadingTrending(true);
-    const songs = await searchSongs("latest bollywood songs", 50);
+    const songs = await searchSongs("latest bollywood songs", 100);
     setTrendingSongs(songs);
     setLoadingTrending(false);
   }
