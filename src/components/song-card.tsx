@@ -11,6 +11,7 @@ import { motion } from 'framer-motion';
 
 interface SongCardProps {
   song: Song;
+  playlist: Song[];
 }
 
 const itemVariants = {
@@ -21,13 +22,13 @@ const itemVariants = {
   },
 };
 
-export const SongCard = React.memo(function SongCard({ song }: SongCardProps) {
+export const SongCard = React.memo(function SongCard({ song, playlist }: SongCardProps) {
   const { playSong, currentSong, isPlaying } = useMusicPlayer();
   const isThisSongPlaying = currentSong?.id === song.id && isPlaying;
 
   const handlePlay = (e: React.MouseEvent) => {
     e.stopPropagation();
-    playSong(song);
+    playSong(song, playlist);
   };
 
   return (

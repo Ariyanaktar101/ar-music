@@ -133,7 +133,7 @@ function HomeComponent() {
               animate="visible"
             >
                 {hindiHits.slice(0, 6).map((song) => ( // Display first 6
-                  <SongCard key={song.id} song={song} />
+                  <SongCard key={song.id} song={song} playlist={hindiHits.slice(0, 6)} />
                 ))}
             </motion.div>
            )}

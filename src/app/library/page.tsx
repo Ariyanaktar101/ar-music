@@ -189,7 +189,7 @@ export default function LibraryPage() {
             <h2 className="text-xl font-bold font-headline tracking-tight mb-4">Jump Back In</h2>
             <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
               {recentlyPlayed.slice(0, 5).map((song) => (
-                <div key={song.id} className="group cursor-pointer" onClick={() => playSong(song)}>
+                <div key={song.id} className="group cursor-pointer" onClick={() => playSong(song, recentlyPlayed.slice(0, 5))}>
                   <div className="aspect-square relative mb-2">
                     <Image
                       src={song.coverArt}

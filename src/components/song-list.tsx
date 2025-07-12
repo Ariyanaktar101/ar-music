@@ -33,7 +33,7 @@ export const SongList = React.memo(function SongList({ songs }: SongListProps) {
     const { playSong, currentSong, isPlaying } = useMusicPlayer()
 
     const handlePlay = (song: Song) => {
-        playSong(song)
+        playSong(song, songs)
     }
 
     return (

@@ -9,7 +9,7 @@ import { useToast } from '@/hooks/use-toast';
 interface MusicPlayerContextType {
   currentSong: Song | null;
   isPlaying: boolean;
-  playSong: (song: Song, playlist?: Song[]) => void;
+  playSong: (song: Song, queue?: Song[]) => void;
   togglePlayPause: () => void;
   progress: number;
   duration: number;
@@ -58,6 +58,7 @@ interface LyricTimings {
 
 export const MusicPlayerProvider = ({ children }: { children: React.ReactNode }) => {
   const [currentSong, setCurrentSong] = useState<Song | null>(null);
+  const [currentQueue, setCurrentQueue] = useState<Song[]>([]);
   const [isPlaying, setIsPlaying] = useState(false);
   const [progress, setProgress] = useState(0);
   const [duration, setDuration] = useState(0);
@@ -120,6 +121,37 @@ export const MusicPlayerProvider = ({ children }: { children: React.ReactNode })
   useEffect(() => {
     localStorage.setItem('ar-music-downloads', JSON.stringify(downloadedSongs));
   }, [downloadedSongs]);
+
+  const playSong = useCallback((song: Song, queue: Song[] = []) => {
+    if (currentSong?.id === song.id) {
+        setIsPlaying(p => !p);
+        return;
+    }
+    setCurrentSong(song);
+    setCurrentQueue(queue.length > 0 ? queue : [song]);
+    addSongToRecents(song);
+    setIsPlaying(true);
+    setShowLyrics(false);
+    setLyrics(null);
+    setCurrentLineIndex(null);
+    setLyricTimings([]);
+    if (audioRef.current) {
+      audioRef.current.src = song.url;
+      audioRef.current.load();
+      audioRef.current.play().catch(console.error);
+    }
+  }, [currentSong, addSongToRecents]);
+
+  const playNextSong = useCallback(() => {
+    if (!currentSong) return;
+    const currentIndex = currentQueue.findIndex(s => s.id === currentSong.id);
+    if (currentIndex !== -1 && currentIndex < currentQueue.length - 1) {
+      const nextSong = currentQueue[currentIndex + 1];
+      playSong(nextSong, currentQueue);
+    } else {
+      setIsPlaying(false);
+    }
+  }, [currentSong, currentQueue, playSong]);
   
   // Effect to pre-calculate lyric timings when lyrics or duration are set
   useEffect(() => {
@@ -173,11 +205,7 @@ export const MusicPlayerProvider = ({ children }: { children: React.ReactNode })
       }
     };
     const handleSongEnd = () => {
-      setIsPlaying(false);
-      // Highlight the last line when the song ends
-      if (lyricTimings.length > 0) {
-        setCurrentLineIndex(lyricTimings.length - 1);
-      }
+        playNextSong();
     };
 
     audio.addEventListener('loadedmetadata', setAudioData);
@@ -189,7 +217,7 @@ export const MusicPlayerProvider = ({ children }: { children: React.ReactNode })
       audio.removeEventListener('timeupdate', setAudioTime);
       audio.removeEventListener('ended', handleSongEnd);
     };
-  }, [isPlaying, lyricTimings, currentLineIndex]);
+  }, [isPlaying, lyricTimings, currentLineIndex, playNextSong]);
 
   useEffect(() => {
     if (audioRef.current) {
@@ -215,25 +243,6 @@ export const MusicPlayerProvider = ({ children }: { children: React.ReactNode })
         return newRecents.slice(0, 20);
     });
   }, []);
-
-  const playSong = useCallback((song: Song) => {
-    if (currentSong?.id === song.id) {
-        setIsPlaying(p => !p);
-        return;
-    }
-    setCurrentSong(song);
-    addSongToRecents(song);
-    setIsPlaying(true);
-    setShowLyrics(false);
-    setLyrics(null);
-    setCurrentLineIndex(null);
-    setLyricTimings([]);
-    if (audioRef.current) {
-      audioRef.current.src = song.url;
-      audioRef.current.load();
-      audioRef.current.play().catch(console.error);
-    }
-  }, [currentSong, addSongToRecents]);
 
   const togglePlayPause = useCallback(() => {
     if (currentSong) {
