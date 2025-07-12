@@ -10,8 +10,9 @@ import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from '@/components/ui/carousel';
 import { GreetingHeader } from '@/components/greeting-header';
-import { RefreshCw, Loader } from 'lucide-react';
+import { RefreshCw, Loader, Moon, Sun } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
+import { useTheme } from '@/context/ThemeContext';
 
 const genres = [
   'Pop', 'Rock', 'Hip-Hop', 'Electronic', 'R&B', 'Country', 
@@ -64,6 +65,7 @@ export default function Home() {
   const [hindiHits, setHindiHits] = useState<Song[]>([]);
   const [loadingHits, setLoadingHits] = useState(true);
   const [loadingTrending, setLoadingTrending] = useState(true);
+  const { theme, setTheme } = useTheme();
 
   const fetchTrendingSongs = async () => {
     setLoadingTrending(true);
@@ -82,6 +84,11 @@ export default function Home() {
   const refreshHindiHits = () => {
     setHindiHits(prevHits => shuffleArray(prevHits));
   };
+
+  const toggleTheme = () => {
+    const newTheme = theme === 'dark' ? 'light' : 'dark';
+    setTheme(newTheme);
+  };
   
   useEffect(() => {
     fetchHindiHits();
@@ -97,9 +104,14 @@ export default function Home() {
             <h2 className="text-2xl font-bold font-headline tracking-wide uppercase">
               Top Hits
             </h2>
-            <Button variant="ghost" size="icon" onClick={refreshHindiHits} disabled={loadingHits}>
-              {loadingHits ? <Loader className="h-5 w-5 animate-spin" /> : <RefreshCw className="h-5 w-5" />}
-            </Button>
+            <div className="flex items-center gap-2">
+              <Button variant="ghost" size="icon" onClick={toggleTheme}>
+                {theme === 'dark' ? <Sun className="h-5 w-5" /> : <Moon className="h-5 w-5" />}
+              </Button>
+              <Button variant="ghost" size="icon" onClick={refreshHindiHits} disabled={loadingHits}>
+                {loadingHits ? <Loader className="h-5 w-5 animate-spin" /> : <RefreshCw className="h-5 w-5" />}
+              </Button>
+            </div>
           </div>
            {loadingHits ? <HindiHitsSkeleton /> : (
             <div className="grid grid-cols-3 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4">
