@@ -35,27 +35,36 @@ type JioSong = {
 const SAAVN_API_URL = 'https://saavn.dev/api';
 
 function mapSaavnSongToSong(saavnSong: JioSong): Song | null {
+  if (!saavnSong.downloadUrl || !Array.isArray(saavnSong.downloadUrl) || saavnSong.downloadUrl.length === 0) {
+    return null;
+  }
   const highQualityUrl = saavnSong.downloadUrl.find(q => q.quality === '320kbps')?.url;
   if (!highQualityUrl) return null;
 
-  const artistString = typeof saavnSong.primaryArtists === 'string' 
-      ? saavnSong.primaryArtists 
-      : saavnSong.primaryArtists.map(a => a.name).join(', ');
+  let artistString = 'Unknown Artist';
+  if (typeof saavnSong.primaryArtists === 'string' && saavnSong.primaryArtists) {
+      artistString = saavnSong.primaryArtists;
+  } else if (Array.isArray(saavnSong.primaryArtists) && saavnSong.primaryArtists.length > 0) {
+      artistString = saavnSong.primaryArtists.map(a => a.name).join(', ');
+  }
 
   const formatDuration = (s: string) => {
+    if (!s || isNaN(parseInt(s, 10))) return '0:00';
     const seconds = parseInt(s, 10);
     const minutes = Math.floor(seconds / 60);
     const remainingSeconds = seconds % 60;
     return `${minutes}:${remainingSeconds.toString().padStart(2, '0')}`;
   };
 
+  const cleanName = (name: string) => name.replace(/&quot;/g, '"').replace(/&amp;/g, '&').replace(/&#039;/g, "'");
+
   return {
     id: saavnSong.id,
-    title: saavnSong.name.replace(/&quot;/g, '"').replace(/&amp;/g, '&'),
-    artist: artistString.replace(/&quot;/g, '"').replace(/&amp;/g, '&'),
-    album: saavnSong.album.name.replace(/&quot;/g, '"').replace(/&amp;/g, '&'),
+    title: cleanName(saavnSong.name),
+    artist: cleanName(artistString),
+    album: saavnSong.album ? cleanName(saavnSong.album.name) : 'Unknown Album',
     duration: formatDuration(saavnSong.duration),
-    coverArt: saavnSong.image.find(q => q.quality === '500x500')?.url.replace('http:', 'https:') || 'https://placehold.co/500x500.png',
+    coverArt: saavnSong.image?.find(q => q.quality === '500x500')?.url.replace('http:', 'https:') || 'https://placehold.co/500x500.png',
     url: highQualityUrl.replace('http:', 'https:'),
     data_ai_hint: 'music song',
   };
@@ -80,7 +89,6 @@ export async function searchSongs(query: string, limit: number = 20): Promise<So
 export async function getSongsByIds(ids: string[]): Promise<Song[]> {
   if (ids.length === 0) return [];
   try {
-    // saavn.dev uses a different endpoint for fetching by ID
     const response = await fetch(`${SAAVN_API_URL}/songs?id=${ids.join(',')}`);
      if (!response.ok) {
         console.error(`Failed to fetch songs by IDs from JioSaavn, status: ${response.status}`);
