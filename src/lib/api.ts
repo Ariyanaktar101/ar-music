@@ -14,7 +14,12 @@ type JioSong = {
   primaryArtists:
     | string
     | {
+        id: string;
         name: string;
+        url: string;
+        image: boolean;
+        type: string;
+        role: string;
       }[];
   image: {
     quality: string;
@@ -27,7 +32,7 @@ type JioSong = {
 };
 
 
-const SAAVN_API_URL = 'https://jiosaavn-api-private.vercel.app/api';
+const SAAVN_API_URL = 'https://saavn.dev/api';
 
 function mapSaavnSongToSong(saavnSong: JioSong): Song | null {
   const highQualityUrl = saavnSong.downloadUrl.find(q => q.quality === '320kbps')?.url;
@@ -50,8 +55,8 @@ function mapSaavnSongToSong(saavnSong: JioSong): Song | null {
     artist: artistString.replace(/&quot;/g, '"').replace(/&amp;/g, '&'),
     album: saavnSong.album.name.replace(/&quot;/g, '"').replace(/&amp;/g, '&'),
     duration: formatDuration(saavnSong.duration),
-    coverArt: saavnSong.image.find(q => q.quality === '500x500')?.url || 'https://placehold.co/500x500.png',
-    url: highQualityUrl,
+    coverArt: saavnSong.image.find(q => q.quality === '500x500')?.url.replace('http:', 'https:') || 'https://placehold.co/500x500.png',
+    url: highQualityUrl.replace('http:', 'https:'),
     data_ai_hint: 'music song',
   };
 }
@@ -75,7 +80,8 @@ export async function searchSongs(query: string, limit: number = 20): Promise<So
 export async function getSongsByIds(ids: string[]): Promise<Song[]> {
   if (ids.length === 0) return [];
   try {
-    const response = await fetch(`${SAAVN_API_URL}/songs?ids=${ids.join(',')}`);
+    // saavn.dev uses a different endpoint for fetching by ID
+    const response = await fetch(`${SAAVN_API_URL}/songs?id=${ids.join(',')}`);
      if (!response.ok) {
         console.error(`Failed to fetch songs by IDs from JioSaavn, status: ${response.status}`);
         return [];
