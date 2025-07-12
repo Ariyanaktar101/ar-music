@@ -13,6 +13,7 @@ import { GreetingHeader } from '@/components/greeting-header';
 import { RefreshCw, Loader, Moon, Sun } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useTheme } from '@/context/ThemeContext';
+import React from 'react';
 
 const genres = [
   'Pop', 'Rock', 'Hip-Hop', 'Electronic', 'R&B', 'Country', 
@@ -69,7 +70,7 @@ export default function Home() {
 
   const fetchTrendingSongs = async () => {
     setLoadingTrending(true);
-    const songs = await searchSongs("latest bollywood songs", 20);
+    const songs = await searchSongs("latest bollywood songs", 50);
     setTrendingSongs(songs);
     setLoadingTrending(false);
   }
