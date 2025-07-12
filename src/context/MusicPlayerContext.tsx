@@ -46,10 +46,6 @@ interface MusicPlayerContextType {
   // Download state
   downloadedSongs: Song[];
   downloadSong: (song: Song) => void;
-
-  analyser: AnalyserNode | null;
-  showVisualizer: boolean;
-  toggleVisualizer: () => void;
 }
 
 const MusicPlayerContext = createContext<MusicPlayerContextType | undefined>(undefined);
@@ -86,9 +82,6 @@ export const MusicPlayerProvider = ({ children }: { children: React.ReactNode })
   
   const audioRef = useRef<HTMLAudioElement>(null);
   const audioContextRef = useRef<AudioContext | null>(null);
-  const sourceRef = useRef<MediaElementAudioSourceNode | null>(null);
-  const [analyser, setAnalyser] = useState<AnalyserNode | null>(null);
-  const [showVisualizer, setShowVisualizer] = useState(false);
 
 
   const { toast } = useToast();
@@ -96,25 +89,16 @@ export const MusicPlayerProvider = ({ children }: { children: React.ReactNode })
   // Setup Web Audio API
   useEffect(() => {
     if (audioRef.current && !audioContextRef.current) {
-      const AudioContext = window.AudioContext || (window as any).webkitAudioContext;
-      const context = new AudioContext();
-      audioContextRef.current = context;
-
-      const analyserNode = context.createAnalyser();
-      analyserNode.fftSize = 256;
-      setAnalyser(analyserNode);
-
-      if (!sourceRef.current) {
-        sourceRef.current = context.createMediaElementSource(audioRef.current);
-      }
-      
-      sourceRef.current.connect(analyserNode);
-      analyserNode.connect(context.destination);
-
-      // Ensure audio context is resumed
-      if (context.state === 'suspended') {
-        context.resume();
-      }
+        const AudioContext = window.AudioContext || (window as any).webkitAudioContext;
+        if (AudioContext) {
+            const context = new AudioContext();
+            audioContextRef.current = context;
+            const source = context.createMediaElementSource(audioRef.current);
+            source.connect(context.destination);
+             if (context.state === 'suspended') {
+                context.resume();
+            }
+        }
     }
   }, []);
 
@@ -340,7 +324,6 @@ export const MusicPlayerProvider = ({ children }: { children: React.ReactNode })
     setIsExpanded(nextState);
     if (!nextState) { // If collapsing player
       setShowLyrics(false);
-      setShowVisualizer(false);
     }
   }
 
@@ -362,7 +345,6 @@ export const MusicPlayerProvider = ({ children }: { children: React.ReactNode })
 
   const toggleLyricsView = () => {
       const willShow = !showLyrics;
-      setShowVisualizer(false); // Always turn off visualizer when toggling lyrics
       if (isExpanded) {
           setShowLyrics(willShow);
           if (willShow && !lyrics && !loadingLyrics) {
@@ -375,17 +357,6 @@ export const MusicPlayerProvider = ({ children }: { children: React.ReactNode })
              fetchLyrics();
           }
       }
-  }
-
-  const toggleVisualizer = () => {
-    const willShow = !showVisualizer;
-    setShowLyrics(false); // Always turn off lyrics when toggling visualizer
-     if (isExpanded) {
-        setShowVisualizer(willShow);
-    } else {
-        setIsExpanded(true);
-        setShowVisualizer(true);
-    }
   }
   
   // Playlist functions
@@ -511,9 +482,6 @@ export const MusicPlayerProvider = ({ children }: { children: React.ReactNode })
         getPlaylistById,
         downloadedSongs,
         downloadSong,
-        analyser,
-        showVisualizer,
-        toggleVisualizer,
       }}
     >
       <audio ref={audioRef} crossOrigin="anonymous" preload="metadata" />
