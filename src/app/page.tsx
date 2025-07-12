@@ -1,7 +1,7 @@
 
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, memo } from 'react';
 import { searchSongs } from '@/lib/api';
 import type { Song } from '@/lib/types';
 import { SongCard } from '@/components/song-card';
@@ -61,7 +61,7 @@ function TrendingSongsSkeleton() {
 }
 
 
-export default function Home() {
+function HomeComponent() {
   const [trendingSongs, setTrendingSongs] = useState<Song[]>([]);
   const [hindiHits, setHindiHits] = useState<Song[]>([]);
   const [loadingHits, setLoadingHits] = useState(true);
@@ -70,7 +70,7 @@ export default function Home() {
 
   const fetchTrendingSongs = async () => {
     setLoadingTrending(true);
-    const songs = await searchSongs("latest bollywood songs", 100);
+    const songs = await searchSongs("latest bollywood songs", 50);
     setTrendingSongs(songs);
     setLoadingTrending(false);
   }
@@ -159,3 +159,5 @@ export default function Home() {
       </div>
   );
 }
+
+export default memo(HomeComponent);
