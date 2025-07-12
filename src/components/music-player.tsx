@@ -62,22 +62,6 @@ function WavingDoraemon() {
     );
 }
 
-function RunningPikachu({ className }: { className?: string }) {
-  return (
-    <svg 
-      className={cn("w-4 h-4", className)} 
-      viewBox="0 0 32 32"
-      xmlns="http://www.w3.org/2000/svg"
-    >
-      <path d="M16 4.6c-1.3 0-2.6.4-3.7 1.1C8.2 8.3 5 13.9 5 20.4c0 6.6 5.4 12 12 12s12-5.4 12-12c0-6.5-3.2-12.1-7.3-14.7-1.1-.7-2.4-1.1-3.7-1.1z" fill="#ffcb05"/>
-      <path d="M22.9 8.2c.4-.3.9-.6 1.3-.9.7-.5 1.4-1.1 2.1-1.8.3-.3.6-.6.8-.9-1.2-1-2.6-1.8-4-2.4-1.2-.5-2.5-.8-3.8-.8-1.3 0-2.6.3-3.8.8-1.4.6-2.8 1.4-4 2.4.2.3.5.6.8.9.7.7 1.4 1.3 2.1 1.8.5.3.9.6 1.3.9C15.6 6.5 19.3 6.5 22.9 8.2z" fill="#333"/>
-      <circle cx="11" cy="15" r="2" fill="#333"/>
-      <circle cx="21" cy="15" r="2" fill="#333"/>
-      <path d="M14 20c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm4 0c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2z" fill="#d9534f"/>
-    </svg>
-  );
-}
-
 function MoreOptionsButton() {
     const { currentSong, playlists, addSongToPlaylist, toggleLyricsView, downloadSong } = useMusicPlayer();
 
@@ -319,10 +303,6 @@ function ExpandedPlayer() {
          animate={isExpanded ? "visible" : "hidden"}
       >
         <div className="space-y-1 relative">
-            <RunningPikachu 
-              className="absolute -top-1.5 z-10 transition-all duration-100"
-              style={{ left: `calc(${(progress / duration) * 100}% - 8px)` }} 
-            />
             <Slider
                 value={[progress]}
                 max={duration}
