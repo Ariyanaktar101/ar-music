@@ -48,6 +48,8 @@ interface MusicPlayerContextType {
   downloadSong: (song: Song) => void;
 
   analyser: AnalyserNode | null;
+  showVisualizer: boolean;
+  toggleVisualizer: () => void;
 }
 
 const MusicPlayerContext = createContext<MusicPlayerContextType | undefined>(undefined);
@@ -86,6 +88,8 @@ export const MusicPlayerProvider = ({ children }: { children: React.ReactNode })
   const audioContextRef = useRef<AudioContext | null>(null);
   const sourceRef = useRef<MediaElementAudioSourceNode | null>(null);
   const [analyser, setAnalyser] = useState<AnalyserNode | null>(null);
+  const [showVisualizer, setShowVisualizer] = useState(false);
+
 
   const { toast } = useToast();
   
@@ -97,6 +101,7 @@ export const MusicPlayerProvider = ({ children }: { children: React.ReactNode })
       audioContextRef.current = context;
 
       const analyserNode = context.createAnalyser();
+      analyserNode.fftSize = 256;
       setAnalyser(analyserNode);
 
       if (!sourceRef.current) {
@@ -335,6 +340,7 @@ export const MusicPlayerProvider = ({ children }: { children: React.ReactNode })
     setIsExpanded(nextState);
     if (!nextState) { // If collapsing player
       setShowLyrics(false);
+      setShowVisualizer(false);
     }
   }
 
@@ -356,20 +362,30 @@ export const MusicPlayerProvider = ({ children }: { children: React.ReactNode })
 
   const toggleLyricsView = () => {
       const willShow = !showLyrics;
-      // If we are in the mobile expanded view, just toggle.
+      setShowVisualizer(false); // Always turn off visualizer when toggling lyrics
       if (isExpanded) {
           setShowLyrics(willShow);
           if (willShow && !lyrics && !loadingLyrics) {
               fetchLyrics();
           }
       } else {
-          // If we are on desktop or compact mobile, expand the player to show lyrics.
           setIsExpanded(true);
           setShowLyrics(true);
           if (!lyrics && !loadingLyrics) {
              fetchLyrics();
           }
       }
+  }
+
+  const toggleVisualizer = () => {
+    const willShow = !showVisualizer;
+    setShowLyrics(false); // Always turn off lyrics when toggling visualizer
+     if (isExpanded) {
+        setShowVisualizer(willShow);
+    } else {
+        setIsExpanded(true);
+        setShowVisualizer(true);
+    }
   }
   
   // Playlist functions
@@ -496,6 +512,8 @@ export const MusicPlayerProvider = ({ children }: { children: React.ReactNode })
         downloadedSongs,
         downloadSong,
         analyser,
+        showVisualizer,
+        toggleVisualizer,
       }}
     >
       <audio ref={audioRef} src="" crossOrigin="anonymous" preload="metadata" />

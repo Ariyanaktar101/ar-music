@@ -22,6 +22,7 @@ import {
   DropdownMenuPortal,
 } from '@/components/ui/dropdown-menu';
 import { motion, PanInfo, useAnimation } from 'framer-motion';
+import AudioVisualizer from './AudioVisualizer';
 
 
 function CarbonIcon({ className }: { className?: string }) {
@@ -169,6 +170,8 @@ function ExpandedPlayer() {
     loadingLyrics,
     toggleLyricsView,
     currentLineIndex,
+    showVisualizer,
+    toggleVisualizer,
   } = useMusicPlayer();
   
   const controls = useAnimation();
@@ -229,6 +232,13 @@ function ExpandedPlayer() {
   };
   
   const renderPlayerContent = () => {
+    if (showVisualizer) {
+      return (
+        <div className="absolute inset-0 bg-black flex items-center justify-center text-center rounded-lg overflow-hidden">
+          <AudioVisualizer />
+        </div>
+      );
+    }
     if (showLyrics) {
       return (
         <div className="absolute inset-0 bg-background flex items-center justify-center text-center rounded-lg overflow-hidden">
@@ -382,6 +392,9 @@ function ExpandedPlayer() {
               onValueChange={handleVolumeChange}
               className="w-full h-1 relative [&>span:first-child]:h-1 [&>span>span]:h-1 [&>span>span]:bg-white/40 [&>a]:h-3 [&>a]:w-3"
             />
+             <Button variant="ghost" size="icon" onClick={toggleVisualizer} className={cn(showVisualizer && "text-primary")}>
+                <CarbonIcon />
+            </Button>
              <Button variant="ghost" size="icon" onClick={toggleLyricsView} className={cn(showLyrics && "text-primary")}>
                 <Mic2 className="h-5 w-5" />
             </Button>
@@ -418,6 +431,8 @@ export function MusicPlayer() {
     toggleExpandPlayer,
     showLyrics,
     toggleLyricsView,
+    showVisualizer,
+    toggleVisualizer,
   } = useMusicPlayer();
   
   const compactPlayerControls = useAnimation();
@@ -555,6 +570,9 @@ export function MusicPlayer() {
           </div>
 
           <div className="flex items-center gap-2 w-1/4 justify-end">
+             <Button variant="ghost" size="icon" onClick={toggleVisualizer} className={cn(showVisualizer && "text-primary")}>
+                <CarbonIcon />
+            </Button>
              <Button variant="ghost" size="icon" onClick={toggleLyricsView} className={cn(showLyrics && "text-primary")}>
                 <Mic2 className="h-5 w-5" />
             </Button>
