@@ -10,6 +10,7 @@ import { useMusicPlayer } from '@/context/MusicPlayerContext';
 import { cn } from '@/lib/utils';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { ScrollArea } from './ui/scroll-area';
+import AudioVisualizer from './AudioVisualizer';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -24,6 +25,23 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { motion, PanInfo, useAnimation } from 'framer-motion';
 
+
+function CarbonIcon({ className }: { className?: string }) {
+    return (
+      <svg
+        className={cn("h-5 w-5", className)}
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      >
+        <path d="M6 12c0-1.7 1.3-3 3-3s3 1.3 3 3-1.3 3-3 3-3-1.3-3-3z" />
+        <path d="M15 6c-1.7 0-3 1.3-3 3v6c0 1.7 1.3 3 3 3s3-1.3 3-3V9c0-1.7-1.3-3-3-3z" />
+      </svg>
+    );
+}
 
 function WavingDoraemon() {
     return (
@@ -152,7 +170,9 @@ function ExpandedPlayer() {
     lyrics,
     loadingLyrics,
     toggleLyricsView,
-    currentLineIndex
+    currentLineIndex,
+    showVisualizer,
+    toggleVisualizer,
   } = useMusicPlayer();
   
   const controls = useAnimation();
@@ -222,6 +242,64 @@ function ExpandedPlayer() {
       },
     },
   };
+  
+  const renderPlayerContent = () => {
+    if (showVisualizer) {
+      return <AudioVisualizer />;
+    }
+    if (showLyrics) {
+      return (
+        <div className="absolute inset-0 bg-muted/50 flex items-center justify-center text-center rounded-lg">
+            {loadingLyrics ? (
+            <Loader className="h-10 w-10 animate-spin text-primary" />
+            ) : lyrics ? (
+                <ScrollArea className="h-full w-full">
+                <div className="p-6 text-lg text-foreground text-center flex flex-col items-center justify-center min-h-full">
+                    {lyricsLines.map((line, index) => (
+                    <p
+                        key={index}
+                        ref={(el) => { lineRefs.current[index] = el; }}
+                        className={cn(
+                        "py-2 font-sans whitespace-pre-wrap transition-all duration-300",
+                        currentLineIndex === index
+                            ? "text-primary scale-105 font-bold"
+                            : "text-muted-foreground"
+                        )}
+                    >
+                        {line || '...'}
+                    </p>
+                    ))}
+                </div>
+                </ScrollArea>
+            ) : (
+            <div className="text-center text-muted-foreground flex flex-col items-center gap-2">
+                <Music className="h-8 w-8" />
+                <p className="font-medium">No lyrics found</p>
+                <p className="text-sm">Sorry, we couldn't find lyrics for this song.</p>
+            </div>
+            )}
+        </div>
+      );
+    }
+    return (
+        <motion.div 
+            className="relative w-full h-full rounded-lg shadow-2xl"
+            style={{
+                boxShadow: '0 0 20px 5px hsl(var(--primary) / 0.6), 0 0 50px 15px hsl(var(--accent) / 0.3), 0 0 80px 25px hsl(262 84% 58% / 0.5)'
+            }}
+            initial={{ scale: 0.8, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
+            transition={{ type: 'spring', duration: 0.8 }}
+        >
+            <Image
+                src={currentSong.coverArt}
+                alt={currentSong.title}
+                fill
+                className="object-cover rounded-lg"
+            />
+        </motion.div>
+    );
+  }
 
   return (
     <motion.div 
@@ -252,52 +330,7 @@ function ExpandedPlayer() {
         animate={isExpanded ? "visible" : "hidden"}
       >
         <motion.div className="relative w-full max-w-sm aspect-square" variants={itemVariants}>
-          {showLyrics ? (
-            <div className="absolute inset-0 bg-muted/50 flex items-center justify-center text-center rounded-lg">
-              {loadingLyrics ? (
-                <Loader className="h-10 w-10 animate-spin text-primary" />
-              ) : lyrics ? (
-                 <ScrollArea className="h-full w-full">
-                    <div className="p-6 text-lg text-foreground text-center flex flex-col items-center justify-center min-h-full">
-                      {lyricsLines.map((line, index) => (
-                        <p
-                          key={index}
-                          ref={(el) => { lineRefs.current[index] = el; }}
-                          className={cn(
-                            "py-2 font-sans whitespace-pre-wrap transition-all duration-300",
-                            currentLineIndex === index
-                              ? "text-primary scale-105 font-bold"
-                              : "text-muted-foreground"
-                          )}
-                        >
-                          {line || '...'}
-                        </p>
-                      ))}
-                    </div>
-                 </ScrollArea>
-              ) : (
-                <div className="text-center text-muted-foreground flex flex-col items-center gap-2">
-                    <Music className="h-8 w-8" />
-                    <p className="font-medium">No lyrics found</p>
-                    <p className="text-sm">Sorry, we couldn't find lyrics for this song.</p>
-                </div>
-              )}
-            </div>
-          ) : (
-             <motion.div 
-                className="relative w-full h-full rounded-lg animate-aurora-glow"
-                initial={{ scale: 0.8, opacity: 0 }}
-                animate={{ scale: 1, opacity: 1 }}
-                transition={{ type: 'spring', duration: 0.8 }}
-             >
-                <Image
-                    src={currentSong.coverArt}
-                    alt={currentSong.title}
-                    fill
-                    className="object-cover rounded-lg"
-                />
-            </motion.div>
-          )}
+          {renderPlayerContent()}
         </motion.div>
 
         <motion.div className="w-full" variants={itemVariants}>
@@ -366,6 +399,9 @@ function ExpandedPlayer() {
               onValueChange={handleVolumeChange}
               className="w-full h-1 relative [&>span:first-child]:h-1 [&>span>span]:h-1 [&>span>span]:bg-white/40 [&>a]:h-3 [&>a]:w-3"
             />
+            <Button variant="ghost" size="icon" onClick={toggleVisualizer} className={cn(showVisualizer && "text-primary")}>
+                <CarbonIcon />
+            </Button>
              <Button variant="ghost" size="icon" onClick={toggleLyricsView} className={cn(showLyrics && "text-primary")}>
                 <Mic2 className="h-5 w-5" />
             </Button>
@@ -402,6 +438,8 @@ export function MusicPlayer() {
     toggleExpandPlayer,
     showLyrics,
     toggleLyricsView,
+    toggleVisualizer,
+    showVisualizer,
   } = useMusicPlayer();
   
   const compactPlayerControls = useAnimation();
@@ -440,8 +478,6 @@ export function MusicPlayer() {
 
   return (
     <>
-      <audio ref={audioRef} src={currentSong.url} preload="metadata" />
-      
       {/* Expanded Mobile Player */}
       <ExpandedPlayer />
 
@@ -541,6 +577,9 @@ export function MusicPlayer() {
           </div>
 
           <div className="flex items-center gap-2 w-1/4 justify-end">
+            <Button variant="ghost" size="icon" onClick={toggleVisualizer} className={cn(showVisualizer && "text-primary")}>
+                <CarbonIcon />
+            </Button>
              <Button variant="ghost" size="icon" onClick={toggleLyricsView} className={cn(showLyrics && "text-primary")}>
                 <Mic2 className="h-5 w-5" />
             </Button>

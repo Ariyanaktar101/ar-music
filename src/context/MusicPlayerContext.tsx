@@ -28,6 +28,8 @@ interface MusicPlayerContextType {
   recentlyPlayed: Song[];
   isExpanded: boolean;
   toggleExpandPlayer: () => void;
+  
+  // Lyrics State
   showLyrics: boolean;
   lyrics: string | null;
   loadingLyrics: boolean;
@@ -44,6 +46,11 @@ interface MusicPlayerContextType {
   // Download state
   downloadedSongs: Song[];
   downloadSong: (song: Song) => void;
+
+  // Visualizer State
+  analyser: AnalyserNode | null;
+  showVisualizer: boolean;
+  toggleVisualizer: () => void;
 }
 
 const MusicPlayerContext = createContext<MusicPlayerContextType | undefined>(undefined);
@@ -78,8 +85,39 @@ export const MusicPlayerProvider = ({ children }: { children: React.ReactNode })
   // Download State
   const [downloadedSongs, setDownloadedSongs] = useState<Song[]>([]);
 
+  // Visualizer State
+  const [analyser, setAnalyser] = useState<AnalyserNode | null>(null);
+  const [showVisualizer, setShowVisualizer] = useState(false);
+  
   const audioRef = useRef<HTMLAudioElement>(null);
+  const audioContextRef = useRef<AudioContext | null>(null);
+  const sourceRef = useRef<MediaElementAudioSourceNode | null>(null);
+
   const { toast } = useToast();
+  
+  // Setup Web Audio API
+  useEffect(() => {
+    if (audioRef.current && !audioContextRef.current) {
+      const AudioContext = window.AudioContext || (window as any).webkitAudioContext;
+      const context = new AudioContext();
+      audioContextRef.current = context;
+
+      const analyserNode = context.createAnalyser();
+      setAnalyser(analyserNode);
+
+      if (!sourceRef.current) {
+        sourceRef.current = context.createMediaElementSource(audioRef.current);
+      }
+      
+      sourceRef.current.connect(analyserNode);
+      analyserNode.connect(context.destination);
+
+      // Ensure audio context is resumed
+      if (context.state === 'suspended') {
+        context.resume();
+      }
+    }
+  }, []);
 
   // Load state from localStorage on initial render
   useEffect(() => {
@@ -191,6 +229,7 @@ export const MusicPlayerProvider = ({ children }: { children: React.ReactNode })
   useEffect(() => {
     if (audioRef.current) {
       if (isPlaying) {
+        audioContextRef.current?.resume();
         audioRef.current.play().catch(console.error);
       } else {
         audioRef.current.pause();
@@ -222,6 +261,7 @@ export const MusicPlayerProvider = ({ children }: { children: React.ReactNode })
     addSongToRecents(song);
     setIsPlaying(true);
     setShowLyrics(false);
+    setShowVisualizer(false);
     setLyrics(null);
     setCurrentLineIndex(null);
     setLyricTimings([]);
@@ -229,12 +269,16 @@ export const MusicPlayerProvider = ({ children }: { children: React.ReactNode })
       audioRef.current.currentTime = 0;
       audioRef.current.src = song.url;
       audioRef.current.load();
+      audioContextRef.current?.resume(); // Resume context on new song
       audioRef.current.play().catch(console.error);
     }
   };
 
   const togglePlayPause = () => {
     if (currentSong) {
+      if (!isPlaying) {
+        audioContextRef.current?.resume();
+      }
       setIsPlaying(!isPlaying);
     }
   };
@@ -294,9 +338,11 @@ export const MusicPlayerProvider = ({ children }: { children: React.ReactNode })
   }
 
   const toggleExpandPlayer = () => {
-    setIsExpanded(prev => !prev);
-    if (isExpanded) {
+    const nextState = !isExpanded;
+    setIsExpanded(nextState);
+    if (!nextState) { // If collapsing player
       setShowLyrics(false);
+      setShowVisualizer(false);
     }
   }
 
@@ -318,6 +364,7 @@ export const MusicPlayerProvider = ({ children }: { children: React.ReactNode })
 
   const toggleLyricsView = () => {
       const willShow = !showLyrics;
+      setShowVisualizer(false); // Turn off visualizer when showing lyrics
       // If we are in the mobile expanded view, just toggle.
       if (isExpanded) {
           setShowLyrics(willShow);
@@ -332,6 +379,17 @@ export const MusicPlayerProvider = ({ children }: { children: React.ReactNode })
              fetchLyrics();
           }
       }
+  }
+  
+  const toggleVisualizer = () => {
+    const willShow = !showVisualizer;
+    setShowLyrics(false); // Turn off lyrics when showing visualizer
+    if (isExpanded) {
+        setShowVisualizer(willShow);
+    } else {
+        setIsExpanded(true);
+        setShowVisualizer(true);
+    }
   }
   
   // Playlist functions
@@ -457,8 +515,12 @@ export const MusicPlayerProvider = ({ children }: { children: React.ReactNode })
         getPlaylistById,
         downloadedSongs,
         downloadSong,
+        analyser,
+        showVisualizer,
+        toggleVisualizer,
       }}
     >
+      <audio ref={audioRef} src="" crossOrigin="anonymous" preload="metadata" />
       {children}
     </MusicPlayerContext.Provider>
   );
