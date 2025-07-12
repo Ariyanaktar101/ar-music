@@ -23,6 +23,7 @@ import {
   Mail,
   Phone,
   Heart,
+  Upload,
 } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
@@ -38,7 +39,7 @@ import {
 } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { Textarea } from '@/components/ui/textarea';
 
 function SnapchatIcon(props: React.SVGProps<SVGSVGElement>) {
@@ -96,22 +97,45 @@ function WavingDoraemon() {
 
 function LoggedInView() {
   const { user, logout, login } = useAuth();
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  
   const [name, setName] = useState(user?.name || '');
   const [username, setUsername] = useState(user?.username || '');
   const [bio, setBio] = useState(user?.bio || '');
   const [email, setEmail] = useState(user?.email || '');
   const [phone, setPhone] = useState(user?.phone || '');
   const [avatarSeed, setAvatarSeed] = useState(user?.avatarSeed || 'default');
+  const [customAvatar, setCustomAvatar] = useState<string | null>(user?.avatarUrl || null);
+
 
   const handleSaveChanges = () => {
     if (user) {
-      const updatedUser = { ...user, name, username, bio, email, phone, avatarSeed };
-      login(updatedUser); // login function also updates the user
+      const updatedUser = { ...user, name, username, bio, email, phone, avatarSeed, avatarUrl: customAvatar };
+      login(updatedUser);
     }
   };
   
   const randomizeAvatar = () => {
+    setCustomAvatar(null); // Clear custom avatar when randomizing
     setAvatarSeed(Math.random().toString(36).substring(7));
+  };
+
+  const handleAvatarUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setCustomAvatar(reader.result as string);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+  
+  const getAvatarSrc = () => {
+    if (user?.avatarUrl) {
+      return user.avatarUrl;
+    }
+    return `https://api.dicebear.com/8.x/bottts-neutral/svg?seed=${user?.avatarSeed || user?.name}`;
   }
 
   return (
@@ -119,7 +143,7 @@ function LoggedInView() {
       <CardHeader className="text-center items-center">
         <Avatar className="h-24 w-24 mb-4">
           <AvatarImage
-            src={`https://api.dicebear.com/8.x/bottts-neutral/svg?seed=${user?.avatarSeed || user?.name}`}
+            src={getAvatarSrc()}
             alt={user?.name}
           />
           <AvatarFallback>{user?.name?.[0]}</AvatarFallback>
@@ -232,12 +256,22 @@ function LoggedInView() {
                      <Label className="text-right">Avatar</Label>
                      <div className="col-span-3 flex items-center gap-2">
                         <Avatar>
-                            <AvatarImage src={`https://api.dicebear.com/8.x/bottts-neutral/svg?seed=${avatarSeed}`} alt={name} />
+                            <AvatarImage src={customAvatar || `https://api.dicebear.com/8.x/bottts-neutral/svg?seed=${avatarSeed}`} alt={name} />
                             <AvatarFallback>{name?.[0]}</AvatarFallback>
                         </Avatar>
                         <Button variant="ghost" size="icon" onClick={randomizeAvatar}>
                             <RefreshCw className="h-4 w-4" />
                         </Button>
+                        <Button variant="ghost" size="icon" onClick={() => fileInputRef.current?.click()}>
+                            <Upload className="h-4 w-4" />
+                        </Button>
+                        <Input
+                            type="file"
+                            ref={fileInputRef}
+                            className="hidden"
+                            accept="image/*"
+                            onChange={handleAvatarUpload}
+                        />
                      </div>
                   </div>
                 </div>
@@ -369,3 +403,5 @@ export default function ProfilePage() {
       </div>
   );
 }
+
+    

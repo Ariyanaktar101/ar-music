@@ -1,3 +1,4 @@
+
 'use client';
 
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
@@ -7,6 +8,7 @@ interface User {
   email?: string;
   phone?: string;
   avatarSeed?: string;
+  avatarUrl?: string; // For custom uploaded avatars
   username?: string;
   bio?: string;
 }
@@ -40,12 +42,8 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
   const login = (userData: User) => {
     const userToSave = {
-        name: userData.name,
-        email: userData.email,
-        phone: userData.phone,
+        ...userData,
         avatarSeed: userData.avatarSeed || userData.name, // use name as seed if not provided
-        username: userData.username,
-        bio: userData.bio,
     }
     setUser(userToSave);
     localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(userToSave));
@@ -75,3 +73,5 @@ export const useAuth = () => {
   }
   return context;
 };
+
+    
