@@ -136,6 +136,8 @@ function ExpandedPlayer() {
     loadingLyrics,
     toggleLyricsView,
     currentLineIndex,
+    isShuffled,
+    toggleShuffle,
   } = useMusicPlayer();
   
   const controls = useAnimation();
@@ -317,8 +319,8 @@ function ExpandedPlayer() {
         </div>
 
         <div className="flex items-center justify-around">
-            <Button variant="ghost" size="icon">
-                <Shuffle className="h-5 w-5 text-muted-foreground" />
+            <Button variant="ghost" size="icon" onClick={toggleShuffle}>
+                <Shuffle className={cn("h-5 w-5", isShuffled ? "text-primary" : "text-muted-foreground")} />
             </Button>
             <Button variant="ghost" size="icon" onClick={skipBackward}>
                 <SkipBack className="h-6 w-6" />
@@ -381,6 +383,8 @@ export function MusicPlayer() {
     toggleExpandPlayer,
     showLyrics,
     toggleLyricsView,
+    isShuffled,
+    toggleShuffle,
   } = useMusicPlayer();
   
   const compactPlayerControls = useAnimation();
@@ -494,6 +498,9 @@ export function MusicPlayer() {
 
           <div className="flex flex-col items-center gap-2 w-1/2">
             <div className="flex items-center gap-4">
+               <Button variant="ghost" size="icon" onClick={toggleShuffle}>
+                <Shuffle className={cn("h-5 w-5", isShuffled ? "text-primary" : "text-muted-foreground")} />
+              </Button>
               <Button variant="ghost" size="icon" onClick={skipBackward}>
                 <SkipBack className="h-5 w-5" />
               </Button>
@@ -502,6 +509,9 @@ export function MusicPlayer() {
               </Button>
               <Button variant="ghost" size="icon" onClick={skipForward}>
                 <SkipForward className="h-5 w-5" />
+              </Button>
+               <Button variant="ghost" size="icon">
+                <Repeat className="h-5 w-5 text-muted-foreground" />
               </Button>
             </div>
             <div className="w-full flex items-center gap-2">

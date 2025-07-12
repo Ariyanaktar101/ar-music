@@ -29,6 +29,10 @@ interface MusicPlayerContextType {
   isExpanded: boolean;
   toggleExpandPlayer: () => void;
   
+  // Shuffle State
+  isShuffled: boolean;
+  toggleShuffle: () => void;
+  
   // Lyrics State
   showLyrics: boolean;
   lyrics: string | null;
@@ -56,9 +60,20 @@ interface LyricTimings {
   startTime: number;
 }
 
+const shuffleArray = (array: any[]) => {
+  const newArray = [...array];
+  for (let i = newArray.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [newArray[i], newArray[j]] = [newArray[j], newArray[i]];
+  }
+  return newArray;
+};
+
+
 export const MusicPlayerProvider = ({ children }: { children: React.ReactNode }) => {
   const [currentSong, setCurrentSong] = useState<Song | null>(null);
   const [currentQueue, setCurrentQueue] = useState<Song[]>([]);
+  const [shuffledQueue, setShuffledQueue] = useState<Song[]>([]);
   const [isPlaying, setIsPlaying] = useState(false);
   const [progress, setProgress] = useState(0);
   const [duration, setDuration] = useState(0);
@@ -67,6 +82,7 @@ export const MusicPlayerProvider = ({ children }: { children: React.ReactNode })
   const [favoriteSongs, setFavoriteSongs] = useState<string[]>([]);
   const [recentlyPlayed, setRecentlyPlayed] = useState<Song[]>([]);
   const [isExpanded, setIsExpanded] = useState(false);
+  const [isShuffled, setIsShuffled] = useState(false);
   
   // Lyrics State
   const [showLyrics, setShowLyrics] = useState(false);
@@ -99,6 +115,9 @@ export const MusicPlayerProvider = ({ children }: { children: React.ReactNode })
 
       const storedDownloads = localStorage.getItem('ar-music-downloads');
       if (storedDownloads) setDownloadedSongs(JSON.parse(storedDownloads));
+
+      const storedShuffle = localStorage.getItem('ar-music-shuffle');
+      if (storedShuffle) setIsShuffled(JSON.parse(storedShuffle));
       
     } catch (error) {
       console.error("Failed to parse from localStorage", error);
@@ -117,6 +136,10 @@ export const MusicPlayerProvider = ({ children }: { children: React.ReactNode })
   useEffect(() => {
     localStorage.setItem('ar-music-playlists', JSON.stringify(playlists));
   }, [playlists]);
+  
+  useEffect(() => {
+    localStorage.setItem('ar-music-shuffle', JSON.stringify(isShuffled));
+  }, [isShuffled]);
 
   useEffect(() => {
     localStorage.setItem('ar-music-downloads', JSON.stringify(downloadedSongs));
@@ -131,12 +154,23 @@ export const MusicPlayerProvider = ({ children }: { children: React.ReactNode })
   }, []);
 
   const playSong = useCallback((song: Song, queue: Song[] = []) => {
-    if (currentSong?.id === song.id) {
-        setIsPlaying(p => !p);
-        return;
+    if (currentSong?.id === song.id && isPlaying) {
+      // If the same song is clicked and it's playing, do nothing, just let it continue.
+      // If paused, togglePlayPause will handle it.
+      togglePlayPause();
+      return;
     }
+    
+    const newQueue = queue.length > 0 ? queue : [song];
+    setCurrentQueue(newQueue);
+    
+    if (isShuffled) {
+      // Create a shuffled queue with the selected song at the front
+      const otherSongs = newQueue.filter(s => s.id !== song.id);
+      setShuffledQueue([song, ...shuffleArray(otherSongs)]);
+    }
+
     setCurrentSong(song);
-    setCurrentQueue(queue.length > 0 ? queue : [song]);
     addSongToRecents(song);
     setIsPlaying(true);
     setShowLyrics(false);
@@ -148,28 +182,39 @@ export const MusicPlayerProvider = ({ children }: { children: React.ReactNode })
       audioRef.current.load();
       audioRef.current.play().catch(console.error);
     }
-  }, [currentSong, addSongToRecents]);
+  }, [currentSong, addSongToRecents, isPlaying, isShuffled, togglePlayPause]);
 
   const playNextSong = useCallback(() => {
-    if (!currentSong || currentQueue.length === 0) return;
-  
-    const currentIndex = currentQueue.findIndex(s => s.id === currentSong.id);
-    // If the song is not in the queue, or the queue has only one song, do nothing or handle as desired.
-    // For now, we will just check if there's a next song.
+    if (!currentSong) return;
+
+    const queue = isShuffled ? shuffledQueue : currentQueue;
+    if (queue.length === 0) return;
+
+    const currentIndex = queue.findIndex(s => s.id === currentSong.id);
+    let nextIndex = (currentIndex + 1);
+
+    if (nextIndex >= queue.length) {
+      // If at the end of the queue
+      if(isShuffled) {
+        // Re-shuffle the original queue and start over
+        const newShuffledQueue = shuffleArray(currentQueue);
+        setShuffledQueue(newShuffledQueue);
+        if (newShuffledQueue.length > 0) {
+          playSong(newShuffledQueue[0], currentQueue);
+        }
+        return;
+      }
+      nextIndex = 0; // Loop for non-shuffled queue
+    }
     
-    // Calculate the next index, looping back to the start if at the end of the queue.
-    const nextIndex = (currentIndex + 1) % currentQueue.length;
-    
-    const nextSong = currentQueue[nextIndex];
+    const nextSong = queue[nextIndex];
     
     if (nextSong) {
       playSong(nextSong, currentQueue);
     } else {
-      // This case should ideally not be hit if the queue is not empty,
-      // but as a fallback, we can stop the player.
       setIsPlaying(false);
     }
-  }, [currentSong, currentQueue, playSong]);
+  }, [currentSong, currentQueue, shuffledQueue, isShuffled, playSong]);
   
   // Effect to pre-calculate lyric timings when lyrics or duration are set
   useEffect(() => {
@@ -253,6 +298,18 @@ export const MusicPlayerProvider = ({ children }: { children: React.ReactNode })
       audioRef.current.muted = isMuted;
     }
   }, [volume, isMuted]);
+  
+  const toggleShuffle = useCallback(() => {
+    const willBeShuffled = !isShuffled;
+    setIsShuffled(willBeShuffled);
+    if (willBeShuffled && currentSong) {
+      // When enabling shuffle, create a shuffled queue starting with the current song
+      const otherSongs = currentQueue.filter(s => s.id !== currentSong.id);
+      setShuffledQueue([currentSong, ...shuffleArray(otherSongs)]);
+    } else {
+      setShuffledQueue([]);
+    }
+  }, [isShuffled, currentSong, currentQueue]);
 
   const togglePlayPause = useCallback(() => {
     if (currentSong) {
@@ -282,12 +339,24 @@ export const MusicPlayerProvider = ({ children }: { children: React.ReactNode })
   }, [isMuted, volume]);
   
   const skipForward = useCallback(() => {
-      if(audioRef.current) audioRef.current.currentTime += 10;
-  }, []);
+    playNextSong();
+  }, [playNextSong]);
 
   const skipBackward = useCallback(() => {
-      if(audioRef.current) audioRef.current.currentTime -= 10;
-  }, []);
+    if (!currentSong) return;
+    const queue = isShuffled ? shuffledQueue : currentQueue;
+    if (queue.length === 0) return;
+    
+    const currentIndex = queue.findIndex(s => s.id === currentSong.id);
+    const prevIndex = (currentIndex - 1 + queue.length) % queue.length;
+    
+    if (audioRef.current && audioRef.current.currentTime > 3) {
+      audioRef.current.currentTime = 0;
+    } else {
+      playSong(queue[prevIndex], currentQueue);
+    }
+  }, [currentSong, currentQueue, shuffledQueue, isShuffled, playSong]);
+
 
   const closePlayer = useCallback(() => {
       setCurrentSong(null);
@@ -453,6 +522,8 @@ export const MusicPlayerProvider = ({ children }: { children: React.ReactNode })
     recentlyPlayed,
     isExpanded,
     toggleExpandPlayer,
+    isShuffled,
+    toggleShuffle,
     showLyrics,
     lyrics,
     loadingLyrics,
@@ -486,6 +557,8 @@ export const MusicPlayerProvider = ({ children }: { children: React.ReactNode })
     recentlyPlayed,
     isExpanded,
     toggleExpandPlayer,
+    isShuffled,
+    toggleShuffle,
     showLyrics,
     lyrics,
     loadingLyrics,
