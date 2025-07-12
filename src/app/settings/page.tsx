@@ -1,7 +1,7 @@
 
 'use client';
 
-import React from 'react';
+import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import {
   Card,
@@ -21,7 +21,7 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from '@/components/ui/alert-dialog';
-import { ArrowLeft, Palette, Music, Wifi, User, Trash2, Moon, Sun, Monitor, Shield, Bell, LifeBuoy, Flag } from 'lucide-react';
+import { ArrowLeft, Palette, Music, Wifi, User, Trash2, Moon, Sun, Monitor, Shield, Bell, LifeBuoy, Flag, MessageSquare } from 'lucide-react';
 import Link from 'next/link';
 import { Label } from '@/components/ui/label';
 import {
@@ -37,6 +37,7 @@ import { Switch } from '@/components/ui/switch';
 import { Separator } from '@/components/ui/separator';
 import { useTheme } from '@/context/ThemeContext';
 import { useSettings } from '@/context/SettingsContext';
+import { Input } from '@/components/ui/input';
 
 const accentColors = [
     { name: 'Blue', color: '207 90% 58%' },
@@ -45,6 +46,49 @@ const accentColors = [
     { name: 'Rose', color: '347 77% 50%' },
     { name: 'Violet', color: '262 84% 58%' },
 ]
+
+function ReportSongCard() {
+    const [songName, setSongName] = useState('');
+    const [artistName, setArtistName] = useState('');
+
+    const handleReport = () => {
+        const subject = encodeURIComponent('Missing Song Report');
+        const body = encodeURIComponent(`Hi, I couldn't find this song in the app:\n\nSong Name: ${songName}\nArtist: ${artistName}\n\nThanks!`);
+        window.location.href = `mailto:ariyan.official101@gmail.com?subject=${subject}&body=${body}`;
+    };
+
+    return (
+        <Card>
+            <CardHeader>
+                <CardTitle className="flex items-center gap-2"><MessageSquare /> Report a Missing Song</CardTitle>
+                <CardDescription>If you can't find a song, let us know and we'll try to add it.</CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+                <div className="space-y-2">
+                    <Label htmlFor="song-name">Song Name</Label>
+                    <Input 
+                        id="song-name"
+                        placeholder="e.g., Faded"
+                        value={songName}
+                        onChange={(e) => setSongName(e.target.value)}
+                    />
+                </div>
+                 <div className="space-y-2">
+                    <Label htmlFor="artist-name">Artist Name</Label>
+                    <Input 
+                        id="artist-name"
+                        placeholder="e.g., Alan Walker"
+                        value={artistName}
+                        onChange={(e) => setArtistName(e.target.value)}
+                    />
+                </div>
+                <Button onClick={handleReport} disabled={!songName || !artistName}>
+                    Report via Email
+                </Button>
+            </CardContent>
+        </Card>
+    )
+}
 
 export default function SettingsPage() {
   const { theme, setTheme } = useTheme();
@@ -219,6 +263,8 @@ export default function SettingsPage() {
             </CardContent>
           </Card>
           
+          <ReportSongCard />
+          
            <Card>
             <CardHeader>
               <CardTitle className="flex items-center gap-2"><Flag /> Report a Problem</CardTitle>
@@ -278,5 +324,3 @@ export default function SettingsPage() {
       </div>
   );
 }
-
-    
