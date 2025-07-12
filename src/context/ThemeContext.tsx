@@ -1,3 +1,4 @@
+
 'use client';
 
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
@@ -15,7 +16,7 @@ const ThemeProviderContext = createContext<ThemeProviderState | undefined>(undef
 const LOCAL_STORAGE_KEY = 'ar-music-theme';
 
 export const ThemeProvider = ({ children }: { children: ReactNode }) => {
-  const [theme, setThemeState] = useState<Theme>('system');
+  const [theme, setThemeState] = useState<Theme>('dark');
   const { accentColor } = useSettings();
   const [isLoaded, setIsLoaded] = useState(false);
 
