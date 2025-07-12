@@ -5,8 +5,6 @@ import { MusicPlayerProvider } from '@/context/MusicPlayerContext';
 import { AuthProvider } from '@/context/AuthContext';
 import { ThemeProvider } from '@/context/ThemeContext';
 import { SettingsProvider } from '@/context/SettingsContext';
-import { TopLoader } from '@/components/top-loader';
-import { Suspense } from 'react';
 import { AppShell } from '@/components/app-shell';
 
 export const metadata: Metadata = {
@@ -31,9 +29,6 @@ export default function RootLayout({
           <ThemeProvider>
             <AuthProvider>
               <MusicPlayerProvider>
-                <Suspense fallback={null}>
-                  <TopLoader />
-                </Suspense>
                 <AppShell>{children}</AppShell>
                 <Toaster />
               </MusicPlayerProvider>
