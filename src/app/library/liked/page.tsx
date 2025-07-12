@@ -44,10 +44,15 @@ export default function LikedSongsPage() {
     const fetchLikedSongs = async () => {
       setLoading(true);
       if (favoriteSongs && favoriteSongs.length > 0) {
-        const songDetails = await getSongsByIds(favoriteSongs);
-        setLikedSongsDetails(songDetails);
+        try {
+          const songDetails = await getSongsByIds(favoriteSongs);
+          setLikedSongsDetails(songDetails);
+        } catch (error) {
+          console.error("Failed to fetch liked songs details:", error);
+          setLikedSongsDetails([]); // Clear on error to avoid stale data
+        }
       } else {
-        // If there are no favorite songs, clear the details and stop loading.
+        // If there are no favorite songs, clear the details.
         setLikedSongsDetails([]);
       }
       setLoading(false);
