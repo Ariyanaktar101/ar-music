@@ -7,6 +7,7 @@ import { getLyrics } from '@/ai/flows/get-lyrics-flow';
 import { useToast } from '@/hooks/use-toast';
 
 interface MusicPlayerContextType {
+  loading: boolean;
   currentSong: Song | null;
   isPlaying: boolean;
   playSong: (song: Song, queue?: Song[]) => void;
@@ -71,6 +72,7 @@ const shuffleArray = (array: any[]) => {
 
 
 export const MusicPlayerProvider = ({ children }: { children: React.ReactNode }) => {
+  const [loading, setLoading] = useState(true);
   const [currentSong, setCurrentSong] = useState<Song | null>(null);
   const [currentQueue, setCurrentQueue] = useState<Song[]>([]);
   const [shuffledQueue, setShuffledQueue] = useState<Song[]>([]);
@@ -121,29 +123,36 @@ export const MusicPlayerProvider = ({ children }: { children: React.ReactNode })
       
     } catch (error) {
       console.error("Failed to parse from localStorage", error);
+    } finally {
+      setLoading(false);
     }
   }, []);
 
   // Save state to localStorage whenever it changes
   useEffect(() => {
+    if (loading) return;
     localStorage.setItem('ar-music-favorites', JSON.stringify(favoriteSongs));
-  }, [favoriteSongs]);
+  }, [favoriteSongs, loading]);
 
   useEffect(() => {
+    if (loading) return;
     localStorage.setItem('ar-music-recent', JSON.stringify(recentlyPlayed));
-  }, [recentlyPlayed]);
+  }, [recentlyPlayed, loading]);
 
   useEffect(() => {
+    if (loading) return;
     localStorage.setItem('ar-music-playlists', JSON.stringify(playlists));
-  }, [playlists]);
+  }, [playlists, loading]);
   
   useEffect(() => {
+    if (loading) return;
     localStorage.setItem('ar-music-shuffle', JSON.stringify(isShuffled));
-  }, [isShuffled]);
+  }, [isShuffled, loading]);
 
   useEffect(() => {
+    if (loading) return;
     localStorage.setItem('ar-music-downloads', JSON.stringify(downloadedSongs));
-  }, [downloadedSongs]);
+  }, [downloadedSongs, loading]);
   
   const addSongToRecents = useCallback((song: Song) => {
     setRecentlyPlayed(prev => {
@@ -493,6 +502,7 @@ export const MusicPlayerProvider = ({ children }: { children: React.ReactNode })
   }, [downloadedSongs, toast]);
 
   const value = useMemo(() => ({
+    loading,
     currentSong,
     isPlaying,
     playSong,
@@ -529,6 +539,7 @@ export const MusicPlayerProvider = ({ children }: { children: React.ReactNode })
     downloadedSongs,
     downloadSong,
   }), [
+    loading,
     currentSong,
     isPlaying,
     playSong,

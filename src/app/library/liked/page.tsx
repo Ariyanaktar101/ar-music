@@ -31,11 +31,16 @@ function LikedSongsSkeleton() {
 
 
 export default function LikedSongsPage() {
-  const { favoriteSongs } = useMusicPlayer();
+  const { favoriteSongs, loading: playerLoading } = useMusicPlayer();
   const [likedSongsDetails, setLikedSongsDetails] = useState<Song[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    // Wait for the music player to finish loading its state from storage
+    if (playerLoading) {
+        return;
+    }
+
     const fetchLikedSongs = async () => {
       setLoading(true);
       if (favoriteSongs.length > 0) {
@@ -48,7 +53,7 @@ export default function LikedSongsPage() {
     };
 
     fetchLikedSongs();
-  }, [favoriteSongs]);
+  }, [favoriteSongs, playerLoading]);
 
   return (
     <div className="space-y-6">
@@ -66,7 +71,7 @@ export default function LikedSongsPage() {
             </div>
         </div>
 
-        {loading ? (
+        {loading || playerLoading ? (
           <LikedSongsSkeleton />
         ) : likedSongsDetails.length > 0 ? (
           <SongList songs={likedSongsDetails} />
