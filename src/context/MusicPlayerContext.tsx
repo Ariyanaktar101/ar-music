@@ -151,12 +151,22 @@ export const MusicPlayerProvider = ({ children }: { children: React.ReactNode })
   }, [currentSong, addSongToRecents]);
 
   const playNextSong = useCallback(() => {
-    if (!currentSong) return;
+    if (!currentSong || currentQueue.length === 0) return;
+  
     const currentIndex = currentQueue.findIndex(s => s.id === currentSong.id);
-    if (currentIndex !== -1 && currentIndex < currentQueue.length - 1) {
-      const nextSong = currentQueue[currentIndex + 1];
+    // If the song is not in the queue, or the queue has only one song, do nothing or handle as desired.
+    // For now, we will just check if there's a next song.
+    
+    // Calculate the next index, looping back to the start if at the end of the queue.
+    const nextIndex = (currentIndex + 1) % currentQueue.length;
+    
+    const nextSong = currentQueue[nextIndex];
+    
+    if (nextSong) {
       playSong(nextSong, currentQueue);
     } else {
+      // This case should ideally not be hit if the queue is not empty,
+      // but as a fallback, we can stop the player.
       setIsPlaying(false);
     }
   }, [currentSong, currentQueue, playSong]);
