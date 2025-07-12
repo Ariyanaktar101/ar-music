@@ -121,6 +121,14 @@ export const MusicPlayerProvider = ({ children }: { children: React.ReactNode })
   useEffect(() => {
     localStorage.setItem('ar-music-downloads', JSON.stringify(downloadedSongs));
   }, [downloadedSongs]);
+  
+  const addSongToRecents = useCallback((song: Song) => {
+    setRecentlyPlayed(prev => {
+        const filtered = prev.filter(s => s.id !== song.id);
+        const newRecents = [song, ...filtered];
+        return newRecents.slice(0, 20);
+    });
+  }, []);
 
   const playSong = useCallback((song: Song, queue: Song[] = []) => {
     if (currentSong?.id === song.id) {
@@ -235,14 +243,6 @@ export const MusicPlayerProvider = ({ children }: { children: React.ReactNode })
       audioRef.current.muted = isMuted;
     }
   }, [volume, isMuted]);
-
-  const addSongToRecents = useCallback((song: Song) => {
-    setRecentlyPlayed(prev => {
-        const filtered = prev.filter(s => s.id !== song.id);
-        const newRecents = [song, ...filtered];
-        return newRecents.slice(0, 20);
-    });
-  }, []);
 
   const togglePlayPause = useCallback(() => {
     if (currentSong) {
