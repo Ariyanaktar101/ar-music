@@ -1,7 +1,7 @@
 
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { Button } from '@/components/ui/button';
 import {
   Card,
@@ -21,7 +21,7 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from '@/components/ui/alert-dialog';
-import { ArrowLeft, Palette, Music, Wifi, User, Trash2, Moon, Sun, Monitor, Shield, Bell, LifeBuoy, Flag, MessageSquare, Link as LinkIcon } from 'lucide-react';
+import { ArrowLeft, Palette, Music, Wifi, User, Trash2, Moon, Sun, Monitor, Shield, Bell, LifeBuoy, Flag, MessageSquare, Link as LinkIcon, Loader, Check } from 'lucide-react';
 import Link from 'next/link';
 import { Label } from '@/components/ui/label';
 import {
@@ -38,6 +38,8 @@ import { Separator } from '@/components/ui/separator';
 import { useTheme } from '@/context/ThemeContext';
 import { useSettings } from '@/context/SettingsContext';
 import { Input } from '@/components/ui/input';
+import emailjs from '@emailjs/browser';
+import { useToast } from '@/hooks/use-toast';
 
 const accentColors = [
     { name: 'Blue', color: '207 90% 58%' },
@@ -48,13 +50,53 @@ const accentColors = [
 ]
 
 function ReportSongCard() {
-    const [songName, setSongName] = useState('');
-    const [youtubeLink, setYoutubeLink] = useState('');
+    const { toast } = useToast();
+    const formRef = useRef<HTMLFormElement>(null);
+    const [isLoading, setIsLoading] = useState(false);
+    const [isSuccess, setIsSuccess] = useState(false);
 
-    const handleReport = () => {
-        const subject = encodeURIComponent('Missing Song Report');
-        const body = encodeURIComponent(`Hi, I couldn't find this song in the app:\n\nSong Name: ${songName}\nYouTube Link: ${youtubeLink}\n\nThanks!`);
-        window.location.href = `mailto:ariyan.official101@gmail.com?subject=${subject}&body=${body}`;
+    const handleReport = (e: React.FormEvent) => {
+        e.preventDefault();
+        if (!formRef.current) return;
+        
+        const serviceId = process.env.NEXT_PUBLIC_EMAILJS_SERVICE_ID;
+        const templateId = process.env.NEXT_PUBLIC_EMAILJS_TEMPLATE_ID;
+        const publicKey = process.env.NEXT_PUBLIC_EMAILJS_PUBLIC_KEY;
+        
+        if (!serviceId || !templateId || !publicKey) {
+            toast({
+                variant: 'destructive',
+                title: 'Configuration Error',
+                description: 'Email service is not configured correctly.',
+            });
+            return;
+        }
+
+        setIsLoading(true);
+        setIsSuccess(false);
+
+        emailjs.sendForm(serviceId, templateId, formRef.current, publicKey)
+            .then(
+                () => {
+                    toast({
+                        title: 'Report Sent!',
+                        description: 'Thanks for your feedback. We will look into adding this song.',
+                    });
+                    setIsSuccess(true);
+                    if (formRef.current) formRef.current.reset();
+                },
+                (error) => {
+                     toast({
+                        variant: 'destructive',
+                        title: 'Uh oh! Something went wrong.',
+                        description: 'There was a problem sending your report. Please try again.',
+                    });
+                    console.error('FAILED...', error.text);
+                }
+            )
+            .finally(() => {
+                setIsLoading(false);
+            });
     };
 
     return (
@@ -63,32 +105,35 @@ function ReportSongCard() {
                 <CardTitle className="flex items-center gap-2"><MessageSquare /> Report a Missing Song</CardTitle>
                 <CardDescription>If you can't find a song, let us know and we'll try to add it.</CardDescription>
             </CardHeader>
-            <CardContent className="space-y-4">
-                <div className="space-y-2">
-                    <Label htmlFor="song-name">Song Name</Label>
-                    <Input 
-                        id="song-name"
-                        placeholder="e.g., Faded"
-                        value={songName}
-                        onChange={(e) => setSongName(e.target.value)}
-                    />
-                </div>
-                 <div className="space-y-2">
-                    <Label htmlFor="youtube-link">YouTube Song Link</Label>
-                    <div className="relative">
-                       <LinkIcon className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                       <Input 
-                          id="youtube-link"
-                          placeholder="https://youtube.com/watch?v=..."
-                          value={youtubeLink}
-                          onChange={(e) => setYoutubeLink(e.target.value)}
-                          className="pl-9"
-                      />
+            <CardContent>
+                <form ref={formRef} onSubmit={handleReport} className="space-y-4">
+                    <div className="space-y-2">
+                        <Label htmlFor="song_name">Song Name</Label>
+                        <Input 
+                            id="song_name"
+                            name="song_name"
+                            placeholder="e.g., Faded"
+                            required
+                        />
                     </div>
-                </div>
-                <Button onClick={handleReport} disabled={!songName || !youtubeLink}>
-                    Report via Email
-                </Button>
+                     <div className="space-y-2">
+                        <Label htmlFor="youtube_link">YouTube Song Link</Label>
+                        <div className="relative">
+                           <LinkIcon className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                           <Input 
+                              id="youtube_link"
+                              name="youtube_link"
+                              placeholder="https://youtube.com/watch?v=..."
+                              required
+                              className="pl-9"
+                          />
+                        </div>
+                    </div>
+                    <Button type="submit" disabled={isLoading || isSuccess}>
+                        {isLoading ? <Loader className="animate-spin" /> : isSuccess ? <Check /> : 'Send Report'}
+                        {isLoading ? 'Sending...' : isSuccess ? 'Sent!' : 'Send Report'}
+                    </Button>
+                </form>
             </CardContent>
         </Card>
     )
