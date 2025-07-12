@@ -1,7 +1,6 @@
 
 'use client';
 
-import { AppShell } from '@/components/app-shell';
 import { SongList } from '@/components/song-list';
 import { useMusicPlayer } from '@/context/MusicPlayerContext';
 import { getSongsByIds } from '@/lib/api';
@@ -79,9 +78,7 @@ export default function PlaylistPage() {
 
   if (loading) {
     return (
-        <AppShell>
-            <PlaylistSkeleton />
-        </AppShell>
+        <PlaylistSkeleton />
     )
   }
 
@@ -95,7 +92,6 @@ export default function PlaylistPage() {
 
 
   return (
-    <AppShell>
       <div className="space-y-6">
         <div className="flex items-center gap-4 mb-4">
              <Button asChild variant="ghost" size="icon" className="shrink-0">
@@ -147,6 +143,5 @@ export default function PlaylistPage() {
           </div>
         )}
       </div>
-    </AppShell>
   );
 }

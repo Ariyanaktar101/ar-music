@@ -1,7 +1,6 @@
 
 'use client';
 
-import { AppShell } from '@/components/app-shell';
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Heart, Clock, Plus, Library as LibraryIcon, ChevronRight, Music, Download } from 'lucide-react';
@@ -118,7 +117,6 @@ export default function LibraryPage() {
     const hasHistory = recentlyPlayed.length > 0;
 
   return (
-    <AppShell>
       <div className="space-y-6">
         <div className="flex justify-between items-center">
             <div>
@@ -211,6 +209,5 @@ export default function LibraryPage() {
         {!hasPlaylists && !hasHistory && <EmptyLibrary />}
 
       </div>
-    </AppShell>
   );
 }

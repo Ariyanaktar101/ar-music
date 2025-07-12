@@ -4,13 +4,11 @@
 
 import React, { useState, useTransition, useEffect, Suspense, useCallback } from 'react';
 import { useSearchParams } from 'next/navigation';
-import { AppShell } from '@/components/app-shell';
 import { Input } from '@/components/ui/input';
 import { SongList } from '@/components/song-list';
 import type { Song } from '@/lib/types';
 import { handleSearch } from './actions';
 import { Search, Loader, Music } from 'lucide-react';
-import { cn } from '@/lib/utils';
 import { useDebounce } from '@/hooks/use-debounce';
 import Image from 'next/image';
 import { Button } from '@/components/ui/button';
@@ -195,14 +193,12 @@ function SearchPageComponent() {
 
 export default function SearchPage() {
     return (
-        <AppShell>
-            <Suspense fallback={
-                <div className="flex justify-center items-center h-full">
-                    <Loader className="h-8 w-8 animate-spin text-primary" />
-                </div>
-            }>
-                <SearchPageComponent />
-            </Suspense>
-        </AppShell>
+        <Suspense fallback={
+            <div className="flex justify-center items-center h-full">
+                <Loader className="h-8 w-8 animate-spin text-primary" />
+            </div>
+        }>
+            <SearchPageComponent />
+        </Suspense>
     )
 }

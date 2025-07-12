@@ -7,6 +7,7 @@ import { ThemeProvider } from '@/context/ThemeContext';
 import { SettingsProvider } from '@/context/SettingsContext';
 import { TopLoader } from '@/components/top-loader';
 import { Suspense } from 'react';
+import { AppShell } from '@/components/app-shell';
 
 export const metadata: Metadata = {
   title: 'AR Music',
@@ -33,7 +34,7 @@ export default function RootLayout({
                 <Suspense fallback={null}>
                   <TopLoader />
                 </Suspense>
-                {children}
+                <AppShell>{children}</AppShell>
                 <Toaster />
               </MusicPlayerProvider>
             </AuthProvider>

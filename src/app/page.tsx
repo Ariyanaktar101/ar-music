@@ -2,7 +2,6 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { AppShell } from '@/components/app-shell';
 import { searchSongs } from '@/lib/api';
 import type { Song } from '@/lib/types';
 import { SongCard } from '@/components/song-card';
@@ -90,7 +89,6 @@ export default function Home() {
   }, []);
 
   return (
-    <AppShell>
       <div className="space-y-12">
         <GreetingHeader />
 
@@ -146,6 +144,5 @@ export default function Home() {
           {loadingTrending ? <TrendingSongsSkeleton /> : <SongList songs={trendingSongs} />}
         </section>
       </div>
-    </AppShell>
   );
 }

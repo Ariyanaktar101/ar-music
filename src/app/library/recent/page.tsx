@@ -1,7 +1,6 @@
 
 'use client';
 
-import { AppShell } from '@/components/app-shell';
 import { SongList } from '@/components/song-list';
 import { useMusicPlayer } from '@/context/MusicPlayerContext';
 import { Clock, ArrowLeft, Music } from 'lucide-react';
@@ -12,7 +11,6 @@ export default function RecentlyPlayedPage() {
   const { recentlyPlayed } = useMusicPlayer();
 
   return (
-    <AppShell>
       <div className="space-y-6">
         <div className="flex items-center gap-4">
             <Button asChild variant="ghost" size="icon" className="shrink-0">
@@ -45,6 +43,5 @@ export default function RecentlyPlayedPage() {
           </div>
         )}
       </div>
-    </AppShell>
   );
 }

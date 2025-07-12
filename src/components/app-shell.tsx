@@ -4,7 +4,7 @@ import React from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { MusicPlayer } from '@/components/music-player';
-import { Home, Search, Library, Plus, Heart, Music, User } from 'lucide-react';
+import { Home, Search, Library, User } from 'lucide-react';
 import Image from 'next/image';
 import { cn } from '@/lib/utils';
 import { useMusicPlayer } from '@/context/MusicPlayerContext';
@@ -13,7 +13,7 @@ import { ScrollArea } from './ui/scroll-area';
 
 export function AppShell({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
-  const { currentSong, recentlyPlayed, playlists } = useMusicPlayer();
+  const { currentSong, playlists } = useMusicPlayer();
 
   const buttonBaseClasses = 'flex items-center gap-3 justify-start w-full text-base font-medium rounded-lg transition-colors p-2';
   const activeClasses = 'bg-primary text-primary-foreground hover:bg-primary/90';
@@ -26,7 +26,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
             <header className="p-4 border-b">
                 <Link href="/" className="flex items-center gap-3">
                 <div className="p-2 bg-primary rounded-lg">
-                    <Music className="h-6 w-6 text-primary-foreground" />
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="h-6 w-6 text-primary-foreground"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg>
                 </div>
                 <div className="flex flex-col">
                     <span className="text-lg font-bold text-foreground tracking-tight">AR MUSIC</span>

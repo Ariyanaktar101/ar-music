@@ -2,7 +2,6 @@
 'use client';
 
 import Link from 'next/link';
-import { AppShell } from '@/components/app-shell';
 import { Button } from '@/components/ui/button';
 import {
   Card,
@@ -321,10 +320,8 @@ export default function ProfilePage() {
   const { user } = useAuth();
 
   return (
-    <AppShell>
       <div className="flex flex-col items-center justify-center h-full">
         {user ? <LoggedInView /> : <GuestView />}
       </div>
-    </AppShell>
   );
 }

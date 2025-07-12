@@ -2,7 +2,6 @@
 'use client';
 
 import React from 'react';
-import { AppShell } from '@/components/app-shell';
 import { Button } from '@/components/ui/button';
 import {
   Card,
@@ -61,7 +60,6 @@ export default function SettingsPage() {
   } = useSettings();
 
   return (
-    <AppShell>
       <div className="flex justify-center w-full">
         <div className="w-full max-w-3xl space-y-8">
           <div className="flex items-center gap-4">
@@ -278,7 +276,6 @@ export default function SettingsPage() {
           </Card>
         </div>
       </div>
-    </AppShell>
   );
 }
 
