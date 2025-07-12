@@ -153,10 +153,14 @@ export const MusicPlayerProvider = ({ children }: { children: React.ReactNode })
     });
   }, []);
 
+  const togglePlayPause = useCallback(() => {
+    if (currentSong) {
+      setIsPlaying(p => !p);
+    }
+  }, [currentSong]);
+
   const playSong = useCallback((song: Song, queue: Song[] = []) => {
     if (currentSong?.id === song.id && isPlaying) {
-      // If the same song is clicked and it's playing, do nothing, just let it continue.
-      // If paused, togglePlayPause will handle it.
       togglePlayPause();
       return;
     }
@@ -165,7 +169,6 @@ export const MusicPlayerProvider = ({ children }: { children: React.ReactNode })
     setCurrentQueue(newQueue);
     
     if (isShuffled) {
-      // Create a shuffled queue with the selected song at the front
       const otherSongs = newQueue.filter(s => s.id !== song.id);
       setShuffledQueue([song, ...shuffleArray(otherSongs)]);
     }
@@ -194,9 +197,7 @@ export const MusicPlayerProvider = ({ children }: { children: React.ReactNode })
     let nextIndex = (currentIndex + 1);
 
     if (nextIndex >= queue.length) {
-      // If at the end of the queue
       if(isShuffled) {
-        // Re-shuffle the original queue and start over
         const newShuffledQueue = shuffleArray(currentQueue);
         setShuffledQueue(newShuffledQueue);
         if (newShuffledQueue.length > 0) {
@@ -216,7 +217,6 @@ export const MusicPlayerProvider = ({ children }: { children: React.ReactNode })
     }
   }, [currentSong, currentQueue, shuffledQueue, isShuffled, playSong]);
   
-  // Effect to pre-calculate lyric timings when lyrics or duration are set
   useEffect(() => {
     if (lyrics && duration > 0) {
       const lines = lyrics.split('\n').filter(line => line.trim() !== '');
@@ -226,8 +226,8 @@ export const MusicPlayerProvider = ({ children }: { children: React.ReactNode })
       }
       
       const totalChars = lines.reduce((acc, line) => acc + line.length, 0);
-      const effectiveDuration = duration - 3; // Start lyrics a bit later
-      let currentTime = 1.5; // Start time for the first lyric
+      const effectiveDuration = duration - 3; 
+      let currentTime = 1.5; 
 
       const timings = lines.map(line => {
         const lineDuration = (line.length / totalChars) * effectiveDuration;
@@ -256,7 +256,6 @@ export const MusicPlayerProvider = ({ children }: { children: React.ReactNode })
       setProgress(currentTime);
 
       if (isPlaying && lyricTimings.length > 0) {
-        // Find the current line by checking start times
         let newIndex = lyricTimings.findIndex((timing, index) => {
             const nextTiming = lyricTimings[index + 1];
             return currentTime >= timing.startTime && (!nextTiming || currentTime < nextTiming.startTime);
@@ -303,19 +302,12 @@ export const MusicPlayerProvider = ({ children }: { children: React.ReactNode })
     const willBeShuffled = !isShuffled;
     setIsShuffled(willBeShuffled);
     if (willBeShuffled && currentSong) {
-      // When enabling shuffle, create a shuffled queue starting with the current song
       const otherSongs = currentQueue.filter(s => s.id !== currentSong.id);
       setShuffledQueue([currentSong, ...shuffleArray(otherSongs)]);
     } else {
       setShuffledQueue([]);
     }
   }, [isShuffled, currentSong, currentQueue]);
-
-  const togglePlayPause = useCallback(() => {
-    if (currentSong) {
-      setIsPlaying(p => !p);
-    }
-  }, [currentSong]);
 
   const handleProgressChange = useCallback((value: number[]) => {
     if (audioRef.current) {
