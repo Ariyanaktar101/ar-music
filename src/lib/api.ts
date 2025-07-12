@@ -70,6 +70,11 @@ function mapSaavnSongToSong(saavnSong: JioSong): Song | null {
   };
 }
 
+const filterSongs = (songs: (Song | null)[]): Song[] => {
+    const validSongs = songs.filter((song): song is Song => song !== null);
+    return validSongs.filter(song => !song.title.toLowerCase().includes('shree hanuman chalisa'));
+}
+
 export async function searchSongs(query: string, limit: number = 20): Promise<Song[]> {
   try {
     const response = await fetch(`${SAAVN_API_URL}/search/songs?query=${encodeURIComponent(query)}&limit=${limit}`);
@@ -79,7 +84,8 @@ export async function searchSongs(query: string, limit: number = 20): Promise<So
     }
     const json = await response.json();
     const results = json.data?.results || [];
-    return results.map(mapSaavnSongToSong).filter((song): song is Song => song !== null);
+    const mappedSongs = results.map(mapSaavnSongToSong);
+    return filterSongs(mappedSongs);
   } catch (error) {
     console.error('Error searching songs on JioSaavn:', error);
     return [];
@@ -96,7 +102,8 @@ export async function getSongsByIds(ids: string[]): Promise<Song[]> {
     }
     const json = await response.json();
     const results = json.data || [];
-     return results.map(mapSaavnSongToSong).filter((song): song is Song => song !== null);
+    const mappedSongs = results.map(mapSaavnSongToSong);
+    return filterSongs(mappedSongs);
   } catch (error) {
     console.error('Error fetching songs by IDs from JioSaavn:', error);
     return [];
