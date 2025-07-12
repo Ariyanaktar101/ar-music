@@ -93,9 +93,11 @@ export async function searchSongs(query: string, limit: number = 20): Promise<So
 }
 
 export async function getSongsByIds(ids: string[]): Promise<Song[]> {
-  if (ids.length === 0) return [];
+  const validIds = ids.filter(id => id && typeof id === 'string');
+  if (validIds.length === 0) return [];
+  
   try {
-    const response = await fetch(`${SAAVN_API_URL}/songs?id=${ids.join(',')}`);
+    const response = await fetch(`${SAAVN_API_URL}/songs?id=${validIds.join(',')}`);
      if (!response.ok) {
         console.error(`Failed to fetch songs by IDs from JioSaavn, status: ${response.status}`);
         return [];
