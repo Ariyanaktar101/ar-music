@@ -59,7 +59,7 @@ function SnapchatIcon(props: React.SVGProps<SVGSVGElement>) {
 
 function WavingDoraemon() {
     return (
-        <div className="relative w-12 h-12">
+        <div className="relative w-12 h-12 inline-block ml-2">
             <svg viewBox="0 0 100 100" className="w-full h-full">
                 {/* Waving Hand */}
                 <g className="origin-center animate-wave-hand" style={{ transformOrigin: '25px 80px' }}>
@@ -148,8 +148,9 @@ function LoggedInView() {
           />
           <AvatarFallback>{user?.name?.[0]}</AvatarFallback>
         </Avatar>
-        <CardTitle className="text-3xl font-bold font-headline">
-          {user?.name}
+        <CardTitle className="text-3xl font-bold font-headline flex items-center">
+          <span>{user?.name}</span>
+          <WavingDoraemon />
         </CardTitle>
         <CardDescription className="flex flex-col gap-1 text-md text-muted-foreground pt-1">
             {user?.username && (
@@ -303,7 +304,6 @@ function LoggedInView() {
               <p>Made with</p>
               <Heart className="h-4 w-4 text-red-500 fill-current" />
               <p>by Ariyan</p>
-              <WavingDoraemon />
             </div>
             <div className="flex items-center gap-4">
                 <a
@@ -368,7 +368,6 @@ function GuestView() {
               <p>Made with</p>
               <Heart className="h-4 w-4 text-red-500 fill-current" />
               <p>by Ariyan</p>
-              <WavingDoraemon />
             </div>
             <div className="flex items-center gap-4">
                 <a
