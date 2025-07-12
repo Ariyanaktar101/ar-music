@@ -9,8 +9,6 @@ import { Button } from '@/components/ui/button';
 import { useMusicPlayer } from '@/context/MusicPlayerContext';
 import { cn } from '@/lib/utils';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
-import { ScrollArea } from './ui/scroll-area';
-import AudioVisualizer from './AudioVisualizer';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -171,8 +169,6 @@ function ExpandedPlayer() {
     loadingLyrics,
     toggleLyricsView,
     currentLineIndex,
-    showVisualizer,
-    toggleVisualizer,
   } = useMusicPlayer();
   
   const controls = useAnimation();
@@ -199,19 +195,8 @@ function ExpandedPlayer() {
   };
   
   const currentSongIsFavorite = isFavorite(currentSong.id);
-  const lyricsLines = React.useMemo(() => lyrics?.split('\n') || [], [lyrics]);
-  
-  const lineRefs = React.useRef<(HTMLParagraphElement | null)[]>([]);
-
-  React.useEffect(() => {
-    if (showLyrics && currentLineIndex !== null && lineRefs.current[currentLineIndex]) {
-      lineRefs.current[currentLineIndex]?.scrollIntoView({
-        behavior: 'smooth',
-        block: 'center',
-      });
-    }
-  }, [currentLineIndex, showLyrics]);
-  
+  const lyricsLines = React.useMemo(() => lyrics?.split('\n').filter(line => line.trim() !== '') || [], [lyrics]);
+    
   React.useEffect(() => {
     if (isExpanded) {
         controls.start({ y: 0 });
@@ -225,7 +210,7 @@ function ExpandedPlayer() {
     visible: {
       opacity: 1,
       transition: {
-        staggerChildren: 0.1,
+        staggerChildren: 0.05,
         delayChildren: 0.2,
       },
     },
@@ -244,33 +229,33 @@ function ExpandedPlayer() {
   };
   
   const renderPlayerContent = () => {
-    if (showVisualizer) {
-      return <AudioVisualizer />;
-    }
     if (showLyrics) {
       return (
-        <div className="absolute inset-0 bg-muted/50 flex items-center justify-center text-center rounded-lg">
+        <div className="absolute inset-0 bg-background flex items-center justify-center text-center rounded-lg overflow-hidden">
             {loadingLyrics ? (
             <Loader className="h-10 w-10 animate-spin text-primary" />
-            ) : lyrics ? (
-                <ScrollArea className="h-full w-full">
-                <div className="p-6 text-lg text-foreground text-center flex flex-col items-center justify-center min-h-full">
+            ) : lyricsLines.length > 0 ? (
+                <motion.div 
+                    className="grid grid-cols-2 md:grid-cols-3 gap-2 p-4 w-full h-full overflow-y-auto"
+                    variants={containerVariants}
+                    initial="hidden"
+                    animate="visible"
+                >
                     {lyricsLines.map((line, index) => (
-                    <p
+                    <motion.div
                         key={index}
-                        ref={(el) => { lineRefs.current[index] = el; }}
+                        variants={itemVariants}
                         className={cn(
-                        "py-2 font-sans whitespace-pre-wrap transition-all duration-300",
+                        "p-2 rounded-md border text-xs sm:text-sm font-semibold transition-all duration-300 flex items-center justify-center text-center",
                         currentLineIndex === index
-                            ? "text-primary scale-105 font-bold"
-                            : "text-muted-foreground"
+                            ? "bg-primary text-primary-foreground border-primary"
+                            : "bg-muted/50 text-muted-foreground border-transparent"
                         )}
                     >
                         {line || '...'}
-                    </p>
+                    </motion.div>
                     ))}
-                </div>
-                </ScrollArea>
+                </motion.div>
             ) : (
             <div className="text-center text-muted-foreground flex flex-col items-center gap-2">
                 <Music className="h-8 w-8" />
@@ -284,9 +269,6 @@ function ExpandedPlayer() {
     return (
         <motion.div 
             className="relative w-full h-full rounded-lg shadow-2xl"
-            style={{
-                boxShadow: '0 0 20px 5px hsl(var(--primary) / 0.6), 0 0 50px 15px hsl(var(--accent) / 0.3), 0 0 80px 25px hsl(262 84% 58% / 0.5)'
-            }}
             initial={{ scale: 0.8, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
             transition={{ type: 'spring', duration: 0.8 }}
@@ -297,6 +279,7 @@ function ExpandedPlayer() {
                 fill
                 className="object-cover rounded-lg"
             />
+             <div className="absolute inset-0 animate-aurora-glow rounded-lg" />
         </motion.div>
     );
   }
@@ -399,9 +382,6 @@ function ExpandedPlayer() {
               onValueChange={handleVolumeChange}
               className="w-full h-1 relative [&>span:first-child]:h-1 [&>span>span]:h-1 [&>span>span]:bg-white/40 [&>a]:h-3 [&>a]:w-3"
             />
-            <Button variant="ghost" size="icon" onClick={toggleVisualizer} className={cn(showVisualizer && "text-primary")}>
-                <CarbonIcon />
-            </Button>
              <Button variant="ghost" size="icon" onClick={toggleLyricsView} className={cn(showLyrics && "text-primary")}>
                 <Mic2 className="h-5 w-5" />
             </Button>
@@ -438,8 +418,6 @@ export function MusicPlayer() {
     toggleExpandPlayer,
     showLyrics,
     toggleLyricsView,
-    toggleVisualizer,
-    showVisualizer,
   } = useMusicPlayer();
   
   const compactPlayerControls = useAnimation();
@@ -577,9 +555,6 @@ export function MusicPlayer() {
           </div>
 
           <div className="flex items-center gap-2 w-1/4 justify-end">
-            <Button variant="ghost" size="icon" onClick={toggleVisualizer} className={cn(showVisualizer && "text-primary")}>
-                <CarbonIcon />
-            </Button>
              <Button variant="ghost" size="icon" onClick={toggleLyricsView} className={cn(showLyrics && "text-primary")}>
                 <Mic2 className="h-5 w-5" />
             </Button>
