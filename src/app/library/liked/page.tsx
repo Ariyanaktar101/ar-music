@@ -39,7 +39,9 @@ export default function LikedSongsPage() {
     const fetchLikedSongs = async () => {
       setLoading(true);
       if (favoriteSongs.length > 0) {
-        const songDetails = await getSongsByIds(favoriteSongs);
+        // Create a stable copy of the array for the dependency
+        const currentFavoriteIds = [...favoriteSongs];
+        const songDetails = await getSongsByIds(currentFavoriteIds);
         setLikedSongsDetails(songDetails);
       } else {
         setLikedSongsDetails([]);
@@ -51,7 +53,7 @@ export default function LikedSongsPage() {
   }, [favoriteSongs]);
 
   return (
-      <div className="space-y-6">
+    <div className="space-y-6">
         <div className="flex items-center gap-4">
             <Button asChild variant="ghost" size="icon" className="shrink-0">
               <Link href="/library">

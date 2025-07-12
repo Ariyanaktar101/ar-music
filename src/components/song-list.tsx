@@ -6,12 +6,13 @@ import { useMusicPlayer } from '@/context/MusicPlayerContext'
 import { Play, Pause } from 'lucide-react'
 import { Table, TableBody, TableCell, TableRow } from '@/components/ui/table'
 import { cn } from '@/lib/utils'
+import React from 'react'
 
 interface SongListProps {
     songs: Song[]
 }
 
-export function SongList({ songs }: SongListProps) {
+export const SongList = React.memo(function SongList({ songs }: SongListProps) {
     const { playSong, currentSong, isPlaying } = useMusicPlayer()
 
     const handlePlay = (song: Song) => {
@@ -67,4 +68,4 @@ export function SongList({ songs }: SongListProps) {
             </TableBody>
         </Table>
     )
-}
+})

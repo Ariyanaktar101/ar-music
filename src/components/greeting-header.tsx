@@ -21,7 +21,7 @@ const getGreeting = (timeOfDay: TimeOfDay) => {
     }[timeOfDay];
 }
 
-export function GreetingHeader() {
+export const GreetingHeader = React.memo(function GreetingHeader() {
   const [timeOfDay, setTimeOfDay] = useState<TimeOfDay | null>(null);
   const [time, setTime] = useState('');
   const { user } = useAuth();
@@ -72,4 +72,4 @@ export function GreetingHeader() {
       </div>
     </div>
   );
-}
+});

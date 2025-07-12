@@ -5,12 +5,13 @@ import { Card, CardContent } from '@/components/ui/card';
 import type { Song } from '@/lib/types';
 import { useMusicPlayer } from '@/context/MusicPlayerContext';
 import { Play, Pause } from 'lucide-react';
+import React from 'react';
 
 interface SongCardProps {
   song: Song;
 }
 
-export function SongCard({ song }: SongCardProps) {
+export const SongCard = React.memo(function SongCard({ song }: SongCardProps) {
   const { playSong, currentSong, isPlaying } = useMusicPlayer();
   const isThisSongPlaying = currentSong?.id === song.id && isPlaying;
 
@@ -49,4 +50,4 @@ export function SongCard({ song }: SongCardProps) {
       </Card>
     </div>
   );
-}
+});

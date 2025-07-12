@@ -1,7 +1,7 @@
 
 'use client';
 
-import React, { createContext, useContext, useState, useRef, useEffect, useCallback } from 'react';
+import React, { createContext, useContext, useState, useRef, useEffect, useCallback, useMemo } from 'react';
 import type { Song, Playlist } from '@/lib/types';
 import { getLyrics } from '@/ai/flows/get-lyrics-flow';
 import { useToast } from '@/hooks/use-toast';
@@ -81,27 +81,9 @@ export const MusicPlayerProvider = ({ children }: { children: React.ReactNode })
   const [downloadedSongs, setDownloadedSongs] = useState<Song[]>([]);
   
   const audioRef = useRef<HTMLAudioElement>(null);
-  const audioContextRef = useRef<AudioContext | null>(null);
-
 
   const { toast } = useToast();
   
-  // Setup Web Audio API
-  useEffect(() => {
-    if (audioRef.current && !audioContextRef.current) {
-        const AudioContext = window.AudioContext || (window as any).webkitAudioContext;
-        if (AudioContext) {
-            const context = new AudioContext();
-            audioContextRef.current = context;
-            const source = context.createMediaElementSource(audioRef.current);
-            source.connect(context.destination);
-             if (context.state === 'suspended') {
-                context.resume();
-            }
-        }
-    }
-  }, []);
-
   // Load state from localStorage on initial render
   useEffect(() => {
     try {
@@ -207,12 +189,11 @@ export const MusicPlayerProvider = ({ children }: { children: React.ReactNode })
       audio.removeEventListener('timeupdate', setAudioTime);
       audio.removeEventListener('ended', handleSongEnd);
     };
-  }, [currentSong, isPlaying, lyricTimings, currentLineIndex]);
+  }, [isPlaying, lyricTimings, currentLineIndex]);
 
   useEffect(() => {
     if (audioRef.current) {
       if (isPlaying) {
-        audioContextRef.current?.resume();
         audioRef.current.play().catch(console.error);
       } else {
         audioRef.current.pause();
@@ -227,17 +208,17 @@ export const MusicPlayerProvider = ({ children }: { children: React.ReactNode })
     }
   }, [volume, isMuted]);
 
-  const addSongToRecents = (song: Song) => {
+  const addSongToRecents = useCallback((song: Song) => {
     setRecentlyPlayed(prev => {
         const filtered = prev.filter(s => s.id !== song.id);
         const newRecents = [song, ...filtered];
         return newRecents.slice(0, 20);
     });
-  }
+  }, []);
 
-  const playSong = (song: Song, playlist?: Song[]) => {
+  const playSong = useCallback((song: Song) => {
     if (currentSong?.id === song.id) {
-        togglePlayPause();
+        setIsPlaying(p => !p);
         return;
     }
     setCurrentSong(song);
@@ -248,84 +229,70 @@ export const MusicPlayerProvider = ({ children }: { children: React.ReactNode })
     setCurrentLineIndex(null);
     setLyricTimings([]);
     if (audioRef.current) {
-      audioRef.current.currentTime = 0;
       audioRef.current.src = song.url;
       audioRef.current.load();
-      audioContextRef.current?.resume(); // Resume context on new song
       audioRef.current.play().catch(console.error);
     }
-  };
+  }, [currentSong, addSongToRecents]);
 
-  const togglePlayPause = () => {
+  const togglePlayPause = useCallback(() => {
     if (currentSong) {
-      if (!isPlaying) {
-        audioContextRef.current?.resume();
-      }
-      setIsPlaying(!isPlaying);
+      setIsPlaying(p => !p);
     }
-  };
+  }, [currentSong]);
 
-  const handleProgressChange = (value: number[]) => {
+  const handleProgressChange = useCallback((value: number[]) => {
     if (audioRef.current) {
       audioRef.current.currentTime = value[0];
       setProgress(value[0]);
     }
-  };
+  }, []);
 
-  const handleVolumeChange = (value: number[]) => {
+  const handleVolumeChange = useCallback((value: number[]) => {
     const newVolume = value[0];
     setVolume(newVolume);
-    if (audioRef.current) {
-      audioRef.current.volume = newVolume / 100;
-    }
     setIsMuted(newVolume === 0);
-  };
+  }, []);
   
-  const handleMuteToggle = () => {
+  const handleMuteToggle = useCallback(() => {
     const newMutedState = !isMuted;
     setIsMuted(newMutedState);
-    if (audioRef.current) {
-      audioRef.current.muted = newMutedState;
-    }
     if (!newMutedState && volume === 0) {
       setVolume(50);
-       if (audioRef.current) {
-        audioRef.current.volume = 0.5;
-      }
     }
-  };
+  }, [isMuted, volume]);
   
-  const skipForward = () => {
+  const skipForward = useCallback(() => {
       if(audioRef.current) audioRef.current.currentTime += 10;
-  };
+  }, []);
 
-  const skipBackward = () => {
+  const skipBackward = useCallback(() => {
       if(audioRef.current) audioRef.current.currentTime -= 10;
-  };
+  }, []);
 
-  const closePlayer = () => {
+  const closePlayer = useCallback(() => {
       setCurrentSong(null);
       setIsPlaying(false);
       setIsExpanded(false);
-  };
+  }, []);
 
-  const isFavorite = (songId: string) => {
+  const isFavorite = useCallback((songId: string) => {
     return favoriteSongs.includes(songId);
-  }
+  }, [favoriteSongs]);
 
-  const toggleFavorite = (songId: string) => {
+  const toggleFavorite = useCallback((songId: string) => {
     setFavoriteSongs(prev => 
       prev.includes(songId) ? prev.filter(id => id !== songId) : [...prev, songId]
     )
-  }
+  }, []);
 
-  const toggleExpandPlayer = () => {
+  const toggleExpandPlayer = useCallback(() => {
     const nextState = !isExpanded;
     setIsExpanded(nextState);
     if (!nextState) { // If collapsing player
       setShowLyrics(false);
     }
-  }
+  }, [isExpanded]);
 
   const fetchLyrics = useCallback(async () => {
     if (!currentSong) return;
@@ -343,7 +310,7 @@ export const MusicPlayerProvider = ({ children }: { children: React.ReactNode })
     }
   }, [currentSong]);
 
-  const toggleLyricsView = () => {
+  const toggleLyricsView = useCallback(() => {
       const willShow = !showLyrics;
       if (isExpanded) {
           setShowLyrics(willShow);
@@ -357,10 +324,10 @@ export const MusicPlayerProvider = ({ children }: { children: React.ReactNode })
              fetchLyrics();
           }
       }
-  }
+  }, [showLyrics, isExpanded, lyrics, loadingLyrics, fetchLyrics]);
   
   // Playlist functions
-  const createPlaylist = (name: string, description?: string): Playlist => {
+  const createPlaylist = useCallback((name: string, description?: string): Playlist => {
       const newPlaylist: Playlist = {
         id: `playlist-${Date.now()}`,
         name,
@@ -369,9 +336,9 @@ export const MusicPlayerProvider = ({ children }: { children: React.ReactNode })
       };
       setPlaylists(prev => [...prev, newPlaylist]);
       return newPlaylist;
-  };
+  }, []);
 
-  const addSongToPlaylist = (playlistId: string, song: Song) => {
+  const addSongToPlaylist = useCallback((playlistId: string, song: Song) => {
     let playlistName = '';
     setPlaylists(prev => prev.map(p => {
         if (p.id === playlistId) {
@@ -393,9 +360,9 @@ export const MusicPlayerProvider = ({ children }: { children: React.ReactNode })
         title: "Added to Playlist",
         description: `"${song.title}" has been added to ${playlistName}.`,
     });
-  };
+  }, [toast]);
 
-  const removeSongFromPlaylist = (playlistId: string, songId: string) => {
+  const removeSongFromPlaylist = useCallback((playlistId: string, songId: string) => {
       setPlaylists(prev => prev.map(p => {
           if (p.id === playlistId) {
               const updatedPlaylist = { ...p, songIds: p.songIds.filter(id => id !== songId) };
@@ -410,13 +377,13 @@ export const MusicPlayerProvider = ({ children }: { children: React.ReactNode })
           }
           return p;
       }));
-  };
+  }, []);
 
-  const getPlaylistById = (id: string) => {
+  const getPlaylistById = useCallback((id: string) => {
     return playlists.find(p => p.id === id);
-  };
+  }, [playlists]);
   
-  const downloadSong = async (song: Song) => {
+  const downloadSong = useCallback(async (song: Song) => {
     if (!song) return;
     if (downloadedSongs.some(s => s.id === song.id)) {
         toast({ title: 'Already Downloaded', description: `"${song.title}" is already in your downloads.` });
@@ -443,46 +410,80 @@ export const MusicPlayerProvider = ({ children }: { children: React.ReactNode })
       console.error('Error downloading the song:', error);
       toast({ variant: 'destructive', title: 'Download Failed', description: 'Could not download the song.' });
     }
-  };
+  }, [downloadedSongs, toast]);
 
+  const value = useMemo(() => ({
+    currentSong,
+    isPlaying,
+    playSong,
+    togglePlayPause,
+    progress,
+    duration,
+    handleProgressChange,
+    audioRef,
+    volume,
+    isMuted,
+    handleVolumeChange,
+    handleMuteToggle,
+    skipForward,
+    skipBackward,
+    closePlayer,
+    favoriteSongs,
+    isFavorite,
+    toggleFavorite,
+    recentlyPlayed,
+    isExpanded,
+    toggleExpandPlayer,
+    showLyrics,
+    lyrics,
+    loadingLyrics,
+    toggleLyricsView,
+    currentLineIndex,
+    playlists,
+    createPlaylist,
+    addSongToPlaylist,
+    removeSongFromPlaylist,
+    getPlaylistById,
+    downloadedSongs,
+    downloadSong,
+  }), [
+    currentSong,
+    isPlaying,
+    playSong,
+    togglePlayPause,
+    progress,
+    duration,
+    handleProgressChange,
+    volume,
+    isMuted,
+    handleVolumeChange,
+    handleMuteToggle,
+    skipForward,
+    skipBackward,
+    closePlayer,
+    favoriteSongs,
+    isFavorite,
+    toggleFavorite,
+    recentlyPlayed,
+    isExpanded,
+    toggleExpandPlayer,
+    showLyrics,
+    lyrics,
+    loadingLyrics,
+    toggleLyricsView,
+    currentLineIndex,
+    playlists,
+    createPlaylist,
+    addSongToPlaylist,
+    removeSongFromPlaylist,
+    getPlaylistById,
+    downloadedSongs,
+    downloadSong,
+  ]);
 
   return (
     <MusicPlayerContext.Provider
-      value={{
-        currentSong,
-        isPlaying,
-        playSong,
-        togglePlayPause,
-        progress,
-        duration,
-        handleProgressChange,
-        audioRef,
-        volume,
-        isMuted,
-        handleVolumeChange,
-        handleMuteToggle,
-        skipForward,
-        skipBackward,
-        closePlayer,
-        favoriteSongs,
-        isFavorite,
-        toggleFavorite,
-        recentlyPlayed,
-        isExpanded,
-        toggleExpandPlayer,
-        showLyrics,
-        lyrics,
-        loadingLyrics,
-        toggleLyricsView,
-        currentLineIndex,
-        playlists,
-        createPlaylist,
-        addSongToPlaylist,
-        removeSongFromPlaylist,
-        getPlaylistById,
-        downloadedSongs,
-        downloadSong,
-      }}
+      value={value}
     >
       <audio ref={audioRef} crossOrigin="anonymous" preload="metadata" />
       {children}
