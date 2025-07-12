@@ -36,17 +36,18 @@ export default function LikedSongsPage() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // Wait for the music player to finish loading its state from storage
+    // Wait for the music player context to finish loading its state from storage
     if (playerLoading) {
         return;
     }
 
     const fetchLikedSongs = async () => {
       setLoading(true);
-      if (favoriteSongs.length > 0) {
+      if (favoriteSongs && favoriteSongs.length > 0) {
         const songDetails = await getSongsByIds(favoriteSongs);
         setLikedSongsDetails(songDetails);
       } else {
+        // If there are no favorite songs, clear the details and stop loading.
         setLikedSongsDetails([]);
       }
       setLoading(false);
@@ -71,7 +72,7 @@ export default function LikedSongsPage() {
             </div>
         </div>
 
-        {loading || playerLoading ? (
+        {loading ? (
           <LikedSongsSkeleton />
         ) : likedSongsDetails.length > 0 ? (
           <SongList songs={likedSongsDetails} />
