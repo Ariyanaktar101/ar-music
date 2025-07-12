@@ -27,7 +27,7 @@ type JioSong = {
 };
 
 
-const SAAVN_API_URL = 'https://jiosaavn-api.vercel.app/api';
+const SAAVN_API_URL = 'https://saavn.me/api';
 
 function mapSaavnSongToSong(saavnSong: JioSong): Song | null {
   const highQualityUrl = saavnSong.downloadUrl.find(q => q.quality === '320kbps')?.url;
