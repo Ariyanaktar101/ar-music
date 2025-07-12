@@ -39,9 +39,7 @@ export default function LikedSongsPage() {
     const fetchLikedSongs = async () => {
       setLoading(true);
       if (favoriteSongs.length > 0) {
-        // Create a stable copy of the array for the dependency
-        const currentFavoriteIds = [...favoriteSongs];
-        const songDetails = await getSongsByIds(currentFavoriteIds);
+        const songDetails = await getSongsByIds(favoriteSongs);
         setLikedSongsDetails(songDetails);
       } else {
         setLikedSongsDetails([]);
@@ -50,7 +48,8 @@ export default function LikedSongsPage() {
     };
 
     fetchLikedSongs();
-  }, [favoriteSongs]);
+    // By stringifying the dependency, we ensure the effect runs on content change, not just reference change.
+  }, [JSON.stringify(favoriteSongs)]);
 
   return (
     <div className="space-y-6">
