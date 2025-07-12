@@ -21,7 +21,7 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from '@/components/ui/alert-dialog';
-import { ArrowLeft, Palette, Music, Wifi, User, Trash2, Moon, Sun, Monitor, Shield, Bell, LifeBuoy, Flag, MessageSquare } from 'lucide-react';
+import { ArrowLeft, Palette, Music, Wifi, User, Trash2, Moon, Sun, Monitor, Shield, Bell, LifeBuoy, Flag, MessageSquare, Link as LinkIcon } from 'lucide-react';
 import Link from 'next/link';
 import { Label } from '@/components/ui/label';
 import {
@@ -49,11 +49,11 @@ const accentColors = [
 
 function ReportSongCard() {
     const [songName, setSongName] = useState('');
-    const [artistName, setArtistName] = useState('');
+    const [youtubeLink, setYoutubeLink] = useState('');
 
     const handleReport = () => {
         const subject = encodeURIComponent('Missing Song Report');
-        const body = encodeURIComponent(`Hi, I couldn't find this song in the app:\n\nSong Name: ${songName}\nArtist: ${artistName}\n\nThanks!`);
+        const body = encodeURIComponent(`Hi, I couldn't find this song in the app:\n\nSong Name: ${songName}\nYouTube Link: ${youtubeLink}\n\nThanks!`);
         window.location.href = `mailto:ariyan.official101@gmail.com?subject=${subject}&body=${body}`;
     };
 
@@ -74,15 +74,19 @@ function ReportSongCard() {
                     />
                 </div>
                  <div className="space-y-2">
-                    <Label htmlFor="artist-name">Artist Name</Label>
-                    <Input 
-                        id="artist-name"
-                        placeholder="e.g., Alan Walker"
-                        value={artistName}
-                        onChange={(e) => setArtistName(e.target.value)}
-                    />
+                    <Label htmlFor="youtube-link">YouTube Song Link</Label>
+                    <div className="relative">
+                       <LinkIcon className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                       <Input 
+                          id="youtube-link"
+                          placeholder="https://youtube.com/watch?v=..."
+                          value={youtubeLink}
+                          onChange={(e) => setYoutubeLink(e.target.value)}
+                          className="pl-9"
+                      />
+                    </div>
                 </div>
-                <Button onClick={handleReport} disabled={!songName || !artistName}>
+                <Button onClick={handleReport} disabled={!songName || !youtubeLink}>
                     Report via Email
                 </Button>
             </CardContent>
