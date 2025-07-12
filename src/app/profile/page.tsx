@@ -56,6 +56,44 @@ function SnapchatIcon(props: React.SVGProps<SVGSVGElement>) {
   );
 }
 
+function WavingDoraemon() {
+    return (
+        <div className="relative w-12 h-12">
+            <svg viewBox="0 0 100 100" className="w-full h-full">
+                {/* Waving Hand */}
+                <g className="origin-center animate-wave-hand" style={{ transformOrigin: '25px 80px' }}>
+                     <circle cx="20" cy="85" r="10" fill="#fff" stroke="#000" strokeWidth="1" />
+                </g>
+                {/* Head */}
+                <circle cx="50" cy="50" r="40" fill="#36A9E1" stroke="#000" strokeWidth="2" />
+                {/* Face */}
+                <circle cx="50" cy="55" r="30" fill="#fff" />
+                 {/* Collar */}
+                <path d="M25 75 Q50 85 75 75 L 75 80 Q50 90 25 80 Z" fill="#D81E05" stroke="#000" strokeWidth="1.5" />
+                <circle cx="50" cy="80" r="5" fill="#F9D900" stroke="#000" strokeWidth="1" />
+                {/* Eyes */}
+                <ellipse cx="40" cy="40" rx="10" ry="12" fill="#fff" stroke="#000" strokeWidth="1.5" />
+                <ellipse cx="60" cy="40" rx="10" ry="12" fill="#fff" stroke="#000" strokeWidth="1.5" />
+                <circle cx="42" cy="42" r="3" fill="#000" />
+                <circle cx="58" cy="42" r="3" fill="#000" />
+                {/* Nose */}
+                <circle cx="50" cy="50" r="5" fill="#D81E05" stroke="#000" strokeWidth="1" />
+                {/* Mouth Line */}
+                <line x1="50" y1="55" x2="50" y2="70" stroke="#000" strokeWidth="1.5" />
+                {/* Mouth Smile */}
+                <path d="M35 65 Q50 75 65 65" stroke="#000" strokeWidth="1.5" fill="none" />
+                {/* Whiskers */}
+                <line x1="20" y1="55" x2="35" y2="50" stroke="#000" strokeWidth="1" />
+                <line x1="20" y1="60" x2="35" y2="60" stroke="#000" strokeWidth="1" />
+                <line x1="20" y1="65" x2="35" y2="70" stroke="#000" strokeWidth="1" />
+                <line x1="80" y1="55" x2="65" y2="50" stroke="#000" strokeWidth="1" />
+                <line x1="80" y1="60" x2="65" y2="60" stroke="#000" strokeWidth="1" />
+                <line x1="80" y1="65" x2="65" y2="70" stroke="#000" strokeWidth="1" />
+            </svg>
+        </div>
+    );
+}
+
 function LoggedInView() {
   const { user, logout, login } = useAuth();
   const [name, setName] = useState(user?.name || '');
@@ -227,9 +265,12 @@ function LoggedInView() {
           Log Out
         </Button>
         <div className="flex flex-col items-center gap-2">
-            <p className="inline-flex items-center gap-1.5">
-              Made with <Heart className="h-4 w-4 text-red-500 fill-current" /> by Ariyan
-            </p>
+            <div className="inline-flex items-center gap-1.5">
+              <p>Made with</p>
+              <Heart className="h-4 w-4 text-red-500 fill-current" />
+              <p>by Ariyan</p>
+              <WavingDoraemon />
+            </div>
             <div className="flex items-center gap-4">
                 <a
                     href="https://www.instagram.com/ariyan.xlx"
@@ -289,9 +330,12 @@ function GuestView() {
       </CardContent>
       <CardFooter className="flex-col gap-2 text-center text-sm text-muted-foreground pt-6">
          <div className="flex flex-col items-center gap-2">
-            <p className="inline-flex items-center gap-1.5">
-              Made with <Heart className="h-4 w-4 text-red-500 fill-current" /> by Ariyan
-            </p>
+            <div className="inline-flex items-center gap-1.5">
+              <p>Made with</p>
+              <Heart className="h-4 w-4 text-red-500 fill-current" />
+              <p>by Ariyan</p>
+              <WavingDoraemon />
+            </div>
             <div className="flex items-center gap-4">
                 <a
                     href="https://www.instagram.com/ariyan.xlx"
