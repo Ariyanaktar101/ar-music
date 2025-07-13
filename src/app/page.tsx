@@ -47,7 +47,7 @@ function HindiHitsSkeleton() {
 function TrendingSongsSkeleton() {
     return (
         <div className="space-y-2">
-            {Array.from({ length: 5 }).map((_, i) => (
+            {Array.from({ length: 10 }).map((_, i) => (
                  <div key={i} className="flex items-center gap-4 p-2">
                     <Skeleton className="h-11 w-11" />
                     <div className="flex-1 space-y-2">
@@ -81,7 +81,7 @@ function HomeComponent() {
 
   const fetchTrendingSongs = async () => {
     setLoadingTrending(true);
-    const songs = await handleSearch("latest bollywood songs", 100);
+    const songs = await handleSearch("latest bollywood songs", 40);
     setTrendingSongs(songs);
     setLoadingTrending(false);
   }
