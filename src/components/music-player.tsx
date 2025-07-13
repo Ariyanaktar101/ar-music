@@ -1,4 +1,5 @@
 
+
 "use client";
 
 import React from 'react';
@@ -102,6 +103,9 @@ function ExpandedPlayer() {
   } = useMusicPlayer();
   
   const controls = useAnimation();
+  const lyricsContainerRef = React.useRef<HTMLDivElement>(null);
+  const activeLyricRef = React.useRef<HTMLDivElement>(null);
+
 
   if (!currentSong) return null;
 
@@ -134,6 +138,21 @@ function ExpandedPlayer() {
         controls.start({ y: '100%' });
     }
   }, [isExpanded, controls]);
+
+  React.useEffect(() => {
+    if (showLyrics && activeLyricRef.current && lyricsContainerRef.current) {
+        const container = lyricsContainerRef.current;
+        const activeLine = activeLyricRef.current;
+        const containerHeight = container.clientHeight;
+        const activeLineTop = activeLine.offsetTop;
+        const activeLineHeight = activeLine.clientHeight;
+
+        container.scrollTo({
+            top: activeLineTop - containerHeight / 2 + activeLineHeight / 2,
+            behavior: 'smooth',
+        });
+    }
+  }, [currentLineIndex, showLyrics]);
   
   const containerVariants = {
     hidden: { opacity: 0 },
@@ -161,31 +180,31 @@ function ExpandedPlayer() {
   const renderPlayerContent = () => {
     if (showLyrics) {
       return (
-        <div className="absolute inset-0 bg-background flex items-center justify-center text-center rounded-lg overflow-hidden">
+        <div className="absolute inset-0 bg-background flex flex-col items-center justify-center text-center rounded-lg overflow-hidden">
             {loadingLyrics ? (
             <Loader className="h-10 w-10 animate-spin text-primary" />
             ) : lyricsLines.length > 0 ? (
-                <motion.div 
-                    className="grid grid-cols-2 md:grid-cols-3 gap-2 p-4 w-full h-full overflow-y-auto"
-                    variants={containerVariants}
-                    initial="hidden"
-                    animate="visible"
+                <div 
+                    ref={lyricsContainerRef}
+                    className="w-full h-full overflow-y-auto p-8 scroll-smooth"
                 >
-                    {lyricsLines.map((line, index) => (
-                    <motion.div
-                        key={index}
-                        variants={itemVariants}
-                        className={cn(
-                        "p-2 rounded-md border text-xs sm:text-sm font-semibold transition-all duration-300 flex items-center justify-center text-center",
-                        currentLineIndex === index
-                            ? "bg-primary text-primary-foreground border-primary"
-                            : "bg-muted/50 text-muted-foreground border-transparent"
-                        )}
-                    >
-                        {line || '...'}
-                    </motion.div>
-                    ))}
-                </motion.div>
+                    <div className="flex flex-col gap-4 text-2xl font-bold">
+                        {lyricsLines.map((line, index) => (
+                        <div
+                            key={index}
+                            ref={currentLineIndex === index ? activeLyricRef : null}
+                            className={cn(
+                            "transition-all duration-300",
+                            currentLineIndex === index
+                                ? "text-foreground scale-105"
+                                : "text-muted-foreground opacity-50"
+                            )}
+                        >
+                            {line || '...'}
+                        </div>
+                        ))}
+                    </div>
+                </div>
             ) : (
             <div className="text-center text-muted-foreground flex flex-col items-center gap-2">
                 <Music className="h-8 w-8" />

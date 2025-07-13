@@ -1,4 +1,5 @@
 
+
 'use client';
 
 import React, { createContext, useContext, useState, useRef, useEffect, useCallback, useMemo } from 'react';
@@ -234,15 +235,11 @@ export const MusicPlayerProvider = ({ children }: { children: React.ReactNode })
         return;
       }
       
-      const totalChars = lines.reduce((acc, line) => acc + line.length, 0);
-      const effectiveDuration = duration - 3; 
-      let currentTime = 1.5; 
+      const effectiveDuration = duration - 2; // Subtract a bit for start/end silence
+      const timePerLine = effectiveDuration / lines.length;
 
-      const timings = lines.map(line => {
-        const lineDuration = (line.length / totalChars) * effectiveDuration;
-        const startTime = currentTime;
-        currentTime += lineDuration;
-        return { line, startTime };
+      const timings = lines.map((line, index) => {
+        return { line, startTime: index * timePerLine + 1 }; // Start lyrics 1s in
       });
 
       setLyricTimings(timings);
