@@ -36,21 +36,18 @@ export default function LikedSongsPage() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // Wait for the music player context to finish loading its state from storage
-    if (playerLoading) {
-        return;
-    }
-
     const fetchLikedSongs = async () => {
-      setLoading(true);
-      if (favoriteSongs && favoriteSongs.length > 0) {
+      // If the player isn't loading and we have favorite songs, fetch them.
+      if (!playerLoading && favoriteSongs && favoriteSongs.length > 0) {
+        setLoading(true);
         const songDetails = await getSongsByIds(favoriteSongs);
         setLikedSongsDetails(songDetails); 
-      } else {
-        // If there are no favorite songs, clear the details.
+        setLoading(false);
+      } else if (!playerLoading) {
+        // If the player isn't loading and there are no favorites, stop loading.
         setLikedSongsDetails([]);
+        setLoading(false);
       }
-      setLoading(false);
     };
 
     fetchLikedSongs();
