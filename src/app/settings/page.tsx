@@ -129,8 +129,8 @@ function ReportSongCard() {
                           />
                         </div>
                     </div>
-                    <Button type="submit" disabled={isLoading || isSuccess}>
-                        {isLoading ? <Loader className="animate-spin" /> : isSuccess ? <Check /> : 'Send Report'}
+                    <Button type="submit" disabled={isLoading || isSuccess} className="gap-2">
+                        {isLoading ? <Loader className="animate-spin" /> : isSuccess ? <Check /> : null}
                         {isLoading ? 'Sending...' : isSuccess ? 'Sent!' : 'Send Report'}
                     </Button>
                 </form>
