@@ -539,5 +539,3 @@ export function MusicPlayer() {
     </>
   );
 }
-
-    
