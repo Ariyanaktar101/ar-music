@@ -24,7 +24,7 @@ const genres = [
 
 function HindiHitsSkeleton() {
     return (
-        <div className="grid grid-cols-2 gap-4">
+        <div className="grid grid-cols-3 grid-rows-2 gap-4">
             {Array.from({ length: 6 }).map((_, i) => (
                 <div key={i} className="space-y-2">
                     <Skeleton className="aspect-square w-full" />
@@ -120,7 +120,7 @@ function HomeComponent() {
           </div>
            {loadingHindiHits ? <HindiHitsSkeleton /> : (
             <motion.div 
-              className="grid grid-cols-2 grid-rows-3 gap-4"
+              className="grid grid-cols-3 grid-rows-2 gap-4"
               variants={containerVariants}
               initial="hidden"
               animate="visible"
