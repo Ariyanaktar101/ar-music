@@ -1,3 +1,4 @@
+
 'use server';
 /**
  * @fileOverview A flow to retrieve song lyrics.
@@ -33,7 +34,17 @@ const prompt = ai.definePrompt({
   name: 'getLyricsPrompt',
   input: { schema: GetLyricsInputSchema },
   output: { schema: GetLyricsOutputSchema },
-  prompt: `Find the lyrics for the song "{{songTitle}}" by "{{artist}}". Return only the lyrics, with each line separated by a newline. If you cannot find the lyrics, return an empty string.`,
+  prompt: `You are a music expert. Your task is to provide the lyrics for a given song.
+
+Song Title: "{{songTitle}}"
+Artist: "{{artist}}"
+
+Instructions:
+1.  Find the lyrics for the specified song.
+2.  Your response MUST contain only the lyrics.
+3.  Each line of the lyrics must be separated by a newline character.
+4.  Do NOT include any introductory phrases, titles, artist names, or any other text. For example, do not start with "Here are the lyrics...".
+5.  If you cannot find the lyrics, you MUST return an empty string in the 'lyrics' field.`,
 });
 
 const getLyricsFlow = ai.defineFlow(
