@@ -10,7 +10,7 @@ import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from '@/components/ui/carousel';
 import { GreetingHeader } from '@/components/greeting-header';
-import { RefreshCw, Loader, Moon, Sun } from 'lucide-react';
+import { RefreshCw, Loader, Moon, Sun, Settings } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useTheme } from '@/context/ThemeContext';
 import React from 'react';
@@ -109,7 +109,12 @@ function HomeComponent() {
   }, [user, fetchHindiHits]);
 
   return (
-      <div className="space-y-12">
+      <motion.div 
+        className="space-y-12"
+        initial={{ opacity: 0, y: 10 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5 }}
+      >
         <GreetingHeader />
 
         <section>
@@ -121,6 +126,11 @@ function HomeComponent() {
               <Button variant="ghost" size="icon" onClick={toggleTheme}>
                 {theme === 'dark' ? <Sun className="h-5 w-5" /> : <Moon className="h-5 w-5" />}
               </Button>
+               <Button asChild variant="ghost" size="icon">
+                  <Link href="/settings">
+                    <Settings className="h-5 w-5" />
+                  </Link>
+                </Button>
               <Button variant="ghost" size="icon" onClick={refreshHindiHits} disabled={loadingHindiHits}>
                 {loadingHindiHits ? <Loader className="h-5 w-5 animate-spin" /> : <RefreshCw className="h-5 w-5" />}
               </Button>
@@ -174,7 +184,7 @@ function HomeComponent() {
           </h2>
           {loadingTrending ? <TrendingSongsSkeleton /> : <SongList songs={trendingSongs} />}
         </section>
-      </div>
+      </motion.div>
   );
 }
 
