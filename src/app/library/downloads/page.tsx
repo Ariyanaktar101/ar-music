@@ -6,12 +6,18 @@ import { useMusicPlayer } from '@/context/MusicPlayerContext';
 import { Download, ArrowLeft, Music } from 'lucide-react';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
+import { motion } from 'framer-motion';
 
 export default function DownloadsPage() {
   const { downloadedSongs } = useMusicPlayer();
 
   return (
-      <div className="space-y-6">
+      <motion.div 
+        className="space-y-6"
+        initial={{ opacity: 0, y: 10 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5 }}
+      >
         <div className="flex items-center gap-4">
             <Button asChild variant="ghost" size="icon" className="shrink-0">
               <Link href="/library">
@@ -37,6 +43,6 @@ export default function DownloadsPage() {
             </div>
           </div>
         )}
-      </div>
+      </motion.div>
   );
 }

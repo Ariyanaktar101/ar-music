@@ -41,6 +41,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import React, { useState, useRef } from 'react';
 import { Textarea } from '@/components/ui/textarea';
+import { motion } from 'framer-motion';
 
 function SnapchatIcon(props: React.SVGProps<SVGSVGElement>) {
   return (

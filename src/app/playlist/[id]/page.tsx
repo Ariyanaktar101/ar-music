@@ -13,6 +13,7 @@ import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
 import Image from 'next/image';
 import { Card } from '@/components/ui/card';
+import { motion } from 'framer-motion';
 
 function PlaylistSkeleton() {
     return (
@@ -92,7 +93,12 @@ export default function PlaylistPage() {
 
 
   return (
-      <div className="space-y-6">
+      <motion.div 
+        className="space-y-6"
+        initial={{ opacity: 0, y: 10 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5 }}
+      >
         <div className="flex items-center gap-4 mb-4">
              <Button asChild variant="ghost" size="icon" className="shrink-0">
               <Link href="/library">
@@ -142,6 +148,6 @@ export default function PlaylistPage() {
             </Button>
           </div>
         )}
-      </div>
+      </motion.div>
   );
 }

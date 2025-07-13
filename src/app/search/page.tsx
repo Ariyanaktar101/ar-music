@@ -54,7 +54,7 @@ function SearchPageComponent() {
   const [isPending, startTransition] = useTransition();
   const [results, setResults] = useState<Song[]>([]);
   const [query, setQuery] = useState(initialGenre || '');
-  const debouncedQuery = useDebounce(query, 200);
+  const debouncedQuery = useDebounce(query, 300);
   const [hasSearched, setHasSearched] = useState(!!initialGenre);
   const [newlyAdded, setNewlyAdded] = useState<Song[]>([]);
   const [loadingNewlyAdded, setLoadingNewlyAdded] = useState(true);
@@ -77,17 +77,17 @@ function SearchPageComponent() {
       localStorage.setItem(LOCAL_STORAGE_RECENT_SEARCHES, JSON.stringify(searches));
   }
   
-  const addRecentSearch = (searchTerm: string) => {
-      const lowercasedTerm = searchTerm.toLowerCase().trim();
-      if (!lowercasedTerm) return;
-      
-      setRecentSearches(prevSearches => {
-        const newSearches = [lowercasedTerm, ...prevSearches.filter(s => s.toLowerCase() !== lowercasedTerm)];
-        const searchesToSave = newSearches.slice(0, 10);
-        localStorage.setItem(LOCAL_STORAGE_RECENT_SEARCHES, JSON.stringify(searchesToSave));
-        return searchesToSave;
-      });
-  }
+  const addRecentSearch = useCallback((searchTerm: string) => {
+    const lowercasedTerm = searchTerm.toLowerCase().trim();
+    if (!lowercasedTerm) return;
+    
+    setRecentSearches(prevSearches => {
+      const newSearches = [lowercasedTerm, ...prevSearches.filter(s => s.toLowerCase() !== lowercasedTerm)];
+      const searchesToSave = newSearches.slice(0, 10);
+      localStorage.setItem(LOCAL_STORAGE_RECENT_SEARCHES, JSON.stringify(searchesToSave));
+      return searchesToSave;
+    });
+  }, []);
   
   const removeRecentSearch = (searchTerm: string, e: React.MouseEvent) => {
     e.stopPropagation();
@@ -112,7 +112,7 @@ function SearchPageComponent() {
       const searchResults = await handleSearch(term, 100);
       setResults(searchResults);
     });
-  }, []);
+  }, [addRecentSearch]);
 
   useEffect(() => {
     const fetchNewlyAdded = async () => {
