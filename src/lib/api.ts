@@ -33,6 +33,7 @@ type JioSong = {
 
 
 const SAAVN_API_URL = 'https://saavn.dev/api';
+const YTM_API_URL = 'https://music.youtube.com/youtubei/v1/search';
 
 function mapSaavnSongToSong(saavnSong: JioSong): Song | null {
   if (!saavnSong.downloadUrl || !Array.isArray(saavnSong.downloadUrl) || saavnSong.downloadUrl.length === 0) {
@@ -76,18 +77,91 @@ const filterSongs = (songs: (Song | null)[]): Song[] => {
 }
 
 export async function searchSongs(query: string, limit: number = 20): Promise<Song[]> {
+  // First, try searching with the Saavn API
   try {
-    const response = await fetch(`${SAAVN_API_URL}/search/songs?query=${encodeURIComponent(query)}&limit=${limit}`);
-    if (!response.ok) {
-        console.error(`Failed to search JioSaavn, status: ${response.status}`);
-        return [];
+    const saavnResponse = await fetch(`${SAAVN_API_URL}/search/songs?query=${encodeURIComponent(query)}&limit=${limit}`);
+    if (saavnResponse.ok) {
+        const json = await saavnResponse.json();
+        const results = json.data?.results || [];
+        if (results.length > 0) {
+            const mappedSongs = results.map(mapSaavnSongToSong);
+            const filtered = filterSongs(mappedSongs);
+            if (filtered.length > 0) {
+              return filtered;
+            }
+        }
     }
-    const json = await response.json();
-    const results = json.data?.results || [];
-    const mappedSongs = results.map(mapSaavnSongToSong);
-    return filterSongs(mappedSongs);
   } catch (error) {
     console.error('Error searching songs on JioSaavn:', error);
+  }
+
+  // Fallback to YouTube Music API if Saavn fails or returns no results
+  try {
+    console.log(`Falling back to YouTube Music API for query: ${query}`);
+    const response = await fetch(YTM_API_URL, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      // IMPORTANT: The body for this private API is unknown.
+      // This is a common structure, but it's a guess and will likely fail
+      // without a proper API key and context.
+      body: JSON.stringify({
+        context: {
+          client: {
+            clientName: 'WEB_REMIX',
+            clientVersion: '1.20240424.01.00',
+          },
+        },
+        query: query,
+        params: 'Eg-KAQwIABAAGAAgACgAMABqChAEEAMSAhAKBAgAEAo=', // A common param for songs
+      }),
+    });
+
+    if (!response.ok) {
+        console.error(`Failed to search YouTube Music, status: ${response.status}`);
+        return [];
+    }
+
+    const json = await response.json();
+    console.log('YouTube Music API Response:', json);
+    
+    // The response structure is unknown. This mapping is a guess and will need to be adjusted.
+    const sections = json?.contents?.tabbedSearchResultsRenderer?.tabs[0]?.tabRenderer?.content?.sectionListRenderer?.contents;
+    const songResults = sections?.find((section: any) => section?.musicShelfRenderer?.title?.runs[0]?.text === 'Songs')?.musicShelfRenderer?.contents || [];
+
+    const mappedSongs: Song[] = songResults.map((item: any): Song | null => {
+        const musicItem = item.musicResponsiveListItemRenderer;
+        if (!musicItem) return null;
+        
+        const videoId = musicItem.playlistItemData?.videoId;
+        if (!videoId) return null;
+        
+        // We can't get a direct audio URL, so we construct a YouTube link.
+        // The existing player cannot play this, it's just for data mapping.
+        const url = `https://www.youtube.com/watch?v=${videoId}`;
+        
+        const title = musicItem.flexColumns[0]?.musicResponsiveListItemFlexColumnRenderer?.text?.runs[0]?.text;
+        const artists = musicItem.flexColumns[1]?.musicResponsiveListItemFlexColumnRenderer?.text?.runs?.filter((run: any) => run.navigationEndpoint).map((run: any) => run.text).join(', ');
+        const album = musicItem.flexColumns[1]?.musicResponsiveListItemFlexColumnRenderer?.text?.runs?.find((run: any) => run.navigationEndpoint?.browseEndpoint?.browseId.startsWith('MPRE'))?.text;
+        const durationText = musicItem.flexColumns[1]?.musicResponsiveListItemFlexColumnRenderer?.text?.runs?.slice(-1)[0]?.text;
+        const coverArt = musicItem.thumbnail?.musicThumbnailRenderer?.thumbnail?.thumbnails?.pop()?.url;
+
+        return {
+          id: videoId,
+          title: title || 'Unknown Title',
+          artist: artists || 'Unknown Artist',
+          album: album || 'Unknown Album',
+          duration: durationText || '0:00',
+          coverArt: coverArt || 'https://placehold.co/500x500.png',
+          url: url, // This will not be playable by the audio player
+        }
+    }).filter((s: Song | null): s is Song => s !== null);
+
+    return mappedSongs.slice(0, limit);
+
+  } catch (error) {
+    console.error('Error searching YouTube Music API:', error);
     return [];
   }
 }
