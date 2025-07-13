@@ -10,6 +10,7 @@ import Link from 'next/link';
 import { useEffect, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
+import { motion } from 'framer-motion';
 
 
 function LikedSongsSkeleton() {
@@ -37,24 +38,32 @@ export default function LikedSongsPage() {
 
   useEffect(() => {
     const fetchLikedSongs = async () => {
-      // If the player isn't loading and we have favorite songs, fetch them.
-      if (!playerLoading && favoriteSongs && favoriteSongs.length > 0) {
-        setLoading(true);
+      // Don't do anything until the music player context is done loading
+      if (playerLoading) {
+        return;
+      }
+      
+      setLoading(true);
+      if (favoriteSongs.length > 0) {
         const songDetails = await getSongsByIds(favoriteSongs);
         setLikedSongsDetails(songDetails); 
-        setLoading(false);
-      } else if (!playerLoading) {
-        // If the player isn't loading and there are no favorites, stop loading.
+      } else {
+        // If there are no favorite songs, ensure the list is empty.
         setLikedSongsDetails([]);
-        setLoading(false);
       }
+      setLoading(false);
     };
 
     fetchLikedSongs();
   }, [favoriteSongs, playerLoading]);
 
   return (
-    <div className="space-y-6">
+    <motion.div 
+      className="space-y-6"
+      initial={{ opacity: 0, y: 10 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.5 }}
+    >
         <div className="flex items-center gap-4">
             <Button asChild variant="ghost" size="icon" className="shrink-0">
               <Link href="/library">
@@ -87,6 +96,6 @@ export default function LikedSongsPage() {
             </Button>
           </div>
         )}
-      </div>
+      </motion.div>
   );
 }
