@@ -2,7 +2,7 @@
 'use client';
 
 import { useState, useEffect, memo } from 'react';
-import { handleSearch } from './search/actions';
+import { handleSearch, getRecommendedSongs } from './search/actions';
 import type { Song } from '@/lib/types';
 import { SongCard } from '@/components/song-card';
 import { SongList } from '@/components/song-list';
@@ -15,25 +15,17 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { useTheme } from '@/context/ThemeContext';
 import React from 'react';
 import { motion } from 'framer-motion';
+import { useAuth } from '@/context/AuthContext';
 
 const genres = [
   'Pop', 'Rock', 'Hip-Hop', 'Electronic', 'R&B', 'Country', 
   'Lofi', 'Workout'
 ];
 
-function shuffleArray<T>(array: T[]): T[] {
-    const newArray = [...array];
-    for (let i = newArray.length - 1; i > 0; i--) {
-        const j = Math.floor(Math.random() * (i + 1));
-        [newArray[i], newArray[j]] = [newArray[j], newArray[i]];
-    }
-    return newArray;
-}
-
-function HindiHitsSkeleton() {
+function RecommendedSongsSkeleton() {
     return (
         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4">
-            {Array.from({ length: 6 }).map((_, i) => (
+            {Array.from({ length: 12 }).map((_, i) => (
                 <div key={i} className="space-y-2">
                     <Skeleton className="aspect-square w-full" />
                     <Skeleton className="h-4 w-3/4" />
@@ -74,10 +66,11 @@ const containerVariants = {
 
 function HomeComponent() {
   const [trendingSongs, setTrendingSongs] = useState<Song[]>([]);
-  const [hindiHits, setHindiHits] = useState<Song[]>([]);
-  const [loadingHits, setLoadingHits] = useState(true);
+  const [recommendedSongs, setRecommendedSongs] = useState<Song[]>([]);
+  const [loadingRecommended, setLoadingRecommended] = useState(true);
   const [loadingTrending, setLoadingTrending] = useState(true);
   const { theme, setTheme } = useTheme();
+  const { user } = useAuth();
 
   const fetchTrendingSongs = async () => {
     setLoadingTrending(true);
@@ -86,19 +79,16 @@ function HomeComponent() {
     setLoadingTrending(false);
   }
 
-  const fetchHindiHits = async () => {
-    setLoadingHits(true);
-    const songs = await handleSearch("top hindi songs", 6);
-    setHindiHits(songs);
-    setLoadingHits(false);
+  const fetchRecommendedSongs = async () => {
+    setLoadingRecommended(true);
+    // Use user's name as a seed for recommendations, or a default value
+    const songs = await getRecommendedSongs(user?.name || 'defaultUser');
+    setRecommendedSongs(songs);
+    setLoadingRecommended(false);
   };
   
-  const refreshHindiHits = () => {
-    setLoadingHits(true);
-    handleSearch("top hindi songs", 6).then(songs => {
-        setHindiHits(shuffleArray(songs));
-        setLoadingHits(false);
-    });
+  const refreshRecommendedSongs = () => {
+    fetchRecommendedSongs();
   };
 
   const toggleTheme = () => {
@@ -107,9 +97,9 @@ function HomeComponent() {
   };
   
   useEffect(() => {
-    fetchHindiHits();
+    fetchRecommendedSongs();
     fetchTrendingSongs();
-  }, []);
+  }, [user]); // Refetch recommendations when user changes
 
   return (
       <div className="space-y-12">
@@ -118,26 +108,26 @@ function HomeComponent() {
         <section>
           <div className="flex items-center justify-between mb-4">
             <h2 className="text-2xl font-bold font-headline tracking-wide uppercase">
-              Top Hits
+              Recommended For You
             </h2>
             <div className="flex items-center gap-2">
               <Button variant="ghost" size="icon" onClick={toggleTheme}>
                 {theme === 'dark' ? <Sun className="h-5 w-5" /> : <Moon className="h-5 w-5" />}
               </Button>
-              <Button variant="ghost" size="icon" onClick={refreshHindiHits} disabled={loadingHits}>
-                {loadingHits ? <Loader className="h-5 w-5 animate-spin" /> : <RefreshCw className="h-5 w-5" />}
+              <Button variant="ghost" size="icon" onClick={refreshRecommendedSongs} disabled={loadingRecommended}>
+                {loadingRecommended ? <Loader className="h-5 w-5 animate-spin" /> : <RefreshCw className="h-5 w-5" />}
               </Button>
             </div>
           </div>
-           {loadingHits ? <HindiHitsSkeleton /> : (
+           {loadingRecommended ? <RecommendedSongsSkeleton /> : (
             <motion.div 
               className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4"
               variants={containerVariants}
               initial="hidden"
               animate="visible"
             >
-                {hindiHits.slice(0, 6).map((song) => (
-                  <SongCard key={song.id} song={song} playlist={hindiHits.slice(0, 6)} />
+                {recommendedSongs.slice(0, 12).map((song) => (
+                  <SongCard key={song.id} song={song} playlist={recommendedSongs.slice(0, 12)} />
                 ))}
             </motion.div>
            )}

@@ -20,7 +20,7 @@ function getArtistNames(saavnSong: any): string {
     if (typeof saavnSong.primaryArtists === 'string') {
         return decodeHtml(saavnSong.primaryArtists);
     }
-    if (Array.isArray(saavnSong.artists?.primary) && saavnSong.artists.primary.length > 0) {
+     if (Array.isArray(saavnSong.artists?.primary) && saavnSong.artists.primary.length > 0) {
         return decodeHtml(saavnSong.artists.primary.map((artist: any) => artist.name).join(', '));
     }
      if (Array.isArray(saavnSong.artists) && saavnSong.artists.length > 0) {
@@ -89,4 +89,24 @@ export async function handleSearch(query: string, limit: number = 20): Promise<S
     console.error('Error searching JioSaavn API:', error);
   }
   return [];
+}
+
+export async function getRecommendedSongs(userId: string): Promise<Song[]> {
+    if (!userId) return [];
+    try {
+        // The public API uses the /modules endpoint to get personalized recommendations
+        const response = await fetch(`https://jiosaavn-api.vercel.app/modules?language=hindi,english`);
+        const data = await response.json();
+
+        if (data.success && data.data?.recommendations?.songs?.length > 0) {
+            const mappedSongs = data.data.recommendations.songs
+                .map(mapSaavnSongToSong)
+                .filter((s: Song | null): s is Song => s !== null);
+            return mappedSongs.slice(0, 12); // Limit to 12 songs for a 2x6 grid
+        }
+    } catch (error) {
+        console.error('Error fetching recommended songs from JioSaavn API:', error);
+    }
+    // Fallback to top hindi songs if recommendations fail
+    return handleSearch("top hindi songs", 12);
 }
