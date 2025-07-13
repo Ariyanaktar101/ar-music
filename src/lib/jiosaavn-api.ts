@@ -31,7 +31,7 @@ function getArtistNames(saavnSong: any): string {
 export function mapSaavnSongToSong(saavnSong: any): Song | null {
   try {
     const title = decodeHtml(saavnSong.name || saavnSong.title);
-    if (title === 'Shree Hanuman Chalisa (Hanuman Ashtak)') {
+    if (title.includes('Hanuman Chalisa')) {
       return null;
     }
 
