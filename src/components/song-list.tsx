@@ -57,7 +57,7 @@ export const SongList = React.memo(function SongList({ songs }: SongListProps) {
                             )}
                             whileHover={{ backgroundColor: 'hsl(var(--secondary))', transition: { duration: 0.2 } }}
                         >
-                            <TableCell className="w-10 align-middle text-center text-muted-foreground font-mono text-base">
+                            <TableCell className="w-10 align-middle text-center text-muted-foreground font-mono text-sm sm:text-base px-1 sm:px-4">
                                 <span className="group-hover:hidden">{index + 1}</span>
                                 <div className="hidden group-hover:flex items-center justify-center">
                                     {isThisSongPlaying ? (
@@ -68,7 +68,7 @@ export const SongList = React.memo(function SongList({ songs }: SongListProps) {
                                 </div>
                             </TableCell>
                             <TableCell className="p-2 align-middle">
-                                <div className="flex items-center gap-4">
+                                <div className="flex items-center gap-3">
                                     <div className="relative h-11 w-11 flex-shrink-0">
                                         <Image
                                             src={song.coverArt}
@@ -77,14 +77,14 @@ export const SongList = React.memo(function SongList({ songs }: SongListProps) {
                                             className="rounded-md object-cover"
                                         />
                                     </div>
-                                    <div>
+                                    <div className="flex-1 overflow-hidden">
                                         <p className={cn("font-semibold truncate", isThisCurrentSong && "text-primary")}>{song.title}</p>
                                         <p className="text-sm text-muted-foreground truncate">{song.artist}</p>
                                     </div>
                                 </div>
                             </TableCell>
-                            <TableCell className="hidden md:table-cell text-muted-foreground align-middle">{song.album}</TableCell>
-                            <TableCell className="text-right text-muted-foreground align-middle font-mono">{song.duration}</TableCell>
+                            <TableCell className="hidden md:table-cell text-muted-foreground align-middle truncate">{song.album}</TableCell>
+                            <TableCell className="text-right text-muted-foreground align-middle font-mono text-sm pr-2 sm:pr-4">{song.duration}</TableCell>
                         </motion.tr>
                     )
                 })}
