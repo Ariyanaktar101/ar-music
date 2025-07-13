@@ -3,7 +3,8 @@
 
 import { SongList } from '@/components/song-list';
 import { useMusicPlayer } from '@/context/MusicPlayerContext';
-import { getSongsByIds } from '@/lib/api';
+// The getSongsByIds function no longer exists in a separate file, so we remove the import.
+// We will rely on song details being present in the context.
 import type { Song } from '@/lib/types';
 import { Heart, Music, ArrowLeft } from 'lucide-react';
 import Link from 'next/link';
@@ -31,7 +32,7 @@ function LikedSongsSkeleton() {
 
 
 export default function LikedSongsPage() {
-  const { favoriteSongs, loading: playerLoading } = useMusicPlayer();
+  const { favoriteSongs, loading: playerLoading, getSongDetailsByIds } = useMusicPlayer();
   const [likedSongsDetails, setLikedSongsDetails] = useState<Song[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -44,13 +45,12 @@ export default function LikedSongsPage() {
     const fetchLikedSongs = async () => {
       setLoading(true);
       if (favoriteSongs && favoriteSongs.length > 0) {
-        try {
-          const songDetails = await getSongsByIds(favoriteSongs);
-          setLikedSongsDetails(songDetails);
-        } catch (error) {
-          console.error("Failed to fetch liked songs details:", error);
-          setLikedSongsDetails([]); // Clear on error to avoid stale data
-        }
+        // getSongDetailsByIds will be responsible for fetching or retrieving details.
+        // For the current YouTube API, this will likely return nothing,
+        // so we can't show details. This will need a different approach later.
+        // For now, this is a placeholder to keep the page from crashing.
+        const songDetails = await getSongDetailsByIds(favoriteSongs);
+        setLikedSongsDetails(songDetails); 
       } else {
         // If there are no favorite songs, clear the details.
         setLikedSongsDetails([]);
@@ -59,7 +59,7 @@ export default function LikedSongsPage() {
     };
 
     fetchLikedSongs();
-  }, [favoriteSongs, playerLoading]);
+  }, [favoriteSongs, playerLoading, getSongDetailsByIds]);
 
   return (
     <div className="space-y-6">

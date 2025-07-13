@@ -2,7 +2,7 @@
 'use client';
 
 import { useState, useEffect, memo } from 'react';
-import { searchSongs } from '@/lib/api';
+import { handleSearch } from '@/app/search/actions';
 import type { Song } from '@/lib/types';
 import { SongCard } from '@/components/song-card';
 import { SongList } from '@/components/song-list';
@@ -82,14 +82,14 @@ function HomeComponent() {
 
   const fetchTrendingSongs = async () => {
     setLoadingTrending(true);
-    const songs = await searchSongs("latest bollywood songs", 100);
+    const songs = await handleSearch("latest bollywood songs", 100);
     setTrendingSongs(songs);
     setLoadingTrending(false);
   }
 
   const fetchHindiHits = async () => {
     setLoadingHits(true);
-    const songs = await searchSongs("top hindi songs", 12); // Fetch more songs initially
+    const songs = await handleSearch("top hindi songs", 12); // Fetch more songs initially
     setHindiHits(songs);
     setLoadingHits(false);
   };

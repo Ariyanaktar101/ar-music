@@ -66,7 +66,7 @@ function SearchPageComponent() {
     }
     setHasSearched(true);
     startTransition(async () => {
-      const searchResults = await handleSearch(searchTerm);
+      const searchResults = await handleSearch(searchTerm, 100);
       setResults(searchResults);
     });
   }, []);
@@ -74,8 +74,8 @@ function SearchPageComponent() {
   useEffect(() => {
     const fetchNewlyAdded = async () => {
         setLoadingNewlyAdded(true);
-        const songs = await handleSearch("latest songs");
-        setNewlyAdded(songs.slice(0, 10));
+        const songs = await handleSearch("latest songs", 10);
+        setNewlyAdded(songs);
         setLoadingNewlyAdded(false);
     }
     fetchNewlyAdded();

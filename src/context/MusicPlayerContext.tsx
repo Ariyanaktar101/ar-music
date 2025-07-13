@@ -48,6 +48,7 @@ interface MusicPlayerContextType {
   addSongToPlaylist: (playlistId: string, song: Song) => void;
   removeSongFromPlaylist: (playlistId: string, songId: string) => void;
   getPlaylistById: (id: string) => Playlist | undefined;
+  getSongDetailsByIds: (ids: string[]) => Promise<Song[]>;
 
   // Download state
   downloadedSongs: Song[];
@@ -175,6 +176,17 @@ export const MusicPlayerProvider = ({ children }: { children: React.ReactNode })
       return;
     }
     
+    // The YouTube API does not provide a playable URL, so we can't play the song.
+    // We will show a toast message to inform the user.
+    if (!song.url.includes('.mp4') && !song.url.includes('.mp3')) {
+        toast({
+            variant: "destructive",
+            title: "Playback Not Available",
+            description: "This song cannot be played directly.",
+        });
+        return;
+    }
+
     const newQueue = queue.length > 0 ? queue : [song];
     setCurrentQueue(newQueue);
     
@@ -195,7 +207,7 @@ export const MusicPlayerProvider = ({ children }: { children: React.ReactNode })
       audioRef.current.load();
       audioRef.current.play().catch(console.error);
     }
-  }, [currentSong, addSongToRecents, isPlaying, isShuffled, togglePlayPause]);
+  }, [currentSong, addSongToRecents, isPlaying, isShuffled, togglePlayPause, toast]);
 
   const playNextSong = useCallback(() => {
     if (!currentSong) return;
@@ -477,6 +489,14 @@ export const MusicPlayerProvider = ({ children }: { children: React.ReactNode })
     return playlists.find(p => p.id === id);
   }, [playlists]);
   
+  const getSongDetailsByIds = useCallback(async (ids: string[]): Promise<Song[]> => {
+    // Since the YT Music search API cannot fetch by ID, this function can't be implemented.
+    // We will return an empty array to prevent crashes.
+    // A potential solution would be to cache song details when they are first fetched.
+    console.warn("getSongDetailsByIds is not supported by the current API.");
+    return [];
+  }, []);
+
   const downloadSong = useCallback(async (song: Song) => {
     if (!song) return;
     if (downloadedSongs.some(s => s.id === song.id)) {
@@ -486,6 +506,8 @@ export const MusicPlayerProvider = ({ children }: { children: React.ReactNode })
 
     try {
       toast({ title: 'Starting Download', description: `Downloading "${song.title}"...` });
+       // The current URL is not a direct download link, so this will fail.
+       // This needs a proper API that provides downloadable content.
       const response = await fetch(song.url);
       if (!response.ok) throw new Error('Network response was not ok.');
       const blob = await response.blob();
@@ -541,6 +563,7 @@ export const MusicPlayerProvider = ({ children }: { children: React.ReactNode })
     addSongToPlaylist,
     removeSongFromPlaylist,
     getPlaylistById,
+    getSongDetailsByIds,
     downloadedSongs,
     downloadSong,
   }), [
@@ -577,6 +600,7 @@ export const MusicPlayerProvider = ({ children }: { children: React.ReactNode })
     addSongToPlaylist,
     removeSongFromPlaylist,
     getPlaylistById,
+    getSongDetailsByIds,
     downloadedSongs,
     downloadSong,
   ]);
