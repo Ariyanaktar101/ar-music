@@ -77,7 +77,8 @@ export async function handleSearch(query: string, limit: number = 20): Promise<S
     )?.musicShelfRenderer?.contents;
 
     if (songResults && songResults.length > 0) {
-      return songResults.map(mapYouTubeSongToSong).filter((s: Song | null): s is Song => s !== null).slice(0, limit);
+      const mappedSongs = songResults.map(mapYouTubeSongToSong).filter((s: Song | null): s is Song => s !== null);
+      return mappedSongs.slice(0, limit);
     }
   } catch (error) {
     console.error('Error searching YouTube Music API:', error);
