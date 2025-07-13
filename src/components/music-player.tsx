@@ -1,5 +1,4 @@
 
-
 "use client";
 
 import React from 'react';
@@ -188,7 +187,7 @@ function ExpandedPlayer() {
                     ref={lyricsContainerRef}
                     className="w-full h-full overflow-y-auto p-8 scroll-smooth"
                 >
-                    <div className="flex flex-col gap-4 text-2xl font-bold">
+                    <div className="flex flex-col gap-6 text-2xl font-bold">
                         {lyricsLines.map((line, index) => (
                         <div
                             key={index}
@@ -228,6 +227,7 @@ function ExpandedPlayer() {
                 fill
                 className="object-cover rounded-lg"
             />
+             <div className="absolute inset-0 bg-gradient-to-b from-black/50 to-transparent rounded-lg" />
              <div className="absolute inset-0 animate-aurora-glow rounded-lg" />
         </motion.div>
     );
@@ -239,27 +239,30 @@ function ExpandedPlayer() {
       initial={{ y: '100%' }}
       animate={controls}
       transition={{ type: 'spring', damping: 30, stiffness: 300 }}
-      drag="y"
-      dragConstraints={{ top: 0, bottom: 0 }}
-      dragElastic={0.2}
-      onDragEnd={handleDragEnd}
     >
-      <div className="flex-shrink-0 p-4 flex items-center justify-between">
-        <Button variant="ghost" size="icon" onClick={toggleExpandPlayer}>
-          <ChevronDown className="h-6 w-6" />
-        </Button>
-        <div className="text-center">
-            <p className="text-sm text-muted-foreground uppercase tracking-wider">Playing from Album</p>
-            <p className="font-bold truncate">{currentSong.album}</p>
+        <div 
+            className="absolute top-0 left-0 right-0 z-10 p-4 flex items-center justify-between"
+            onPointerDown={(e) => e.stopPropagation()} // Prevent drag from header
+        >
+            <Button variant="ghost" size="icon" onClick={toggleExpandPlayer}>
+              <ChevronDown className="h-6 w-6" />
+            </Button>
+            <div className="text-center">
+                <p className="text-sm text-muted-foreground uppercase tracking-wider">Playing from Album</p>
+                <p className="font-bold truncate">{currentSong.album}</p>
+            </div>
+             <MoreOptionsButton />
         </div>
-         <MoreOptionsButton />
-      </div>
 
       <motion.div 
-        className="flex-1 flex flex-col justify-center items-center px-8 gap-6 overflow-hidden"
+        className="flex-1 flex flex-col justify-center items-center px-8 gap-6 overflow-hidden pt-16"
         variants={containerVariants}
         initial="hidden"
         animate={isExpanded ? "visible" : "hidden"}
+        drag="y"
+        dragConstraints={{ top: 0, bottom: 0 }}
+        dragElastic={0.2}
+        onDragEnd={handleDragEnd}
       >
         <motion.div className="relative w-full max-w-sm aspect-square" variants={itemVariants}>
           {renderPlayerContent()}
@@ -536,3 +539,5 @@ export function MusicPlayer() {
     </>
   );
 }
+
+    
