@@ -3,7 +3,7 @@
 
 import { SongList } from '@/components/song-list';
 import { useMusicPlayer } from '@/context/MusicPlayerContext';
-// The getSongsByIds function no longer exists, we'll use a method from the context.
+import { getSongsByIds } from '@/lib/jiosaavn-api';
 import type { Song, Playlist as PlaylistType } from '@/lib/types';
 import { Music, ArrowLeft, Plus } from 'lucide-react';
 import Link from 'next/link';
@@ -46,7 +46,7 @@ export default function PlaylistPage() {
   const params = useParams();
   const playlistId = params.id as string;
   
-  const { getPlaylistById, getSongDetailsByIds } = useMusicPlayer();
+  const { getPlaylistById } = useMusicPlayer();
   
   const [playlist, setPlaylist] = useState<PlaylistType | undefined | null>(undefined);
   const [songs, setSongs] = useState<Song[]>([]);
@@ -62,9 +62,7 @@ export default function PlaylistPage() {
       if (playlist === null) return;
       
       if (playlist && playlist.songIds.length > 0) {
-        // As with Liked Songs, this won't work with the current API.
-        // It's a placeholder to keep the app running.
-        const songDetails = await getSongDetailsByIds(playlist.songIds);
+        const songDetails = await getSongsByIds(playlist.songIds);
         setSongs(songDetails);
       } else {
         setSongs([]);
@@ -76,7 +74,7 @@ export default function PlaylistPage() {
       setLoading(true);
       fetchSongs();
     }
-  }, [playlist, getSongDetailsByIds]);
+  }, [playlist]);
 
   if (loading) {
     return (

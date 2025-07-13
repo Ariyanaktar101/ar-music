@@ -3,8 +3,7 @@
 
 import { SongList } from '@/components/song-list';
 import { useMusicPlayer } from '@/context/MusicPlayerContext';
-// The getSongsByIds function no longer exists in a separate file, so we remove the import.
-// We will rely on song details being present in the context.
+import { getSongsByIds } from '@/lib/jiosaavn-api';
 import type { Song } from '@/lib/types';
 import { Heart, Music, ArrowLeft } from 'lucide-react';
 import Link from 'next/link';
@@ -32,7 +31,7 @@ function LikedSongsSkeleton() {
 
 
 export default function LikedSongsPage() {
-  const { favoriteSongs, loading: playerLoading, getSongDetailsByIds } = useMusicPlayer();
+  const { favoriteSongs, loading: playerLoading } = useMusicPlayer();
   const [likedSongsDetails, setLikedSongsDetails] = useState<Song[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -45,11 +44,7 @@ export default function LikedSongsPage() {
     const fetchLikedSongs = async () => {
       setLoading(true);
       if (favoriteSongs && favoriteSongs.length > 0) {
-        // getSongDetailsByIds will be responsible for fetching or retrieving details.
-        // For the current YouTube API, this will likely return nothing,
-        // so we can't show details. This will need a different approach later.
-        // For now, this is a placeholder to keep the page from crashing.
-        const songDetails = await getSongDetailsByIds(favoriteSongs);
+        const songDetails = await getSongsByIds(favoriteSongs);
         setLikedSongsDetails(songDetails); 
       } else {
         // If there are no favorite songs, clear the details.
@@ -59,7 +54,7 @@ export default function LikedSongsPage() {
     };
 
     fetchLikedSongs();
-  }, [favoriteSongs, playerLoading, getSongDetailsByIds]);
+  }, [favoriteSongs, playerLoading]);
 
   return (
     <div className="space-y-6">

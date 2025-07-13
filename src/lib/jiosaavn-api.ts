@@ -1,6 +1,4 @@
 
-'use server';
-
 import type { Song } from '@/lib/types';
 
 // Helper function to replace 'HTML entities' with their actual characters
@@ -59,21 +57,20 @@ function mapSaavnSongToSong(saavnSong: any): Song | null {
   }
 }
 
-export async function handleSearch(query: string, limit: number = 20): Promise<Song[]> {
-  if (!query) return [];
+export async function getSongsByIds(ids: string[]): Promise<Song[]> {
+  if (!ids || ids.length === 0) return [];
   try {
-    const response = await fetch(`https://saavn.dev/api/search/songs?query=${encodeURIComponent(query)}&limit=${limit}`);
+    const response = await fetch(`https://saavn.dev/api/songs?ids=${ids.join(',')}`);
     const data = await response.json();
     
-    if (data.success && data.data.results.length > 0) {
-      const mappedSongs = data.data.results
+    if (data.success && data.data.length > 0) {
+      const mappedSongs = data.data
         .map(mapSaavnSongToSong)
         .filter((s: Song | null): s is Song => s !== null);
       return mappedSongs;
     }
-
   } catch (error) {
-    console.error('Error searching JioSaavn API:', error);
+    console.error('Error fetching songs by IDs from JioSaavn API:', error);
   }
   return [];
 }

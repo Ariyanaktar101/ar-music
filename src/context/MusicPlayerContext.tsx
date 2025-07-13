@@ -6,6 +6,8 @@ import React, { createContext, useContext, useState, useRef, useEffect, useCallb
 import type { Song, Playlist } from '@/lib/types';
 import { getLyrics } from '@/ai/flows/get-lyrics-flow';
 import { useToast } from '@/hooks/use-toast';
+import { getSongsByIds } from '@/lib/jiosaavn-api';
+
 
 interface MusicPlayerContextType {
   loading: boolean;
@@ -48,8 +50,7 @@ interface MusicPlayerContextType {
   addSongToPlaylist: (playlistId: string, song: Song) => void;
   removeSongFromPlaylist: (playlistId: string, songId: string) => void;
   getPlaylistById: (id: string) => Playlist | undefined;
-  getSongDetailsByIds: (ids: string[]) => Promise<Song[]>;
-
+  
   // Download state
   downloadedSongs: Song[];
   downloadSong: (song: Song) => void;
@@ -175,10 +176,8 @@ export const MusicPlayerProvider = ({ children }: { children: React.ReactNode })
       togglePlayPause();
       return;
     }
-    
-    // The YouTube API does not provide a playable URL, so we can't play the song.
-    // We will show a toast message to inform the user.
-    if (!song.url.includes('.mp4') && !song.url.includes('.mp3')) {
+
+    if (!song.url) {
         toast({
             variant: "destructive",
             title: "Playback Not Available",
@@ -444,8 +443,24 @@ export const MusicPlayerProvider = ({ children }: { children: React.ReactNode })
       return newPlaylist;
   }, []);
 
-  const addSongToPlaylist = useCallback((playlistId: string, song: Song) => {
+  const addSongToPlaylist = useCallback(async (playlistId: string, song: Song) => {
     let playlistName = '';
+    
+    // Fetch full song details if they are partial
+    if (!song.url) {
+      const fullDetails = await getSongsByIds([song.id]);
+      if (fullDetails.length > 0) {
+        song = fullDetails[0];
+      } else {
+        toast({
+          variant: 'destructive',
+          title: "Couldn't add song",
+          description: "Full song details could not be found.",
+        });
+        return;
+      }
+    }
+
     setPlaylists(prev => prev.map(p => {
         if (p.id === playlistId) {
             playlistName = p.name;
@@ -468,34 +483,43 @@ export const MusicPlayerProvider = ({ children }: { children: React.ReactNode })
     });
   }, [toast]);
 
-  const removeSongFromPlaylist = useCallback((playlistId: string, songId: string) => {
+  const removeSongFromPlaylist = useCallback(async (playlistId: string, songId: string) => {
+      let coverArtSongId: string | undefined;
+      let needsNewCoverArt = false;
+
       setPlaylists(prev => prev.map(p => {
           if (p.id === playlistId) {
-              const updatedPlaylist = { ...p, songIds: p.songIds.filter(id => id !== songId) };
-              // If the removed song was the cover art, find a new one or remove it
-              if (p.coverArt && p.songIds.length > 0 && p.songIds[0] === songId) {
-                  // This part requires fetching song details to get new cover art.
-                  // For simplicity, we can clear it or set to a placeholder.
-                  // A more advanced implementation would fetch the next song's cover.
-                  updatedPlaylist.coverArt = undefined; // Or a placeholder
+              const updatedSongIds = p.songIds.filter(id => id !== songId);
+              const updatedPlaylist = { ...p, songIds: updatedSongIds };
+              
+              if (p.coverArt && updatedSongIds.length > 0 && p.songIds[0] === songId) {
+                  needsNewCoverArt = true;
+                  coverArtSongId = updatedSongIds[0];
+              } else if (updatedSongIds.length === 0) {
+                  updatedPlaylist.coverArt = undefined;
               }
+              
               return updatedPlaylist;
           }
           return p;
       }));
+      
+      if (needsNewCoverArt && coverArtSongId) {
+          const songs = await getSongsByIds([coverArtSongId]);
+          if (songs.length > 0) {
+              setPlaylists(prev => prev.map(p => {
+                  if (p.id === playlistId) {
+                      return { ...p, coverArt: songs[0].coverArt };
+                  }
+                  return p;
+              }));
+          }
+      }
   }, []);
 
   const getPlaylistById = useCallback((id: string) => {
     return playlists.find(p => p.id === id);
   }, [playlists]);
-  
-  const getSongDetailsByIds = useCallback(async (ids: string[]): Promise<Song[]> => {
-    // Since the YT Music search API cannot fetch by ID, this function can't be implemented.
-    // We will return an empty array to prevent crashes.
-    // A potential solution would be to cache song details when they are first fetched.
-    console.warn("getSongDetailsByIds is not supported by the current API.");
-    return [];
-  }, []);
 
   const downloadSong = useCallback(async (song: Song) => {
     if (!song) return;
@@ -506,22 +530,19 @@ export const MusicPlayerProvider = ({ children }: { children: React.ReactNode })
 
     try {
       toast({ title: 'Starting Download', description: `Downloading "${song.title}"...` });
-       // The current URL is not a direct download link, so this will fail.
-       // This needs a proper API that provides downloadable content.
+      
       const response = await fetch(song.url);
       if (!response.ok) throw new Error('Network response was not ok.');
       const blob = await response.blob();
-      const url = window.URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.style.display = 'none';
-      a.href = url;
-      a.download = `${song.artist} - ${song.title}.mp3`;
-      document.body.appendChild(a);
-      a.click();
-      window.URL.revokeObjectURL(url);
-      a.remove();
-      setDownloadedSongs(prev => [...prev, song]);
-      toast({ title: 'Download Complete', description: `"${song.title}" has been added to your downloads.` });
+      const localUrl = window.URL.createObjectURL(blob);
+      
+      // We can't actually save to filesystem, so we'll store the blob URL.
+      // This is temporary and will be lost on page reload.
+      // A more robust solution needs IndexedDB.
+      const downloadedSong = { ...song, url: localUrl };
+
+      setDownloadedSongs(prev => [...prev, downloadedSong]);
+      toast({ title: 'Download Complete', description: `"${song.title}" has been saved for this session.` });
     } catch (error) {
       console.error('Error downloading the song:', error);
       toast({ variant: 'destructive', title: 'Download Failed', description: 'Could not download the song.' });
@@ -563,7 +584,6 @@ export const MusicPlayerProvider = ({ children }: { children: React.ReactNode })
     addSongToPlaylist,
     removeSongFromPlaylist,
     getPlaylistById,
-    getSongDetailsByIds,
     downloadedSongs,
     downloadSong,
   }), [
@@ -600,7 +620,6 @@ export const MusicPlayerProvider = ({ children }: { children: React.ReactNode })
     addSongToPlaylist,
     removeSongFromPlaylist,
     getPlaylistById,
-    getSongDetailsByIds,
     downloadedSongs,
     downloadSong,
   ]);
