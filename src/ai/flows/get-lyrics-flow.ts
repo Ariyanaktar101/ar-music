@@ -20,7 +20,7 @@ export type GetLyricsInput = z.infer<typeof GetLyricsInputSchema>;
 const GetLyricsOutputSchema = z.object({
   lyrics: z
     .string()
-    .describe('The lyrics of the song. Each line should be separated by a newline character. If no lyrics are found, return an empty string.'),
+    .describe('The lyrics of the song. Each line should be separated by a newline character. If no lyrics are found, return the string "[No lyrics available]".'),
 });
 export type GetLyricsOutput = z.infer<typeof GetLyricsOutputSchema>;
 
@@ -34,17 +34,17 @@ const prompt = ai.definePrompt({
   name: 'getLyricsPrompt',
   input: { schema: GetLyricsInputSchema },
   output: { schema: GetLyricsOutputSchema },
-  prompt: `You are a music expert. Your task is to provide the lyrics for a given song.
+  prompt: `You are a music expert and a persistent researcher. Your task is to provide the lyrics for a given song.
 
 Song Title: "{{songTitle}}"
 Artist: "{{artist}}"
 
 Instructions:
-1.  Find the lyrics for the specified song.
+1.  Search diligently for the lyrics for the specified song. Try variations of the title and artist if needed.
 2.  Your response MUST contain only the lyrics.
 3.  Each line of the lyrics must be separated by a newline character.
 4.  Do NOT include any introductory phrases, titles, artist names, or any other text. For example, do not start with "Here are the lyrics...".
-5.  If you cannot find the lyrics, you MUST return an empty string in the 'lyrics' field.`,
+5.  If, after an exhaustive search, you absolutely cannot find the lyrics, you MUST return the exact string "[No lyrics available]" in the 'lyrics' field.`,
 });
 
 const getLyricsFlow = ai.defineFlow(

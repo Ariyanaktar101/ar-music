@@ -387,7 +387,11 @@ export const MusicPlayerProvider = ({ children }: { children: React.ReactNode })
     setCurrentLineIndex(null);
     try {
         const result = await getLyrics({ songTitle: currentSong.title, artist: currentSong.artist });
-        setLyrics(result.lyrics || null);
+        if (result.lyrics && result.lyrics.trim() !== "[No lyrics available]") {
+            setLyrics(result.lyrics);
+        } else {
+            setLyrics(null);
+        }
     } catch (error) {
         console.error("Failed to fetch lyrics:", error);
         setLyrics(null);
