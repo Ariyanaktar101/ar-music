@@ -81,13 +81,18 @@ function SearchPageComponent() {
       const lowercasedTerm = searchTerm.toLowerCase().trim();
       if (!lowercasedTerm) return;
       
-      const newSearches = [lowercasedTerm, ...recentSearches.filter(s => s.toLowerCase() !== lowercasedTerm)];
-      saveRecentSearches(newSearches.slice(0, 10)); // Keep only the latest 10
+      setRecentSearches(prevSearches => {
+        const newSearches = [lowercasedTerm, ...prevSearches.filter(s => s.toLowerCase() !== lowercasedTerm)];
+        const searchesToSave = newSearches.slice(0, 10);
+        localStorage.setItem(LOCAL_STORAGE_RECENT_SEARCHES, JSON.stringify(searchesToSave));
+        return searchesToSave;
+      });
   }
   
   const removeRecentSearch = (searchTerm: string, e: React.MouseEvent) => {
     e.stopPropagation();
-    saveRecentSearches(recentSearches.filter(s => s !== searchTerm));
+    const newSearches = recentSearches.filter(s => s !== searchTerm);
+    saveRecentSearches(newSearches);
   }
 
   const clearRecentSearches = () => {
@@ -107,7 +112,7 @@ function SearchPageComponent() {
       const searchResults = await handleSearch(term, 100);
       setResults(searchResults);
     });
-  }, [recentSearches]);
+  }, []);
 
   useEffect(() => {
     const fetchNewlyAdded = async () => {
