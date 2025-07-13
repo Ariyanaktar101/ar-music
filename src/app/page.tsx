@@ -15,7 +15,6 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { useTheme } from '@/context/ThemeContext';
 import React from 'react';
 import { motion } from 'framer-motion';
-import { SpecialSong } from '@/components/special-song';
 
 const genres = [
   'Pop', 'Rock', 'Hip-Hop', 'Electronic', 'R&B', 'Country', 
@@ -111,8 +110,6 @@ function HomeComponent() {
   return (
       <div className="space-y-12">
         <GreetingHeader />
-
-        <SpecialSong />
 
         <section>
           <div className="flex items-center justify-between mb-4">
