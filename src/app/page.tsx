@@ -127,12 +127,12 @@ function HomeComponent() {
           </div>
            {loadingHits ? <HindiHitsSkeleton /> : (
             <motion.div 
-              className="grid grid-cols-3 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4"
+              className="grid grid-cols-3 gap-4"
               variants={containerVariants}
               initial="hidden"
               animate="visible"
             >
-                {hindiHits.slice(0, 6).map((song) => ( // Display first 6
+                {hindiHits.slice(0, 6).map((song) => (
                   <SongCard key={song.id} song={song} playlist={hindiHits.slice(0, 6)} />
                 ))}
             </motion.div>
