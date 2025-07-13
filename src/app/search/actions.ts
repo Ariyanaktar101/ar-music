@@ -75,7 +75,7 @@ function mapSaavnSongToSong(saavnSong: any): Song | null {
 export async function handleSearch(query: string, limit: number = 20): Promise<Song[]> {
   if (!query) return [];
   try {
-    const response = await fetch(`https://saavn.dev/api/search/songs?query=${encodeURIComponent(query)}&limit=${limit}`);
+    const response = await fetch(`https://jiosaavn-api.vercel.app/search/songs?query=${encodeURIComponent(query)}&limit=${limit}`);
     const data = await response.json();
     
     if (data.success && data.data.results.length > 0) {

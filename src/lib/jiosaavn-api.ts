@@ -74,7 +74,7 @@ function mapSaavnSongToSong(saavnSong: any): Song | null {
 export async function getSongsByIds(ids: string[]): Promise<Song[]> {
   if (!ids || ids.length === 0) return [];
   try {
-    const response = await fetch(`https://saavn.dev/api/songs?ids=${ids.join(',')}`);
+    const response = await fetch(`https://jiosaavn-api.vercel.app/songs?id=${ids.join(',')}`);
     const data = await response.json();
     
     if (data.success && data.data.length > 0) {
