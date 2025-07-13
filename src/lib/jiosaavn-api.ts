@@ -14,6 +14,19 @@ function decodeHtml(html: string | undefined): string {
     return html.replace(/&amp;|&lt;|&gt;|&quot;|&#039;/g, match => replacements[match]);
 }
 
+function getArtistNames(saavnSong: any): string {
+    if (typeof saavnSong.primaryArtists === 'string') {
+        return decodeHtml(saavnSong.primaryArtists);
+    }
+    if (Array.isArray(saavnSong.artists?.primary) && saavnSong.artists.primary.length > 0) {
+        return decodeHtml(saavnSong.artists.primary.map((artist: any) => artist.name).join(', '));
+    }
+     if (Array.isArray(saavnSong.artists) && saavnSong.artists.length > 0) {
+        return decodeHtml(saavnSong.artists.map((artist: any) => artist.name).join(', '));
+    }
+    return 'Unknown Artist';
+}
+
 
 function mapSaavnSongToSong(saavnSong: any): Song | null {
   try {
@@ -21,7 +34,7 @@ function mapSaavnSongToSong(saavnSong: any): Song | null {
     if (!id) return null;
 
     const title = decodeHtml(saavnSong.name || saavnSong.title);
-    const artist = decodeHtml(saavnSong.primaryArtists || 'Unknown Artist');
+    const artist = getArtistNames(saavnSong);
     const album = decodeHtml(saavnSong.album?.name || 'Unknown Album');
     
     const durationSeconds = parseInt(saavnSong.duration || '0', 10);
@@ -51,7 +64,8 @@ function mapSaavnSongToSong(saavnSong: any): Song | null {
       coverArt: image,
       url: downloadUrl,
     };
-  } catch (error) {
+  } catch (error)
+ {
     console.error("Error mapping Saavn song:", error, saavnSong);
     return null;
   }
