@@ -14,6 +14,7 @@ import { z } from 'zod';
 const GetLyricsInputSchema = z.object({
   songTitle: z.string().describe('The title of the song.'),
   artist: z.string().describe('The artist of the song.'),
+  album: z.string().describe('The album the song belongs to.'),
 });
 export type GetLyricsInput = z.infer<typeof GetLyricsInputSchema>;
 
@@ -38,9 +39,10 @@ const prompt = ai.definePrompt({
 
 Song Title: "{{songTitle}}"
 Artist: "{{artist}}"
+Album: "{{album}}"
 
 Instructions:
-1.  Search diligently for the lyrics for the specified song. Try variations of the title and artist if needed.
+1.  Search diligently for the lyrics for the specified song. Use all three pieces of information (title, artist, and album) to find the correct song. Try variations of the title and artist if needed.
 2.  Your response MUST contain only the lyrics.
 3.  Each line of the lyrics must be separated by a newline character.
 4.  Do NOT include any introductory phrases, titles, artist names, or any other text. For example, do not start with "Here are the lyrics...".

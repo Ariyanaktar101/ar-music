@@ -386,7 +386,11 @@ export const MusicPlayerProvider = ({ children }: { children: React.ReactNode })
     setLyrics(null);
     setCurrentLineIndex(null);
     try {
-        const result = await getLyrics({ songTitle: currentSong.title, artist: currentSong.artist });
+        const result = await getLyrics({ 
+            songTitle: currentSong.title, 
+            artist: currentSong.artist,
+            album: currentSong.album,
+        });
         if (result.lyrics && result.lyrics.trim() !== "[No lyrics available]") {
             setLyrics(result.lyrics);
         } else {
