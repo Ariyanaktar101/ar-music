@@ -54,7 +54,7 @@ function SearchPageComponent() {
   const [isPending, startTransition] = useTransition();
   const [results, setResults] = useState<Song[]>([]);
   const [query, setQuery] = useState(initialGenre || '');
-  const debouncedQuery = useDebounce(query, 300);
+  const debouncedQuery = useDebounce(query, 200);
   const [hasSearched, setHasSearched] = useState(!!initialGenre);
   const [newlyAdded, setNewlyAdded] = useState<Song[]>([]);
   const [loadingNewlyAdded, setLoadingNewlyAdded] = useState(true);
@@ -273,5 +273,7 @@ export default function SearchPage() {
         </Suspense>
     )
 }
+
+    
 
     
