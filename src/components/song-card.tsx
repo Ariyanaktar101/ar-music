@@ -12,6 +12,7 @@ import { motion } from 'framer-motion';
 interface SongCardProps {
   song: Song;
   playlist: Song[];
+  isSpecialCard?: boolean;
 }
 
 const itemVariants = {
@@ -22,23 +23,17 @@ const itemVariants = {
   },
 };
 
-export const SongCard = React.memo(function SongCard({ song, playlist }: SongCardProps) {
+export const SongCard = React.memo(function SongCard({ song, playlist, isSpecialCard = false }: SongCardProps) {
   const { playSong, currentSong, isPlaying } = useMusicPlayer();
-  const isThisSongPlaying = currentSong?.id === song.id && isPlaying;
+  const isThisSongPlaying = !isSpecialCard && currentSong?.id === song.id && isPlaying;
 
   const handlePlay = (e: React.MouseEvent) => {
+    if (isSpecialCard) return; // Click is handled by the parent
     e.stopPropagation();
     playSong(song, playlist);
   };
-
-  return (
-    <motion.div
-      onClick={handlePlay}
-      className="group cursor-pointer"
-      variants={itemVariants}
-      whileHover={{ y: -5 }}
-      transition={{ type: 'spring', stiffness: 400, damping: 17 }}
-    >
+  
+  const cardContent = (
       <Card className="overflow-hidden transition-all duration-300 shadow-sm hover:shadow-xl">
         <CardContent className="p-0">
           <div className="aspect-square relative">
@@ -62,6 +57,21 @@ export const SongCard = React.memo(function SongCard({ song, playlist }: SongCar
           </div>
         </CardContent>
       </Card>
+  );
+
+  if (isSpecialCard) {
+    return cardContent;
+  }
+
+  return (
+    <motion.div
+      onClick={handlePlay}
+      className="group cursor-pointer"
+      variants={itemVariants}
+      whileHover={{ y: -5 }}
+      transition={{ type: 'spring', stiffness: 400, damping: 17 }}
+    >
+      {cardContent}
     </motion.div>
   );
 });
