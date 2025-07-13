@@ -120,7 +120,7 @@ function HomeComponent() {
           </div>
            {loadingHindiHits ? <HindiHitsSkeleton /> : (
             <motion.div 
-              className="grid grid-cols-2 gap-4"
+              className="grid grid-cols-2 grid-rows-3 gap-4"
               variants={containerVariants}
               initial="hidden"
               animate="visible"
