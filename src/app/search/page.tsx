@@ -12,7 +12,7 @@ import { useDebounce } from '@/hooks/use-debounce';
 import Image from 'next/image';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 
 const specialGenres = [
   { name: 'Bollywood', hint: 'indian dance', imageUrl: 'https://images.unsplash.com/photo-1616837874253-908d13b8364f?w=800' },
@@ -54,7 +54,7 @@ function SearchPageComponent() {
   const [isPending, startTransition] = useTransition();
   const [results, setResults] = useState<Song[]>([]);
   const [query, setQuery] = useState(initialGenre || '');
-  const debouncedQuery = useDebounce(query, 300);
+  const debouncedQuery = useDebounce(query, 200);
   const [hasSearched, setHasSearched] = useState(!!initialGenre);
   const [newlyAdded, setNewlyAdded] = useState<Song[]>([]);
   const [loadingNewlyAdded, setLoadingNewlyAdded] = useState(true);
@@ -148,8 +148,24 @@ function SearchPageComponent() {
   const showInitialView = !hasSearched && query === '';
   const showRecentSearches = isFocused && query === '' && recentSearches.length > 0;
 
+  const recentSearchesVariants = {
+    hidden: { opacity: 0 },
+    visible: {
+      opacity: 1,
+      transition: {
+        staggerChildren: 0.05,
+      },
+    },
+  };
+
+  const recentSearchesItemVariants = {
+    hidden: { opacity: 0, y: 10 },
+    visible: { opacity: 1, y: 0 },
+    exit: { opacity: 0, scale: 0.8, transition: { duration: 0.2 } },
+  };
+
   return (
-    <div>
+    <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
       <div className="relative">
         <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
         <Input 
@@ -175,48 +191,82 @@ function SearchPageComponent() {
               >
                 <div className="flex justify-between items-center">
                     <h2 className="text-xl font-semibold font-headline tracking-tight">Recent Searches</h2>
-                    <Button variant="ghost" size="sm" onClick={clearRecentSearches} className="text-muted-foreground">Clear all</Button>
+                    {recentSearches.length > 0 && (
+                      <Button variant="ghost" size="sm" onClick={clearRecentSearches} className="text-muted-foreground hover:text-foreground">Clear all</Button>
+                    )}
                 </div>
-                <ul className="space-y-2">
+                <motion.div
+                  className="flex flex-wrap gap-3"
+                  variants={recentSearchesVariants}
+                  initial="hidden"
+                  animate="visible"
+                >
+                  <AnimatePresence>
                     {recentSearches.map(term => (
-                        <li key={term} onClick={() => setQuery(term)} className="flex items-center justify-between p-3 rounded-md hover:bg-secondary cursor-pointer transition-colors">
-                            <div className="flex items-center gap-3">
-                                <History className="h-4 w-4 text-muted-foreground" />
-                                <span className="font-medium capitalize">{term}</span>
-                            </div>
-                            <Button variant="ghost" size="icon" className="h-7 w-7" onClick={(e) => removeRecentSearch(term, e)}>
-                                <X className="h-4 w-4 text-muted-foreground" />
-                            </Button>
-                        </li>
+                        <motion.div
+                          key={term}
+                          layout
+                          variants={recentSearchesItemVariants}
+                          exit="exit"
+                          initial="hidden"
+                          animate="visible"
+                          whileHover={{ scale: 1.05 }}
+                          whileTap={{ scale: 0.95 }}
+                          className="group flex items-center bg-secondary rounded-full cursor-pointer"
+                        >
+                          <span onClick={() => setQuery(term)} className="py-2 pl-4 pr-3 font-medium capitalize text-secondary-foreground text-sm">
+                            {term}
+                          </span>
+                          <button onClick={(e) => removeRecentSearch(term, e)} className="p-2 mr-1 rounded-full text-muted-foreground hover:bg-background/60 hover:text-foreground transition-colors">
+                            <X className="h-4 w-4" />
+                          </button>
+                        </motion.div>
                     ))}
-                </ul>
+                  </AnimatePresence>
+                </motion.div>
             </motion.div>
         ) : hasSearched && query ? (
           results.length > 0 ? (
-              <div>
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+              >
                 <h2 className="text-xl font-semibold font-headline tracking-tight mb-4">
                   Showing results for "{query}"
                 </h2>
                 <SongList songs={results} />
-              </div>
+              </motion.div>
           ) : (
-              <div className="text-center mt-10 text-muted-foreground flex flex-col items-center gap-4">
+              <motion.div 
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="text-center mt-10 text-muted-foreground flex flex-col items-center gap-4"
+              >
                   <Music className="h-10 w-10"/>
                   <h3 className="text-lg font-semibold">No results found for "{query}"</h3>
                   <p className="text-sm">Please make sure your words are spelled correctly, or use fewer or different keywords.</p>
-              </div>
+              </motion.div>
           )
         ) : showInitialView ? (
           <div className="space-y-8">
-              <div className="grid grid-cols-2 gap-4">
+              <motion.div
+                 initial={{ opacity: 0, y: 20 }}
+                 animate={{ opacity: 1, y: 0 }}
+                 transition={{ delay: 0.1 }}
+                 className="grid grid-cols-2 gap-4"
+              >
                   {specialGenres.map(genre => (
                       <Button key={genre.name} variant="outline" className="rounded-full h-14 text-lg font-bold" onClick={() => onGenreClick(genre.name)}>
                           {genre.name}
                       </Button>
                   ))}
-              </div>
+              </motion.div>
 
-              <div>
+              <motion.div
+                 initial={{ opacity: 0, y: 20 }}
+                 animate={{ opacity: 1, y: 0 }}
+                 transition={{ delay: 0.2 }}
+              >
                 <h2 className="text-2xl font-semibold font-headline tracking-tight mb-4">
                   Newly Added
                 </h2>
@@ -225,18 +275,34 @@ function SearchPageComponent() {
                 ) : (
                     <SongList songs={newlyAdded} />
                 )}
-              </div>
+              </motion.div>
               
-              <div>
+              <motion.div
+                 initial={{ opacity: 0, y: 20 }}
+                 animate={{ opacity: 1, y: 0 }}
+                 transition={{ delay: 0.3 }}
+              >
                 <h2 className="text-2xl font-semibold font-headline tracking-tight">
                 Browse all
                 </h2>
-                <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 xl:grid-cols-6 gap-4 mt-4">
+                <motion.div 
+                    className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 xl:grid-cols-6 gap-4 mt-4"
+                    initial="hidden"
+                    animate="visible"
+                    variants={{
+                        visible: {
+                            transition: {
+                                staggerChildren: 0.05
+                            }
+                        }
+                    }}
+                >
                 {genres.map((genre) => (
                     <motion.div
                         key={genre.name}
                         onClick={() => onGenreClick(genre.name)}
                         className="group aspect-[10/12] rounded-lg overflow-hidden relative cursor-pointer"
+                        variants={{ hidden: { y: 20, opacity: 0 }, visible: { y: 0, opacity: 1 }}}
                         whileHover={{ y: -8, scale: 1.05, shadow: 'lg' }}
                         transition={{ type: 'spring', stiffness: 300 }}
                     >
@@ -253,12 +319,12 @@ function SearchPageComponent() {
                       </div>
                     </motion.div>
                 ))}
-                </div>
-              </div>
+                </motion.div>
+              </motion.div>
           </div>
         ) : null}
       </section>
-    </div>
+    </motion.div>
   );
 }
 
@@ -273,7 +339,3 @@ export default function SearchPage() {
         </Suspense>
     )
 }
-
-    
-
-    
