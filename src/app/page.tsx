@@ -32,8 +32,8 @@ function shuffleArray<T>(array: T[]): T[] {
 
 function HindiHitsSkeleton() {
     return (
-        <div className="grid grid-cols-3 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4">
-            {Array.from({ length: 12 }).map((_, i) => (
+        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4">
+            {Array.from({ length: 6 }).map((_, i) => (
                 <div key={i} className="space-y-2">
                     <Skeleton className="aspect-square w-full" />
                     <Skeleton className="h-4 w-3/4" />
@@ -88,13 +88,17 @@ function HomeComponent() {
 
   const fetchHindiHits = async () => {
     setLoadingHits(true);
-    const songs = await handleSearch("top hindi songs", 24); // Fetch more songs initially
+    const songs = await handleSearch("top hindi songs", 6);
     setHindiHits(songs);
     setLoadingHits(false);
   };
   
   const refreshHindiHits = () => {
-    setHindiHits(prevHits => shuffleArray(prevHits));
+    setLoadingHits(true);
+    handleSearch("top hindi songs", 6).then(songs => {
+        setHindiHits(shuffleArray(songs));
+        setLoadingHits(false);
+    });
   };
 
   const toggleTheme = () => {
@@ -132,8 +136,8 @@ function HomeComponent() {
               initial="hidden"
               animate="visible"
             >
-                {hindiHits.slice(0, 12).map((song) => (
-                  <SongCard key={song.id} song={song} playlist={hindiHits.slice(0, 12)} />
+                {hindiHits.slice(0, 6).map((song) => (
+                  <SongCard key={song.id} song={song} playlist={hindiHits.slice(0, 6)} />
                 ))}
             </motion.div>
            )}
