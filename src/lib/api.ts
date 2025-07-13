@@ -33,7 +33,8 @@ type JioSong = {
 
 
 const SAAVN_API_URL = 'https://saavn.dev/api';
-const YTM_API_URL = 'https://music.youtube.com/youtubei/v1/search';
+const YTM_API_URL = `https://music.youtube.com/youtubei/v1/search?key=${process.env.YOUTUBE_API_KEY}`;
+
 
 function mapSaavnSongToSong(saavnSong: JioSong): Song | null {
   if (!saavnSong.downloadUrl || !Array.isArray(saavnSong.downloadUrl) || saavnSong.downloadUrl.length === 0) {
