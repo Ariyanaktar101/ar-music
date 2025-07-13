@@ -1,7 +1,7 @@
 
 'use client';
 
-import { useState, useEffect, memo } from 'react';
+import { useState, useEffect, memo, useMemo, useCallback } from 'react';
 import { handleSearch } from './search/actions';
 import type { Song } from '@/lib/types';
 import { SongCard } from '@/components/song-card';
@@ -66,11 +66,12 @@ const containerVariants = {
 
 function HomeComponent() {
   const [trendingSongs, setTrendingSongs] = useState<Song[]>([]);
-  const [hindiHits, setHindiHits] = useState<Song[]>([]);
+  const [allHindiHits, setAllHindiHits] = useState<Song[]>([]);
   const [loadingHindiHits, setLoadingHindiHits] = useState(true);
   const [loadingTrending, setLoadingTrending] = useState(true);
   const { theme, setTheme } = useTheme();
   const { user } = useAuth();
+  const [refreshKey, setRefreshKey] = useState(0);
 
   const fetchTrendingSongs = async () => {
     setLoadingTrending(true);
@@ -79,16 +80,23 @@ function HomeComponent() {
     setLoadingTrending(false);
   }
 
-  const fetchHindiHits = async () => {
+  const fetchHindiHits = useCallback(async () => {
     setLoadingHindiHits(true);
-    const songs = await handleSearch("top hindi songs", 6);
-    setHindiHits(songs);
+    // Fetch a larger pool of songs to allow for randomization
+    const songs = await handleSearch("top hindi songs", 40);
+    setAllHindiHits(songs);
     setLoadingHindiHits(false);
-  };
+  }, []);
   
   const refreshHindiHits = () => {
-    fetchHindiHits();
+    setRefreshKey(prev => prev + 1);
   };
+  
+  const displayedHindiHits = useMemo(() => {
+    if (allHindiHits.length === 0) return [];
+    // Shuffle the array and take the first 6
+    return [...allHindiHits].sort(() => 0.5 - Math.random()).slice(0, 6);
+  }, [allHindiHits, refreshKey]);
 
   const toggleTheme = () => {
     const newTheme = theme === 'dark' ? 'light' : 'dark';
@@ -98,7 +106,7 @@ function HomeComponent() {
   useEffect(() => {
     fetchHindiHits();
     fetchTrendingSongs();
-  }, [user]);
+  }, [user, fetchHindiHits]);
 
   return (
       <div className="space-y-12">
@@ -121,12 +129,13 @@ function HomeComponent() {
            {loadingHindiHits ? <HindiHitsSkeleton /> : (
             <motion.div 
               className="grid grid-cols-3 grid-rows-2 gap-4"
+              key={refreshKey} // Add key to re-trigger animation on refresh
               variants={containerVariants}
               initial="hidden"
               animate="visible"
             >
-                {hindiHits.map((song) => (
-                  <SongCard key={song.id} song={song} playlist={hindiHits} />
+                {displayedHindiHits.map((song) => (
+                  <SongCard key={song.id} song={song} playlist={displayedHindiHits} />
                 ))}
             </motion.div>
            )}
