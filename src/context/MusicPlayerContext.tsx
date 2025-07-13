@@ -181,7 +181,7 @@ export const MusicPlayerProvider = ({ children }: { children: React.ReactNode })
         toast({
             variant: "destructive",
             title: "Playback Not Available",
-            description: "This song cannot be played directly.",
+            description: "This song cannot be played at the moment.",
         });
         return;
     }
