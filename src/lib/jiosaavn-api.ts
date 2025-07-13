@@ -15,20 +15,20 @@ function decodeHtml(html: string | undefined): string {
 }
 
 function getArtistNames(saavnSong: any): string {
+    if (saavnSong.artists?.primary && Array.isArray(saavnSong.artists.primary) && saavnSong.artists.primary.length > 0) {
+        return decodeHtml(saavnSong.artists.primary.map((artist: any) => artist.name).join(', '));
+    }
     if (typeof saavnSong.primaryArtists === 'string') {
         return decodeHtml(saavnSong.primaryArtists);
     }
-    if (Array.isArray(saavnSong.artists?.primary) && saavnSong.artists.primary.length > 0) {
-        return decodeHtml(saavnSong.artists.primary.map((artist: any) => artist.name).join(', '));
-    }
-     if (Array.isArray(saavnSong.artists) && saavnSong.artists.length > 0) {
+    if (Array.isArray(saavnSong.artists) && saavnSong.artists.length > 0) {
         return decodeHtml(saavnSong.artists.map((artist: any) => artist.name).join(', '));
     }
     return 'Unknown Artist';
 }
 
 
-function mapSaavnSongToSong(saavnSong: any): Song | null {
+export function mapSaavnSongToSong(saavnSong: any): Song | null {
   try {
     const id = saavnSong.id;
     if (!id) return null;
@@ -42,13 +42,12 @@ function mapSaavnSongToSong(saavnSong: any): Song | null {
     const seconds = durationSeconds % 60;
     const duration = `${minutes}:${seconds.toString().padStart(2, '0')}`;
     
-    const image = saavnSong.image?.find((img: any) => img.quality === '500x500')?.link ||
-                  saavnSong.image?.find((img: any) => img.quality === '150x150')?.link ||
+    const image = saavnSong.image?.find((img: any) => img.quality === '500x500')?.url ||
+                  saavnSong.image?.find((img: any) => img.quality === '150x150')?.url ||
                   'https://placehold.co/500x500.png';
 
-    // The downloadUrl is an array of objects with different qualities
-    const downloadUrl = saavnSong.downloadUrl?.find((url: any) => url.quality === '320kbps')?.link ||
-                        saavnSong.downloadUrl?.find((url: any) => url.quality === '128kbps')?.link;
+    const downloadUrl = saavnSong.downloadUrl?.find((url: any) => url.quality === '320kbps')?.url ||
+                        saavnSong.downloadUrl?.find((url: any) => url.quality === '128kbps')?.url;
     
     if (!downloadUrl) {
       console.warn(`No playable URL found for song: ${title}`);
@@ -64,8 +63,7 @@ function mapSaavnSongToSong(saavnSong: any): Song | null {
       coverArt: image,
       url: downloadUrl,
     };
-  } catch (error)
- {
+  } catch (error) {
     console.error("Error mapping Saavn song:", error, saavnSong);
     return null;
   }
@@ -74,7 +72,7 @@ function mapSaavnSongToSong(saavnSong: any): Song | null {
 export async function getSongsByIds(ids: string[]): Promise<Song[]> {
   if (!ids || ids.length === 0) return [];
   try {
-    const response = await fetch(`https://jiosaavn-api.vercel.app/songs?id=${ids.join(',')}`);
+    const response = await fetch(`https://saavn.dev/api/songs?id=${ids.join(',')}`);
     const data = await response.json();
     
     if (data.success && data.data.length > 0) {
@@ -84,7 +82,7 @@ export async function getSongsByIds(ids: string[]): Promise<Song[]> {
       return mappedSongs;
     }
   } catch (error) {
-    console.error('Error fetching songs by IDs from JioSaavn API:', error);
+    console.error('Error fetching songs by IDs from Saavn API:', error);
   }
   return [];
 }
