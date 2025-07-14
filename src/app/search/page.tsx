@@ -103,7 +103,7 @@ function SearchPageComponent() {
   useEffect(() => {
     const fetchNewlyAdded = async () => {
         setLoadingNewlyAdded(true);
-        const songs = await handleSearch("new music releases", 10);
+        const songs = await handleSearch("latest hindi and english songs", 10);
         setNewlyAdded(songs);
         setLoadingNewlyAdded(false);
     }

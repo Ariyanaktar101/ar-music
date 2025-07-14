@@ -25,7 +25,7 @@ import {
 
 function FeaturedHitsSkeleton() {
     return (
-        <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
+        <div className="grid grid-cols-3 gap-4">
             {Array.from({ length: 6 }).map((_, i) => (
                 <div key={i} className="space-y-2">
                     <Skeleton className="aspect-square w-full" />
@@ -86,7 +86,7 @@ function HomeComponent() {
 
   const fetchTrendingSongs = async () => {
     setLoadingTrending(true);
-    const songs = await handleSearch("latest hit songs", 40);
+    const songs = await handleSearch("top music hits", 40);
     setTrendingSongs(songs);
     setLoadingTrending(false);
   }
