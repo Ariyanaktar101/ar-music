@@ -402,9 +402,9 @@ export function MusicPlayer() {
     const offsetX = info.offset.x;
     const velocityX = info.velocity.x;
 
-    if (offsetX < -swipeThreshold || velocityX < -swipeVelocityThreshold) {
+    if (offsetX > swipeThreshold || velocityX > swipeVelocityThreshold) {
       skipForward();
-    } else if (offsetX > swipeThreshold || velocityX > swipeVelocityThreshold) {
+    } else if (offsetX < -swipeThreshold || velocityX < -swipeVelocityThreshold) {
       skipBackward();
     }
 
