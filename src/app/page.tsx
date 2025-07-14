@@ -149,7 +149,7 @@ function HomeComponent() {
           </div>
            {loadingFeaturedHits ? <FeaturedHitsSkeleton /> : (
             <motion.div 
-              className="grid grid-cols-2 sm:grid-cols-3 gap-4"
+              className="grid grid-cols-3 gap-4"
               key={refreshKey} // Add key to re-trigger animation on refresh
               variants={containerVariants}
               initial="hidden"
