@@ -149,7 +149,7 @@ function HomeComponent() {
           <h2 className="text-2xl font-semibold font-headline tracking-tight mb-4">
             Browse Genres
           </h2>
-          <div className="flex gap-4">
+          <div className="grid grid-cols-2 gap-4">
              <Button asChild variant="outline" size="lg" className="rounded-full px-6 py-3 text-base font-semibold flex-1">
                 <Link href={`/search?genre=Bollywood`}>
                     Bollywood
@@ -158,6 +158,16 @@ function HomeComponent() {
              <Button asChild variant="outline" size="lg" className="rounded-full px-6 py-3 text-base font-semibold flex-1">
                 <Link href={`/search?genre=Punjabi`}>
                     Punjabi
+                </Link>
+            </Button>
+             <Button asChild variant="outline" size="lg" className="rounded-full px-6 py-3 text-base font-semibold flex-1">
+                <Link href={`/search?genre=Pop`}>
+                    Pop
+                </Link>
+             </Button>
+             <Button asChild variant="outline" size="lg" className="rounded-full px-6 py-3 text-base font-semibold flex-1">
+                <Link href={`/search?genre=Hip Hop`}>
+                    Hip Hop
                 </Link>
             </Button>
           </div>
