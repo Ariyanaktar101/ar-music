@@ -172,15 +172,11 @@ export const MusicPlayerProvider = ({ children }: { children: React.ReactNode })
   }, [currentSong]);
 
   const playSong = useCallback((song: Song, queue: Song[] = []) => {
-    // With YouTube, the URL is just the video page, which should always be valid.
-    // The actual playback will be handled by a proxy or a library that extracts the audio stream.
-    // For now, we assume the URL is a direct audio link for simplicity in the context.
-    // A real implementation would need a backend service to extract audio from YouTube.
     if (!song.url) {
         toast({
             variant: "destructive",
-            title: "Playback Not Available",
-            description: "This song does not have a valid URL.",
+            title: "Preview Not Available",
+            description: "This song does not have a preview URL.",
         });
         return;
     }
@@ -206,17 +202,14 @@ export const MusicPlayerProvider = ({ children }: { children: React.ReactNode })
     setCurrentLineIndex(null);
     setLyricTimings([]);
     if (audioRef.current) {
-      // NOTE: This will not work directly with a YouTube page URL.
-      // A backend service (e.g., using ytdl-core) is needed to proxy the audio stream.
-      // We will set the src and let it fail gracefully for now, as a backend is out of scope.
-      audioRef.current.src = `https://no-backend-proxy-for-youtube-audio.dev/${song.id}`; // This is a placeholder
+      audioRef.current.src = song.url;
       audioRef.current.load();
       audioRef.current.play().catch(e => {
-        console.error("Playback failed. A backend proxy is required to play YouTube audio.", e)
+        console.error("Playback failed.", e)
         toast({
           variant: "destructive",
           title: "Playback Failed",
-          description: "A backend is required to play YouTube audio.",
+          description: "Could not play the song preview.",
         });
         setIsPlaying(false);
       });
@@ -302,7 +295,7 @@ export const MusicPlayerProvider = ({ children }: { children: React.ReactNode })
         playNextSong();
     };
 
-    const handleAudioError = (e: ErrorEvent) => {
+    const handleAudioError = (e: any) => {
         console.error("Audio playback error:", currentSong?.title, e);
         // Silently skip to the next song to avoid getting stuck
         playNextSong();
@@ -513,7 +506,11 @@ export const MusicPlayerProvider = ({ children }: { children: React.ReactNode })
   }, [playlists]);
 
   const downloadSong = useCallback(async (song: Song) => {
-    toast({ variant: 'destructive', title: 'Download Not Available', description: 'Downloading from YouTube is not supported.' });
+    if(!song.url) {
+      toast({ variant: 'destructive', title: 'Download Not Available', description: 'This song does not have a downloadable link.' });
+      return;
+    }
+    toast({ variant: 'destructive', title: 'Download Not Implemented', description: 'Downloading from this source is not supported.' });
   }, [toast]);
 
   const value = useMemo(() => ({
