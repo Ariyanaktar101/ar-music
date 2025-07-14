@@ -12,6 +12,7 @@ import { useDebounce } from '@/hooks/use-debounce';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
 import { motion, AnimatePresence } from 'framer-motion';
+import Link from 'next/link';
 
 const LOCAL_STORAGE_RECENT_SEARCHES = 'ar-music-recent-searches';
 
@@ -230,6 +231,27 @@ function SearchPageComponent() {
           )
         ) : showInitialView ? (
           <div className="space-y-8">
+              <motion.div
+                 initial={{ opacity: 0, y: 20 }}
+                 animate={{ opacity: 1, y: 0 }}
+                 transition={{ delay: 0.1 }}
+              >
+                <h2 className="text-2xl font-semibold font-headline tracking-tight mb-4">
+                  Browse by Genre
+                </h2>
+                <div className="flex gap-4">
+                  <Button asChild variant="outline" size="lg" className="rounded-full px-6 py-3 text-base font-semibold flex-1">
+                      <Link href={`/search?genre=Bollywood`}>
+                          Bollywood
+                      </Link>
+                  </Button>
+                  <Button asChild variant="outline" size="lg" className="rounded-full px-6 py-3 text-base font-semibold flex-1">
+                      <Link href={`/search?genre=Punjabi`}>
+                          Punjabi
+                      </Link>
+                  </Button>
+                </div>
+              </motion.div>
               <motion.div
                  initial={{ opacity: 0, y: 20 }}
                  animate={{ opacity: 1, y: 0 }}
