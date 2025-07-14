@@ -265,8 +265,8 @@ function SearchPageComponent() {
                 <h2 className="text-2xl font-semibold font-headline tracking-tight mb-4">
                   Browse all
                 </h2>
-                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4">
-                  {genres.map((genre, index) => (
+                <div className="grid grid-cols-3 gap-4">
+                  {genres.slice(0, 6).map((genre) => (
                     <GenreCard 
                       key={genre.name}
                       genre={genre.name} 
