@@ -179,7 +179,12 @@ function ExpandedPlayer() {
   const renderPlayerContent = () => {
     if (showLyrics) {
       return (
-        <div className="absolute inset-0 bg-background flex flex-col items-center justify-center text-center rounded-lg overflow-hidden">
+        <motion.div 
+          className="absolute inset-0 bg-background flex flex-col items-center justify-center text-center rounded-lg overflow-hidden"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+        >
             {loadingLyrics ? (
             <Loader className="h-10 w-10 animate-spin text-primary" />
             ) : lyricsLines.length > 0 ? (
@@ -211,7 +216,7 @@ function ExpandedPlayer() {
                 <p className="text-sm">Sorry, we couldn't find lyrics for this song.</p>
             </div>
             )}
-        </div>
+        </motion.div>
       );
     }
     return (
@@ -219,6 +224,7 @@ function ExpandedPlayer() {
             className="relative w-full h-full rounded-lg shadow-2xl"
             initial={{ scale: 0.8, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
+            exit={{ scale: 0.8, opacity: 0 }}
             transition={{ type: 'spring', duration: 0.8 }}
         >
             <Image
@@ -264,7 +270,11 @@ function ExpandedPlayer() {
         dragElastic={0.2}
         onDragEnd={handleDragEnd}
       >
-        <motion.div className="relative w-full max-w-sm aspect-square" variants={itemVariants}>
+        <motion.div 
+            className="relative w-full max-w-sm aspect-square" 
+            variants={itemVariants}
+            onDoubleClick={toggleLyricsView}
+        >
           {renderPlayerContent()}
         </motion.div>
 
@@ -370,22 +380,35 @@ export function MusicPlayer() {
   } = useMusicPlayer();
   
   const compactPlayerControls = useAnimation();
+  const desktopPlayerControls = useAnimation();
 
   const handleCompactPlayerDragEnd = (event: React.MouseEvent | React.TouchEvent | React.PointerEvent, info: PanInfo) => {
     const dragDistance = info.offset.y;
     const velocity = info.velocity.y;
 
-    // If dragged down by a significant amount or with high velocity
     if (dragDistance > 60 || velocity > 500) {
       compactPlayerControls.start({ y: "100%", transition: { type: 'tween', ease: 'easeInOut', duration: 0.3 } }).then(() => {
         closePlayer();
-        // Reset position for next time it opens
         compactPlayerControls.set({ y: 0 }); 
       });
     } else {
-      // Snap back to original position
       compactPlayerControls.start({ y: 0, transition: { type: 'spring', damping: 30, stiffness: 250 } });
     }
+  };
+
+  const handleDesktopPlayerDragEnd = (event: React.MouseEvent | React.TouchEvent | React.PointerEvent, info: PanInfo) => {
+    const swipeThreshold = 50;
+    const swipeVelocityThreshold = 500;
+    const offsetX = info.offset.x;
+    const velocityX = info.velocity.x;
+
+    if (offsetX < -swipeThreshold || velocityX < -swipeVelocityThreshold) {
+      skipForward();
+    } else if (offsetX > swipeThreshold || velocityX > swipeVelocityThreshold) {
+      skipBackward();
+    }
+
+    desktopPlayerControls.start({ x: 0, transition: { type: 'spring', stiffness: 300, damping: 30 } });
   };
 
   const formatTime = (seconds: number) => {
@@ -405,10 +428,8 @@ export function MusicPlayer() {
 
   return (
     <>
-      {/* Expanded Mobile Player */}
       <ExpandedPlayer />
 
-      {/* Mobile Player */}
        <motion.div 
         animate={compactPlayerControls}
         drag="y"
@@ -458,8 +479,15 @@ export function MusicPlayer() {
       </motion.div>
 
 
-      {/* Desktop Player */}
-      <div className="hidden md:fixed bottom-0 left-0 right-0 h-24 bg-background/80 backdrop-blur-md border-t z-50 animate-in slide-in-from-bottom-4 shadow-[0_-5px_15px_-5px_rgba(0,0,0,0.05)] dark:shadow-[0_-5px_15px_-5px_rgba(0,0,0,0.5)]">
+      <motion.div 
+        className="hidden md:block fixed bottom-0 left-0 right-0 h-24 bg-background/80 backdrop-blur-md border-t z-50 shadow-[0_-5px_15px_-5px_rgba(0,0,0,0.05)] dark:shadow-[0_-5px_15px_-5px_rgba(0,0,0,0.5)] cursor-grab active:cursor-grabbing"
+        drag="x"
+        dragConstraints={{ left: 0, right: 0 }}
+        dragElastic={0.1}
+        onDragEnd={handleDesktopPlayerDragEnd}
+        animate={desktopPlayerControls}
+        style={{ touchAction: 'pan-y' }}
+      >
         <div className="container mx-auto h-full flex items-center justify-between px-4 sm:px-6 lg:px-8">
           <div className="flex items-center gap-4 w-1/4">
             <Image
@@ -535,7 +563,7 @@ export function MusicPlayer() {
             </Button>
           </div>
         </div>
-      </div>
+      </motion.div>
     </>
   );
 }
