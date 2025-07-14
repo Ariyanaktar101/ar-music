@@ -8,7 +8,6 @@ import { SongCard } from '@/components/song-card';
 import { SongList } from '@/components/song-list';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
-import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from '@/components/ui/carousel';
 import { GreetingHeader } from '@/components/greeting-header';
 import { RefreshCw, Loader, Moon, Sun, Settings } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -16,11 +15,6 @@ import { useTheme } from '@/context/ThemeContext';
 import React from 'react';
 import { motion } from 'framer-motion';
 import { useAuth } from '@/context/AuthContext';
-
-const genres = [
-  'Pop', 'Rock', 'Hip-Hop', 'Electronic', 'R&B', 'Country', 
-  'Lofi', 'Workout', 'Bollywood', 'Punjabi', 'Jazz', 'Classical'
-];
 
 function FeaturedHitsSkeleton() {
     return (
@@ -153,29 +147,20 @@ function HomeComponent() {
 
         <section>
           <h2 className="text-2xl font-semibold font-headline tracking-tight mb-4">
-            Browse All
+            Browse Genres
           </h2>
-          <Carousel
-            opts={{
-              align: "start",
-              dragFree: true,
-            }}
-            className="w-full"
-          >
-            <CarouselContent>
-              {genres.map((genre) => (
-                <CarouselItem key={genre} className="basis-auto">
-                    <Button asChild variant="outline" className="rounded-full px-5 py-2 text-sm font-semibold">
-                      <Link href={`/search?genre=${encodeURIComponent(genre)}`}>
-                        {genre}
-                      </Link>
-                    </Button>
-                </CarouselItem>
-              ))}
-            </CarouselContent>
-            <CarouselPrevious className="hidden sm:flex" />
-            <CarouselNext className="hidden sm:flex" />
-          </Carousel>
+          <div className="flex gap-4">
+             <Button asChild variant="outline" size="lg" className="rounded-full px-6 py-3 text-base font-semibold flex-1">
+                <Link href={`/search?genre=Bollywood`}>
+                    Bollywood
+                </Link>
+             </Button>
+             <Button asChild variant="outline" size="lg" className="rounded-full px-6 py-3 text-base font-semibold flex-1">
+                <Link href={`/search?genre=Punjabi`}>
+                    Punjabi
+                </Link>
+            </Button>
+          </div>
         </section>
         
         <section>

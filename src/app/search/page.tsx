@@ -9,25 +9,9 @@ import type { Song } from '@/lib/types';
 import { handleSearch } from './actions';
 import { Search, Loader, Music, History, X } from 'lucide-react';
 import { useDebounce } from '@/hooks/use-debounce';
-import Image from 'next/image';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
 import { motion, AnimatePresence } from 'framer-motion';
-
-const genres = [
-  { name: 'Pop', hint: 'pop music concert', imageUrl: 'https://images.unsplash.com/photo-1598488035139-bdbb2231ce04?w=800' },
-  { name: 'Rock', hint: 'rock concert stage', imageUrl: 'https://images.unsplash.com/photo-1459749411175-04bf5292ceea?w=800' },
-  { name: 'Electronic', hint: 'dj setup lights', imageUrl: 'https://images.unsplash.com/photo-1514525253161-7a46d19cd819?w=800' },
-  { name: 'Country', hint: 'country guitar', imageUrl: 'https://images.unsplash.com/photo-1525994886773-080587e161c2?w=800' },
-  { name: 'Lofi', hint: 'lofi aesthetic room', imageUrl: 'https://images.unsplash.com/photo-1507608869274-d3177c8bb4c7?w=800' },
-  { name: 'Workout', hint: 'gym workout weights', imageUrl: 'https://images.unsplash.com/photo-1571902943202-507ec2618e8f?w=800' },
-  { name: 'Bollywood', hint: 'indian dance', imageUrl: 'https://images.unsplash.com/photo-1616837874253-908d13b8364f?w=800' },
-  { name: 'Punjabi', hint: 'punjabi culture music', imageUrl: 'https://images.unsplash.com/photo-1609148383348-185a0521369a?w=800' },
-  { name: 'Hip-Hop', hint: 'hiphop breakdance', imageUrl: 'https://images.unsplash.com/photo-1524230659928-06910a4ade9e?w=800' },
-  { name: 'Jazz', hint: 'jazz club saxophone', imageUrl: 'https://images.unsplash.com/photo-1511192336575-5a79af67d689?w=800' },
-  { name: 'Classical', hint: 'classical orchestra cello', imageUrl: 'https://images.unsplash.com/photo-1590794132332-d81f0134a66b?w=800' },
-  { name: 'R&B', hint: 'rnb singer microphone', imageUrl: 'https://images.unsplash.com/photo-1607969395029-a41a63c6a46b?w=800' },
-];
 
 const LOCAL_STORAGE_RECENT_SEARCHES = 'ar-music-recent-searches';
 
@@ -141,10 +125,6 @@ function SearchPageComponent() {
       setQuery(initialGenre);
     }
   }, [initialGenre]);
-
-  const onGenreClick = (genre: string) => {
-    setQuery(genre);
-  }
 
   const showInitialView = !hasSearched && query === '';
   const showRecentSearches = isFocused && query === '' && recentSearches.length > 0;
@@ -263,51 +243,6 @@ function SearchPageComponent() {
                 ) : (
                     <SongList songs={newlyAdded} />
                 )}
-              </motion.div>
-              
-              <motion.div
-                 initial={{ opacity: 0, y: 20 }}
-                 animate={{ opacity: 1, y: 0 }}
-                 transition={{ delay: 0.3 }}
-              >
-                <h2 className="text-2xl font-semibold font-headline tracking-tight">
-                Browse all
-                </h2>
-                <motion.div 
-                    className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4 mt-4"
-                    initial="hidden"
-                    animate="visible"
-                    variants={{
-                        visible: {
-                            transition: {
-                                staggerChildren: 0.05
-                            }
-                        }
-                    }}
-                >
-                {genres.map((genre) => (
-                    <motion.div
-                        key={genre.name}
-                        onClick={() => onGenreClick(genre.name)}
-                        className="group aspect-[10/12] rounded-lg overflow-hidden relative cursor-pointer"
-                        variants={{ hidden: { y: 20, opacity: 0 }, visible: { y: 0, opacity: 1 }}}
-                        whileHover={{ y: -8, scale: 1.05, shadow: 'lg' }}
-                        transition={{ type: 'spring', stiffness: 300 }}
-                    >
-                      <Image
-                          src={genre.imageUrl}
-                          alt={genre.name}
-                          fill
-                          data-ai-hint={genre.hint}
-                          className="object-cover transition-transform duration-500 group-hover:scale-110"
-                      />
-                      <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent" />
-                      <div className="absolute inset-0 flex flex-col justify-end p-4">
-                          <h3 className="relative z-10 font-extrabold text-2xl text-white drop-shadow-md">{genre.name}</h3>
-                      </div>
-                    </motion.div>
-                ))}
-                </motion.div>
               </motion.div>
           </div>
         ) : null}
