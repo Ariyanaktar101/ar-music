@@ -12,9 +12,24 @@ import { useDebounce } from '@/hooks/use-debounce';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
 import { motion, AnimatePresence } from 'framer-motion';
-import Link from 'next/link';
+import { GenreCard } from '@/components/genre-card';
 
 const LOCAL_STORAGE_RECENT_SEARCHES = 'ar-music-recent-searches';
+
+const genres = [
+    { name: 'Bollywood', hint: 'bollywood movies' },
+    { name: 'Punjabi', hint: 'punjabi music' },
+    { name: 'Pop', hint: 'pop music' },
+    { name: 'Hip Hop', hint: 'hiphop concert' },
+    { name: 'Rock', hint: 'rock concert' },
+    { name: 'Electronic', hint: 'dj music' },
+    { name: 'R&B', hint: 'rnb soul' },
+    { name: 'Indie', hint: 'indie music' },
+    { name: 'Workout', hint: 'gym workout' },
+    { name: 'Chill', hint: 'relaxing beach' },
+    { name: 'Party', hint: 'party celebration' },
+    { name: 'Sleep', hint: 'night sky' },
+];
 
 function NewlyAddedSkeleton() {
     return (
@@ -145,6 +160,16 @@ function SearchPageComponent() {
     visible: { opacity: 1, y: 0 },
     exit: { opacity: 0, scale: 0.8, transition: { duration: 0.2 } },
   };
+  
+  const initialViewContainer = {
+      hidden: { opacity: 0 },
+      visible: { opacity: 1, transition: { staggerChildren: 0.1 } }
+  }
+
+  const initialViewItem = {
+      hidden: { opacity: 0, y: 20 },
+      visible: { opacity: 1, y: 0 }
+  }
 
   return (
     <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
@@ -230,33 +255,28 @@ function SearchPageComponent() {
               </motion.div>
           )
         ) : showInitialView ? (
-          <div className="space-y-8">
-              <motion.div
-                 initial={{ opacity: 0, y: 20 }}
-                 animate={{ opacity: 1, y: 0 }}
-                 transition={{ delay: 0.1 }}
-              >
+          <motion.div 
+            className="space-y-8"
+            variants={initialViewContainer}
+            initial="hidden"
+            animate="visible"
+          >
+              <motion.div variants={initialViewItem}>
                 <h2 className="text-2xl font-semibold font-headline tracking-tight mb-4">
-                  Browse by Genre
+                  Browse all
                 </h2>
-                <div className="flex gap-4">
-                  <Button asChild variant="outline" size="lg" className="rounded-full px-6 py-3 text-base font-semibold flex-1">
-                      <Link href={`/search?genre=Bollywood`}>
-                          Bollywood
-                      </Link>
-                  </Button>
-                  <Button asChild variant="outline" size="lg" className="rounded-full px-6 py-3 text-base font-semibold flex-1">
-                      <Link href={`/search?genre=Punjabi`}>
-                          Punjabi
-                      </Link>
-                  </Button>
+                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4">
+                  {genres.map((genre, index) => (
+                    <GenreCard 
+                      key={genre.name}
+                      genre={genre.name} 
+                      imageUrl={`https://placehold.co/400x400.png`} 
+                      dataAiHint={genre.hint}
+                    />
+                  ))}
                 </div>
               </motion.div>
-              <motion.div
-                 initial={{ opacity: 0, y: 20 }}
-                 animate={{ opacity: 1, y: 0 }}
-                 transition={{ delay: 0.2 }}
-              >
+              <motion.div variants={initialViewItem}>
                 <h2 className="text-2xl font-semibold font-headline tracking-tight mb-4">
                   Newly Added
                 </h2>
@@ -266,7 +286,7 @@ function SearchPageComponent() {
                     <SongList songs={newlyAdded} />
                 )}
               </motion.div>
-          </div>
+          </motion.div>
         ) : null}
       </section>
     </motion.div>
