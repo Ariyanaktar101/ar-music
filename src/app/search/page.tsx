@@ -14,18 +14,19 @@ import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
 import { motion, AnimatePresence } from 'framer-motion';
 
-const specialGenres = [
-  { name: 'Bollywood', hint: 'indian dance', imageUrl: 'https://images.unsplash.com/photo-1616837874253-908d13b8364f?w=800' },
-  { name: 'Punjabi', hint: 'punjabi culture', imageUrl: 'https://images.unsplash.com/photo-1609148383348-185a0521369a?w=800' },
-];
-
 const genres = [
-  { name: 'Pop', hint: 'pop music', imageUrl: 'https://images.unsplash.com/photo-1598488035139-bdbb2231ce04?w=800' },
-  { name: 'Rock', hint: 'rock concert', imageUrl: 'https://images.unsplash.com/photo-1459749411175-04bf5292ceea?w=800' },
-  { name: 'Electronic', hint: 'dj setup', imageUrl: 'https://images.unsplash.com/photo-1514525253161-7a46d19cd819?w=800' },
+  { name: 'Pop', hint: 'pop music concert', imageUrl: 'https://images.unsplash.com/photo-1598488035139-bdbb2231ce04?w=800' },
+  { name: 'Rock', hint: 'rock concert stage', imageUrl: 'https://images.unsplash.com/photo-1459749411175-04bf5292ceea?w=800' },
+  { name: 'Electronic', hint: 'dj setup lights', imageUrl: 'https://images.unsplash.com/photo-1514525253161-7a46d19cd819?w=800' },
   { name: 'Country', hint: 'country guitar', imageUrl: 'https://images.unsplash.com/photo-1525994886773-080587e161c2?w=800' },
-  { name: 'Lofi', hint: 'lofi aesthetic', imageUrl: 'https://images.unsplash.com/photo-1507608869274-d3177c8bb4c7?w=800' },
-  { name: 'Workout', hint: 'gym workout', imageUrl: 'https://images.unsplash.com/photo-1571902943202-507ec2618e8f?w=800' },
+  { name: 'Lofi', hint: 'lofi aesthetic room', imageUrl: 'https://images.unsplash.com/photo-1507608869274-d3177c8bb4c7?w=800' },
+  { name: 'Workout', hint: 'gym workout weights', imageUrl: 'https://images.unsplash.com/photo-1571902943202-507ec2618e8f?w=800' },
+  { name: 'Bollywood', hint: 'indian dance', imageUrl: 'https://images.unsplash.com/photo-1616837874253-908d13b8364f?w=800' },
+  { name: 'Punjabi', hint: 'punjabi culture music', imageUrl: 'https://images.unsplash.com/photo-1609148383348-185a0521369a?w=800' },
+  { name: 'Hip-Hop', hint: 'hiphop breakdance', imageUrl: 'https://images.unsplash.com/photo-1524230659928-06910a4ade9e?w=800' },
+  { name: 'Jazz', hint: 'jazz club saxophone', imageUrl: 'https://images.unsplash.com/photo-1511192336575-5a79af67d689?w=800' },
+  { name: 'Classical', hint: 'classical orchestra cello', imageUrl: 'https://images.unsplash.com/photo-1590794132332-d81f0134a66b?w=800' },
+  { name: 'R&B', hint: 'rnb singer microphone', imageUrl: 'https://images.unsplash.com/photo-1607969395029-a41a63c6a46b?w=800' },
 ];
 
 const LOCAL_STORAGE_RECENT_SEARCHES = 'ar-music-recent-searches';
@@ -117,7 +118,7 @@ function SearchPageComponent() {
   useEffect(() => {
     const fetchNewlyAdded = async () => {
         setLoadingNewlyAdded(true);
-        const songs = await handleSearch("latest songs", 10);
+        const songs = await handleSearch("new music releases", 10);
         setNewlyAdded(songs);
         setLoadingNewlyAdded(false);
     }
@@ -252,19 +253,6 @@ function SearchPageComponent() {
               <motion.div
                  initial={{ opacity: 0, y: 20 }}
                  animate={{ opacity: 1, y: 0 }}
-                 transition={{ delay: 0.1 }}
-                 className="grid grid-cols-2 gap-4"
-              >
-                  {specialGenres.map(genre => (
-                      <Button key={genre.name} variant="outline" className="rounded-full h-14 text-lg font-bold" onClick={() => onGenreClick(genre.name)}>
-                          {genre.name}
-                      </Button>
-                  ))}
-              </motion.div>
-
-              <motion.div
-                 initial={{ opacity: 0, y: 20 }}
-                 animate={{ opacity: 1, y: 0 }}
                  transition={{ delay: 0.2 }}
               >
                 <h2 className="text-2xl font-semibold font-headline tracking-tight mb-4">
@@ -286,7 +274,7 @@ function SearchPageComponent() {
                 Browse all
                 </h2>
                 <motion.div 
-                    className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 xl:grid-cols-6 gap-4 mt-4"
+                    className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4 mt-4"
                     initial="hidden"
                     animate="visible"
                     variants={{

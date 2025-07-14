@@ -3,11 +3,10 @@
 
 import { SongList } from '@/components/song-list';
 import { useMusicPlayer } from '@/context/MusicPlayerContext';
-import { handleSearch } from '@/app/search/actions';
 import type { Song } from '@/lib/types';
 import { Heart, Music, ArrowLeft } from 'lucide-react';
 import Link from 'next/link';
-import { useEffect, useState, useCallback } from 'react';
+import { useEffect, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
 import { motion } from 'framer-motion';
@@ -32,19 +31,20 @@ function LikedSongsSkeleton() {
 
 
 export default function LikedSongsPage() {
-  const { favoriteSongs, loading: playerLoading } = useMusicPlayer();
+  const { favoriteSongs, recentlyPlayed, loading: playerLoading } = useMusicPlayer();
   const [likedSongsDetails, setLikedSongsDetails] = useState<Song[]>([]);
   const [loading, setLoading] = useState(true);
 
-  // Since we don't have a get-by-id endpoint, we can't reliably fetch liked songs.
-  // This component will now just show the number of liked songs.
-  // A real implementation would store more song details in localStorage or a database.
+  // This component now shows liked songs that are also in the recently played list.
+  // A real implementation would have a dedicated 'get song by ID' endpoint or store
+  // full song details in the favorites list.
   useEffect(() => {
     if (!playerLoading) {
+      const favoriteSongDetails = recentlyPlayed.filter(song => favoriteSongs.includes(song.id));
+      setLikedSongsDetails(favoriteSongDetails);
       setLoading(false);
-      setLikedSongsDetails([]); // Clearing details as we can't fetch them by ID anymore
     }
-  }, [playerLoading, favoriteSongs]);
+  }, [playerLoading, favoriteSongs, recentlyPlayed]);
 
   return (
     <motion.div 
@@ -69,21 +69,18 @@ export default function LikedSongsPage() {
 
         {loading ? (
           <LikedSongsSkeleton />
-        ) : favoriteSongs.length > 0 ? (
-          // Since we can't display songs, show a message.
-          <div className="text-center text-muted-foreground flex flex-col items-center justify-center h-full pt-16 gap-4">
-            <Music className="h-16 w-16" />
-            <div className="space-y-1">
-              <h3 className="text-xl font-bold text-foreground">You have {favoriteSongs.length} liked songs</h3>
-              <p className="text-sm">Note: Displaying liked songs is not supported with the YouTube API.</p>
-            </div>
-          </div>
+        ) : likedSongsDetails.length > 0 ? (
+            <>
+                <p className="text-sm text-muted-foreground -mt-4">Showing {likedSongsDetails.length} liked songs from your recent history. Limitations with the API prevent showing all liked songs.</p>
+                <SongList songs={likedSongsDetails} />
+            </>
         ) : (
           <div className="text-center text-muted-foreground flex flex-col items-center justify-center h-full pt-16 gap-4">
             <Music className="h-16 w-16" />
             <div className="space-y-1">
               <h3 className="text-xl font-bold text-foreground">Songs you like will appear here</h3>
               <p className="text-sm">Save songs by tapping the heart icon.</p>
+               {favoriteSongs.length > 0 && <p className="text-xs mt-2">(Songs you've liked that are also in your 'Recently Played' list will show up here)</p>}
             </div>
              <Button asChild variant="secondary" className="rounded-full mt-4">
               <Link href="/search">
