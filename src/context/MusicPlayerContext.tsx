@@ -289,12 +289,7 @@ export const MusicPlayerProvider = ({ children }: { children: React.ReactNode })
     };
 
     const handleAudioError = () => {
-        console.error("Audio playback error for:", currentSong?.title);
-        toast({
-            variant: "destructive",
-            title: "Playback Failed",
-            description: `Skipping "${currentSong?.title || 'the song'}".`,
-        });
+        console.error("Audio playback error for:", currentSong?.title, ". Silently skipping to next song.");
         playNextSong();
     };
 

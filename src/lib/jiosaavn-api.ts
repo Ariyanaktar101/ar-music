@@ -33,11 +33,6 @@ export function mapSaavnSongToSong(saavnSong: any): Song | null {
   try {
     const title = decodeHtml(saavnSong.name || saavnSong.title);
     
-    // Explicitly filter out known problematic tracks
-    if (title.toLowerCase().includes('hanuman chalisa')) {
-      return null;
-    }
-
     const id = saavnSong.id;
     if (!id) return null;
 
