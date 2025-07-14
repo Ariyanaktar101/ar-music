@@ -181,18 +181,6 @@ export const MusicPlayerProvider = ({ children }: { children: React.ReactNode })
         return;
     }
 
-    // Since we're using YouTube links, direct audio playback isn't possible.
-    // This is a placeholder for a more complex integration (e.g., youtube-dl or a player library).
-    // For now, let's just show a toast that this action is not fully implemented.
-     toast({
-        variant: "destructive",
-        title: "Playback Not Supported",
-        description: "Direct audio playback from YouTube is not yet implemented.",
-    });
-    return; // Prevent actual playback attempt
-
-    // The code below is now inactive until a proper YouTube playback solution is implemented
-    /*
     if (currentSong?.id === song.id) {
       togglePlayPause();
       return;
@@ -226,8 +214,7 @@ export const MusicPlayerProvider = ({ children }: { children: React.ReactNode })
         setIsPlaying(false);
       });
     }
-    */
-  }, [toast]);
+  }, [toast, currentSong, togglePlayPause, isShuffled, addSongToRecents]);
 
   const playNextSong = useCallback(() => {
     if (!currentSong) return;
