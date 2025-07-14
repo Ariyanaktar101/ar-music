@@ -3,11 +3,11 @@
 
 import { SongList } from '@/components/song-list';
 import { useMusicPlayer } from '@/context/MusicPlayerContext';
-import { getSongsByIds } from '@/lib/jiosaavn-api';
+import { handleSearch } from '@/app/search/actions';
 import type { Song } from '@/lib/types';
 import { Heart, Music, ArrowLeft } from 'lucide-react';
 import Link from 'next/link';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
 import { motion } from 'framer-motion';
@@ -36,26 +36,15 @@ export default function LikedSongsPage() {
   const [likedSongsDetails, setLikedSongsDetails] = useState<Song[]>([]);
   const [loading, setLoading] = useState(true);
 
+  // Since we don't have a get-by-id endpoint, we can't reliably fetch liked songs.
+  // This component will now just show the number of liked songs.
+  // A real implementation would store more song details in localStorage or a database.
   useEffect(() => {
-    const fetchLikedSongs = async () => {
-      // Don't do anything until the music player context is done loading
-      if (playerLoading) {
-        return;
-      }
-      
-      setLoading(true);
-      if (favoriteSongs.length > 0) {
-        const songDetails = await getSongsByIds(favoriteSongs);
-        setLikedSongsDetails(songDetails); 
-      } else {
-        // If there are no favorite songs, ensure the list is empty.
-        setLikedSongsDetails([]);
-      }
+    if (!playerLoading) {
       setLoading(false);
-    };
-
-    fetchLikedSongs();
-  }, [favoriteSongs, playerLoading]);
+      setLikedSongsDetails([]); // Clearing details as we can't fetch them by ID anymore
+    }
+  }, [playerLoading, favoriteSongs]);
 
   return (
     <motion.div 
@@ -80,8 +69,15 @@ export default function LikedSongsPage() {
 
         {loading ? (
           <LikedSongsSkeleton />
-        ) : likedSongsDetails.length > 0 ? (
-          <SongList songs={likedSongsDetails} />
+        ) : favoriteSongs.length > 0 ? (
+          // Since we can't display songs, show a message.
+          <div className="text-center text-muted-foreground flex flex-col items-center justify-center h-full pt-16 gap-4">
+            <Music className="h-16 w-16" />
+            <div className="space-y-1">
+              <h3 className="text-xl font-bold text-foreground">You have {favoriteSongs.length} liked songs</h3>
+              <p className="text-sm">Note: Displaying liked songs is not supported with the YouTube API.</p>
+            </div>
+          </div>
         ) : (
           <div className="text-center text-muted-foreground flex flex-col items-center justify-center h-full pt-16 gap-4">
             <Music className="h-16 w-16" />

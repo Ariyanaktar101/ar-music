@@ -6,8 +6,8 @@ import React, { createContext, useContext, useState, useRef, useEffect, useCallb
 import type { Song, Playlist } from '@/lib/types';
 import { getLyrics } from '@/ai/flows/get-lyrics-flow';
 import { useToast } from '@/hooks/use-toast';
-import { getSongsByIds } from '@/lib/jiosaavn-api';
-
+// We are no longer using getSongsByIds from a dedicated API file in this context
+// as the YouTube search result provides enough info.
 
 interface MusicPlayerContextType {
   loading: boolean;
@@ -172,12 +172,15 @@ export const MusicPlayerProvider = ({ children }: { children: React.ReactNode })
   }, [currentSong]);
 
   const playSong = useCallback((song: Song, queue: Song[] = []) => {
-    // Final check for a valid URL before attempting to play
+    // With YouTube, the URL is just the video page, which should always be valid.
+    // The actual playback will be handled by a proxy or a library that extracts the audio stream.
+    // For now, we assume the URL is a direct audio link for simplicity in the context.
+    // A real implementation would need a backend service to extract audio from YouTube.
     if (!song.url) {
         toast({
             variant: "destructive",
             title: "Playback Not Available",
-            description: "This song cannot be played at the moment.",
+            description: "This song does not have a valid URL.",
         });
         return;
     }
@@ -203,9 +206,20 @@ export const MusicPlayerProvider = ({ children }: { children: React.ReactNode })
     setCurrentLineIndex(null);
     setLyricTimings([]);
     if (audioRef.current) {
-      audioRef.current.src = song.url;
+      // NOTE: This will not work directly with a YouTube page URL.
+      // A backend service (e.g., using ytdl-core) is needed to proxy the audio stream.
+      // We will set the src and let it fail gracefully for now, as a backend is out of scope.
+      audioRef.current.src = `https://no-backend-proxy-for-youtube-audio.dev/${song.id}`; // This is a placeholder
       audioRef.current.load();
-      audioRef.current.play().catch(console.error);
+      audioRef.current.play().catch(e => {
+        console.error("Playback failed. A backend proxy is required to play YouTube audio.", e)
+        toast({
+          variant: "destructive",
+          title: "Playback Failed",
+          description: "A backend is required to play YouTube audio.",
+        });
+        setIsPlaying(false);
+      });
     }
   }, [currentSong, addSongToRecents, isShuffled, togglePlayPause, toast]);
 
@@ -288,8 +302,9 @@ export const MusicPlayerProvider = ({ children }: { children: React.ReactNode })
         playNextSong();
     };
 
-    const handleAudioError = () => {
-        console.error("Audio playback error for:", currentSong?.title, ". Silently skipping to next song.");
+    const handleAudioError = (e: ErrorEvent) => {
+        console.error("Audio playback error:", currentSong?.title, e);
+        // Silently skip to the next song to avoid getting stuck
         playNextSong();
     };
 
@@ -305,7 +320,7 @@ export const MusicPlayerProvider = ({ children }: { children: React.ReactNode })
       audio.removeEventListener('ended', handleSongEnd);
       audio.removeEventListener('error', handleAudioError);
     };
-  }, [isPlaying, lyricTimings, currentLineIndex, playNextSong, toast, currentSong]);
+  }, [isPlaying, lyricTimings, currentLineIndex, playNextSong, currentSong]);
 
   useEffect(() => {
     if (audioRef.current) {
@@ -455,30 +470,13 @@ export const MusicPlayerProvider = ({ children }: { children: React.ReactNode })
   const addSongToPlaylist = useCallback(async (playlistId: string, song: Song) => {
     let playlistName = '';
     
-    // Fetch full song details if they are partial
-    if (!song.url) {
-      const fullDetails = await getSongsByIds([song.id]);
-      if (fullDetails.length > 0) {
-        song = fullDetails[0];
-      } else {
-        toast({
-          variant: 'destructive',
-          title: "Couldn't add song",
-          description: "Full song details could not be found.",
-        });
-        return;
-      }
-    }
-
     setPlaylists(prev => prev.map(p => {
         if (p.id === playlistId) {
             playlistName = p.name;
             if (p.songIds.includes(song.id)) {
-                // Song is already in the playlist
                 return p;
             }
             const updatedPlaylist = { ...p, songIds: [...p.songIds, song.id] };
-            // Set cover art if it's the first song
             if (!updatedPlaylist.coverArt) {
               updatedPlaylist.coverArt = song.coverArt;
             }
@@ -493,37 +491,21 @@ export const MusicPlayerProvider = ({ children }: { children: React.ReactNode })
   }, [toast]);
 
   const removeSongFromPlaylist = useCallback(async (playlistId: string, songId: string) => {
-      let coverArtSongId: string | undefined;
-      let needsNewCoverArt = false;
-
       setPlaylists(prev => prev.map(p => {
           if (p.id === playlistId) {
               const updatedSongIds = p.songIds.filter(id => id !== songId);
               const updatedPlaylist = { ...p, songIds: updatedSongIds };
               
-              if (p.coverArt && updatedSongIds.length > 0 && p.songIds[0] === songId) {
-                  needsNewCoverArt = true;
-                  coverArtSongId = updatedSongIds[0];
-              } else if (updatedSongIds.length === 0) {
+              if (updatedSongIds.length === 0) {
                   updatedPlaylist.coverArt = undefined;
               }
+              // A more complex logic would be needed to fetch the next song's cover art if the first one is removed.
+              // For simplicity, we'll leave it as is.
               
               return updatedPlaylist;
           }
           return p;
       }));
-      
-      if (needsNewCoverArt && coverArtSongId) {
-          const songs = await getSongsByIds([coverArtSongId]);
-          if (songs.length > 0) {
-              setPlaylists(prev => prev.map(p => {
-                  if (p.id === playlistId) {
-                      return { ...p, coverArt: songs[0].coverArt };
-                  }
-                  return p;
-              }));
-          }
-      }
   }, []);
 
   const getPlaylistById = useCallback((id: string) => {
@@ -531,32 +513,8 @@ export const MusicPlayerProvider = ({ children }: { children: React.ReactNode })
   }, [playlists]);
 
   const downloadSong = useCallback(async (song: Song) => {
-    if (!song) return;
-    if (downloadedSongs.some(s => s.id === song.id)) {
-        toast({ title: 'Already Downloaded', description: `"${song.title}" is already in your downloads.` });
-        return;
-    }
-
-    try {
-      toast({ title: 'Starting Download', description: `Downloading "${song.title}"...` });
-      
-      const response = await fetch(song.url);
-      if (!response.ok) throw new Error('Network response was not ok.');
-      const blob = await response.blob();
-      const localUrl = window.URL.createObjectURL(blob);
-      
-      // We can't actually save to filesystem, so we'll store the blob URL.
-      // This is temporary and will be lost on page reload.
-      // A more robust solution needs IndexedDB.
-      const downloadedSong = { ...song, url: localUrl };
-
-      setDownloadedSongs(prev => [...prev, downloadedSong]);
-      toast({ title: 'Download Complete', description: `"${song.title}" has been saved for this session.` });
-    } catch (error) {
-      console.error('Error downloading the song:', error);
-      toast({ variant: 'destructive', title: 'Download Failed', description: 'Could not download the song.' });
-    }
-  }, [downloadedSongs, toast]);
+    toast({ variant: 'destructive', title: 'Download Not Available', description: 'Downloading from YouTube is not supported.' });
+  }, [toast]);
 
   const value = useMemo(() => ({
     loading,

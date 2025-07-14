@@ -3,7 +3,8 @@
 
 import { SongList } from '@/components/song-list';
 import { useMusicPlayer } from '@/context/MusicPlayerContext';
-import { getSongsByIds } from '@/lib/jiosaavn-api';
+// YouTube API does not have a bulk get-by-id, this would require changes
+// For now, we assume the song details are stored somewhere or this feature is limited
 import type { Song, Playlist as PlaylistType } from '@/lib/types';
 import { Music, ArrowLeft, Plus } from 'lucide-react';
 import Link from 'next/link';
@@ -47,7 +48,7 @@ export default function PlaylistPage() {
   const params = useParams();
   const playlistId = params.id as string;
   
-  const { getPlaylistById } = useMusicPlayer();
+  const { getPlaylistById, recentlyPlayed, favoriteSongs: favoriteSongIds } = useMusicPlayer();
   
   const [playlist, setPlaylist] = useState<PlaylistType | undefined | null>(undefined);
   const [songs, setSongs] = useState<Song[]>([]);
@@ -59,11 +60,19 @@ export default function PlaylistPage() {
   }, [playlistId, getPlaylistById]);
   
   useEffect(() => {
+    // With the switch to YouTube API, we can't fetch songs by ID easily.
+    // We'll try to find the songs from the user's recently played list.
+    // This is a limitation of not having a proper backend/database.
     const fetchSongs = async () => {
       if (playlist === null) return;
       
       if (playlist && playlist.songIds.length > 0) {
-        const songDetails = await getSongsByIds(playlist.songIds);
+        // Create a pool of all known songs (recents, etc.) to search through
+        const songPool = [...recentlyPlayed];
+        const songDetails = playlist.songIds.map(id => 
+            songPool.find(song => song.id === id)
+        ).filter((s): s is Song => s !== undefined);
+        
         setSongs(songDetails);
       } else {
         setSongs([]);
@@ -75,7 +84,7 @@ export default function PlaylistPage() {
       setLoading(true);
       fetchSongs();
     }
-  }, [playlist]);
+  }, [playlist, recentlyPlayed]);
 
   if (loading) {
     return (
@@ -140,6 +149,7 @@ export default function PlaylistPage() {
             <div className="space-y-1">
               <h3 className="text-xl font-bold text-foreground">This playlist is empty</h3>
               <p className="text-sm">Find some songs to add to your new playlist.</p>
+               <p className="text-xs mt-2">(Note: Only recently played songs will appear in playlists now.)</p>
             </div>
              <Button asChild variant="secondary" className="rounded-full mt-4">
               <Link href="/search">
