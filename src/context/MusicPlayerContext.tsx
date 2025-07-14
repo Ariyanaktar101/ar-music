@@ -172,11 +172,6 @@ export const MusicPlayerProvider = ({ children }: { children: React.ReactNode })
   }, [currentSong]);
 
   const playSong = useCallback((song: Song, queue: Song[] = []) => {
-    if (currentSong?.id === song.id && isPlaying) {
-      togglePlayPause();
-      return;
-    }
-
     if (!song.url) {
         toast({
             variant: "destructive",
@@ -184,6 +179,11 @@ export const MusicPlayerProvider = ({ children }: { children: React.ReactNode })
             description: "This song cannot be played at the moment.",
         });
         return;
+    }
+
+    if (currentSong?.id === song.id && isPlaying) {
+      togglePlayPause();
+      return;
     }
 
     const newQueue = queue.length > 0 ? queue : [song];

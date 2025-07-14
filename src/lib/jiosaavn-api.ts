@@ -1,4 +1,5 @@
 
+
 import type { Song } from '@/lib/types';
 
 // Helper function to replace 'HTML entities' with their actual characters
@@ -38,6 +39,14 @@ export function mapSaavnSongToSong(saavnSong: any): Song | null {
     const id = saavnSong.id;
     if (!id) return null;
 
+    const downloadUrl = saavnSong.downloadUrl?.find((url: any) => url.quality === '320kbps')?.url ||
+                        saavnSong.downloadUrl?.find((url: any) => url.quality === '128kbps')?.url;
+    
+    if (!downloadUrl) {
+      console.warn(`No playable URL found for song: ${title}`);
+      return null;
+    }
+
     const artist = getArtistNames(saavnSong);
     const album = decodeHtml(saavnSong.album?.name || 'Unknown Album');
     
@@ -50,13 +59,6 @@ export function mapSaavnSongToSong(saavnSong: any): Song | null {
                   saavnSong.image?.find((img: any) => img.quality === '150x150')?.url ||
                   'https://placehold.co/500x500.png';
 
-    const downloadUrl = saavnSong.downloadUrl?.find((url: any) => url.quality === '320kbps')?.url ||
-                        saavnSong.downloadUrl?.find((url: any) => url.quality === '128kbps')?.url;
-    
-    if (!downloadUrl) {
-      console.warn(`No playable URL found for song: ${title}`);
-      return null;
-    }
 
     return {
       id,
