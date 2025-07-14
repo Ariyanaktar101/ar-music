@@ -18,7 +18,7 @@ import { useAuth } from '@/context/AuthContext';
 
 function FeaturedHitsSkeleton() {
     return (
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
+        <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
             {Array.from({ length: 6 }).map((_, i) => (
                 <div key={i} className="space-y-2">
                     <Skeleton className="aspect-square w-full" />
@@ -132,7 +132,7 @@ function HomeComponent() {
           </div>
            {loadingFeaturedHits ? <FeaturedHitsSkeleton /> : (
             <motion.div 
-              className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4"
+              className="grid grid-cols-2 sm:grid-cols-3 gap-4"
               key={refreshKey} // Add key to re-trigger animation on refresh
               variants={containerVariants}
               initial="hidden"
