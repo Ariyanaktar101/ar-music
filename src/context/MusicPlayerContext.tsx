@@ -288,16 +288,29 @@ export const MusicPlayerProvider = ({ children }: { children: React.ReactNode })
         playNextSong();
     };
 
+    const handleAudioError = () => {
+        console.error("Audio playback error for:", currentSong?.title);
+        toast({
+            variant: "destructive",
+            title: "Playback Failed",
+            description: `Skipping "${currentSong?.title || 'the song'}".`,
+        });
+        playNextSong();
+    };
+
     audio.addEventListener('loadedmetadata', setAudioData);
     audio.addEventListener('timeupdate', setAudioTime);
     audio.addEventListener('ended', handleSongEnd);
+    audio.addEventListener('error', handleAudioError);
+
 
     return () => {
       audio.removeEventListener('loadedmetadata', setAudioData);
       audio.removeEventListener('timeupdate', setAudioTime);
       audio.removeEventListener('ended', handleSongEnd);
+      audio.removeEventListener('error', handleAudioError);
     };
-  }, [isPlaying, lyricTimings, currentLineIndex, playNextSong, toast]);
+  }, [isPlaying, lyricTimings, currentLineIndex, playNextSong, toast, currentSong]);
 
   useEffect(() => {
     if (audioRef.current) {
