@@ -15,6 +15,13 @@ import { useTheme } from '@/context/ThemeContext';
 import React from 'react';
 import { motion } from 'framer-motion';
 import { useAuth } from '@/context/AuthContext';
+import {
+  Carousel,
+  CarouselContent,
+  CarouselItem,
+  CarouselNext,
+  CarouselPrevious,
+} from "@/components/ui/carousel"
 
 function FeaturedHitsSkeleton() {
     return (
@@ -57,6 +64,16 @@ const containerVariants = {
   },
 };
 
+const genres = [
+  'Bollywood',
+  'Punjabi',
+  'Pop',
+  'Hip Hop',
+  'Rock',
+  'Electronic',
+  'R&B',
+  'Indie'
+];
 
 function HomeComponent() {
   const [trendingSongs, setTrendingSongs] = useState<Song[]>([]);
@@ -149,28 +166,27 @@ function HomeComponent() {
           <h2 className="text-2xl font-semibold font-headline tracking-tight mb-4">
             Browse Genres
           </h2>
-          <div className="grid grid-cols-2 gap-4">
-             <Button asChild variant="outline" size="lg" className="rounded-full px-6 py-3 text-base font-semibold flex-1">
-                <Link href={`/search?genre=Bollywood`}>
-                    Bollywood
-                </Link>
-             </Button>
-             <Button asChild variant="outline" size="lg" className="rounded-full px-6 py-3 text-base font-semibold flex-1">
-                <Link href={`/search?genre=Punjabi`}>
-                    Punjabi
-                </Link>
-            </Button>
-             <Button asChild variant="outline" size="lg" className="rounded-full px-6 py-3 text-base font-semibold flex-1">
-                <Link href={`/search?genre=Pop`}>
-                    Pop
-                </Link>
-             </Button>
-             <Button asChild variant="outline" size="lg" className="rounded-full px-6 py-3 text-base font-semibold flex-1">
-                <Link href={`/search?genre=Hip Hop`}>
-                    Hip Hop
-                </Link>
-            </Button>
-          </div>
+          <Carousel
+            opts={{
+              align: "start",
+              loop: true,
+            }}
+            className="w-full"
+          >
+            <CarouselContent>
+              {genres.map((genre) => (
+                <CarouselItem key={genre} className="basis-1/2 sm:basis-1/3 md:basis-1/4 lg:basis-1/5">
+                  <Button asChild variant="outline" size="lg" className="rounded-full w-full">
+                    <Link href={`/search?genre=${genre}`}>
+                      {genre}
+                    </Link>
+                  </Button>
+                </CarouselItem>
+              ))}
+            </CarouselContent>
+            <CarouselPrevious className="hidden sm:flex" />
+            <CarouselNext className="hidden sm:flex" />
+          </Carousel>
         </section>
         
         <section>
