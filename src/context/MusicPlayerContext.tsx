@@ -172,6 +172,7 @@ export const MusicPlayerProvider = ({ children }: { children: React.ReactNode })
   }, [currentSong]);
 
   const playSong = useCallback((song: Song, queue: Song[] = []) => {
+    // Final check for a valid URL before attempting to play
     if (!song.url) {
         toast({
             variant: "destructive",
@@ -181,7 +182,7 @@ export const MusicPlayerProvider = ({ children }: { children: React.ReactNode })
         return;
     }
 
-    if (currentSong?.id === song.id && isPlaying) {
+    if (currentSong?.id === song.id) {
       togglePlayPause();
       return;
     }
@@ -206,7 +207,7 @@ export const MusicPlayerProvider = ({ children }: { children: React.ReactNode })
       audioRef.current.load();
       audioRef.current.play().catch(console.error);
     }
-  }, [currentSong, addSongToRecents, isPlaying, isShuffled, togglePlayPause, toast]);
+  }, [currentSong, addSongToRecents, isShuffled, togglePlayPause, toast]);
 
   const playNextSong = useCallback(() => {
     if (!currentSong) return;

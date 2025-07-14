@@ -32,18 +32,21 @@ function getArtistNames(saavnSong: any): string {
 export function mapSaavnSongToSong(saavnSong: any): Song | null {
   try {
     const title = decodeHtml(saavnSong.name || saavnSong.title);
-    if (title.includes('Hanuman Chalisa')) {
+    
+    // Explicitly filter out known problematic tracks
+    if (title.toLowerCase().includes('hanuman chalisa')) {
       return null;
     }
 
     const id = saavnSong.id;
     if (!id) return null;
 
+    // Prioritize 320kbps URL, then fall back. If no valid URL, discard the song.
     const downloadUrl = saavnSong.downloadUrl?.find((url: any) => url.quality === '320kbps')?.url ||
                         saavnSong.downloadUrl?.find((url: any) => url.quality === '128kbps')?.url;
     
     if (!downloadUrl) {
-      console.warn(`No playable URL found for song: ${title}`);
+      console.warn(`No playable URL found for song: ${title}. Skipping.`);
       return null;
     }
 
