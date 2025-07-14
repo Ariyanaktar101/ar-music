@@ -275,21 +275,7 @@ function SearchPageComponent() {
                     </Button>
                 </div>
               </motion.div>
-              <motion.div variants={initialViewItem}>
-                <h2 className="text-2xl font-semibold font-headline tracking-tight mb-4">
-                  Browse all
-                </h2>
-                <div className="grid grid-cols-3 gap-4">
-                  {genres.slice(0, 6).map((genre) => (
-                    <GenreCard 
-                      key={genre.name}
-                      genre={genre.name} 
-                      imageUrl={`https://placehold.co/400x400.png`} 
-                      dataAiHint={genre.hint}
-                    />
-                  ))}
-                </div>
-              </motion.div>
+              
               <motion.div variants={initialViewItem}>
                 <h2 className="text-2xl font-semibold font-headline tracking-tight mb-4">
                   Newly Added
