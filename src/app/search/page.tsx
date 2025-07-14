@@ -13,6 +13,7 @@ import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
 import { motion, AnimatePresence } from 'framer-motion';
 import { GenreCard } from '@/components/genre-card';
+import Link from 'next/link';
 
 const LOCAL_STORAGE_RECENT_SEARCHES = 'ar-music-recent-searches';
 
@@ -261,6 +262,19 @@ function SearchPageComponent() {
             initial="hidden"
             animate="visible"
           >
+              <motion.div variants={initialViewItem} className="space-y-4">
+                 <h2 className="text-lg font-semibold font-headline tracking-tight">
+                  Quick Searches
+                </h2>
+                <div className="flex flex-wrap gap-3">
+                    <Button asChild variant="outline" size="lg" className="rounded-full">
+                        <Link href={`/search?genre=Bollywood`}>Bollywood</Link>
+                    </Button>
+                    <Button asChild variant="outline" size="lg" className="rounded-full">
+                        <Link href={`/search?genre=Punjabi`}>Punjabi</Link>
+                    </Button>
+                </div>
+              </motion.div>
               <motion.div variants={initialViewItem}>
                 <h2 className="text-2xl font-semibold font-headline tracking-tight mb-4">
                   Browse all
