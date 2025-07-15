@@ -380,7 +380,6 @@ export function MusicPlayer() {
   } = useMusicPlayer();
   
   const compactPlayerControls = useAnimation();
-  const desktopPlayerControls = useAnimation();
 
   const handleCompactPlayerDragEnd = (event: React.MouseEvent | React.TouchEvent | React.PointerEvent, info: PanInfo) => {
     const dragDistance = info.offset.y;
@@ -394,21 +393,6 @@ export function MusicPlayer() {
     } else {
       compactPlayerControls.start({ y: 0, transition: { type: 'spring', damping: 30, stiffness: 250 } });
     }
-  };
-
-  const handleDesktopPlayerDragEnd = (event: React.MouseEvent | React.TouchEvent | React.PointerEvent, info: PanInfo) => {
-    const swipeThreshold = 50;
-    const swipeVelocityThreshold = 500;
-    const offsetX = info.offset.x;
-    const velocityX = info.velocity.x;
-
-    if (offsetX > swipeThreshold || velocityX > swipeVelocityThreshold) {
-      skipForward();
-    } else if (offsetX < -swipeThreshold || velocityX < -swipeVelocityThreshold) {
-      skipBackward();
-    }
-
-    desktopPlayerControls.start({ x: 0, transition: { type: 'spring', stiffness: 300, damping: 30 } });
   };
 
   const formatTime = (seconds: number) => {
@@ -480,12 +464,7 @@ export function MusicPlayer() {
 
 
       <motion.div 
-        className="hidden md:block fixed bottom-0 left-0 right-0 h-24 bg-background/80 backdrop-blur-md border-t z-50 shadow-[0_-5px_15px_-5px_rgba(0,0,0,0.05)] dark:shadow-[0_-5px_15px_-5px_rgba(0,0,0,0.5)] cursor-grab active:cursor-grabbing"
-        drag="x"
-        dragConstraints={{ left: 0, right: 0 }}
-        dragElastic={0.1}
-        onDragEnd={handleDesktopPlayerDragEnd}
-        animate={desktopPlayerControls}
+        className="hidden md:block fixed bottom-0 left-0 right-0 h-24 bg-background/80 backdrop-blur-md border-t z-50 shadow-[0_-5px_15px_-5px_rgba(0,0,0,0.05)] dark:shadow-[0_-5px_15px_-5px_rgba(0,0,0,0.5)]"
         style={{ touchAction: 'pan-y' }}
       >
         <div className="container mx-auto h-full flex items-center justify-between px-4 sm:px-6 lg:px-8">
