@@ -6,8 +6,6 @@ import React, { createContext, useContext, useState, useRef, useEffect, useCallb
 import type { Song, Playlist } from '@/lib/types';
 import { getLyrics } from '@/ai/flows/get-lyrics-flow';
 import { useToast } from '@/hooks/use-toast';
-// We are no longer using getSongsByIds from a dedicated API file in this context
-// as the YouTube search result provides enough info.
 
 interface MusicPlayerContextType {
   loading: boolean;
@@ -33,32 +31,27 @@ interface MusicPlayerContextType {
   isExpanded: boolean;
   toggleExpandPlayer: () => void;
   
-  // Shuffle State
   isShuffled: boolean;
   toggleShuffle: () => void;
   
-  // Lyrics State
   showLyrics: boolean;
   lyrics: string | null;
   loadingLyrics: boolean;
   toggleLyricsView: () => void;
   currentLineIndex: number | null;
   
-  // Playlist state
   playlists: Playlist[];
   createPlaylist: (name: string, description?: string) => Playlist;
   addSongToPlaylist: (playlistId: string, song: Song) => void;
   removeSongFromPlaylist: (playlistId: string, songId: string) => void;
   getPlaylistById: (id: string) => Playlist | undefined;
   
-  // Download state
   downloadedSongs: Song[];
   downloadSong: (song: Song) => void;
 }
 
 const MusicPlayerContext = createContext<MusicPlayerContextType | undefined>(undefined);
 
-// A data structure to hold pre-calculated timings for each lyric line
 interface LyricTimings {
   line: string;
   startTime: number;
@@ -89,24 +82,20 @@ export const MusicPlayerProvider = ({ children }: { children: React.ReactNode })
   const [isExpanded, setIsExpanded] = useState(false);
   const [isShuffled, setIsShuffled] = useState(false);
   
-  // Lyrics State
   const [showLyrics, setShowLyrics] = useState(false);
   const [lyrics, setLyrics] = useState<string | null>(null);
   const [loadingLyrics, setLoadingLyrics] = useState(false);
   const [currentLineIndex, setCurrentLineIndex] = useState<number | null>(null);
   const [lyricTimings, setLyricTimings] = useState<LyricTimings[]>([]);
 
-  // Playlist State
   const [playlists, setPlaylists] = useState<Playlist[]>([]);
   
-  // Download State
   const [downloadedSongs, setDownloadedSongs] = useState<Song[]>([]);
   
   const audioRef = useRef<HTMLAudioElement>(null);
 
   const { toast } = useToast();
   
-  // Load state from localStorage on initial render
   useEffect(() => {
     try {
       const storedFavorites = localStorage.getItem('ar-music-favorites');
@@ -131,7 +120,6 @@ export const MusicPlayerProvider = ({ children }: { children: React.ReactNode })
     }
   }, []);
 
-  // Save state to localStorage whenever it changes
   useEffect(() => {
     if (loading) return;
     localStorage.setItem('ar-music-favorites', JSON.stringify(favoriteSongs));
@@ -166,10 +154,25 @@ export const MusicPlayerProvider = ({ children }: { children: React.ReactNode })
   }, []);
 
   const togglePlayPause = useCallback(() => {
-    if (currentSong) {
-      setIsPlaying(p => !p);
+    if (!audioRef.current || !currentSong) return;
+
+    if (isPlaying) {
+      audioRef.current.pause();
+      setIsPlaying(false);
+    } else {
+      audioRef.current.play().then(() => {
+        setIsPlaying(true);
+      }).catch(e => {
+        console.error("Playback failed by user toggle.", e)
+        toast({
+          variant: "destructive",
+          title: "Playback Failed",
+          description: "Could not play the song. Please try again.",
+        });
+        setIsPlaying(false);
+      });
     }
-  }, [currentSong]);
+  }, [currentSong, isPlaying, toast]);
 
   const playSong = useCallback((song: Song, queue: Song[] = []) => {
     if (!song.url) {
@@ -196,21 +199,19 @@ export const MusicPlayerProvider = ({ children }: { children: React.ReactNode })
 
     setCurrentSong(song);
     addSongToRecents(song);
-    setIsPlaying(true);
+    
     setShowLyrics(false);
     setLyrics(null);
     setCurrentLineIndex(null);
     setLyricTimings([]);
+    
     if (audioRef.current) {
       audioRef.current.src = song.url;
       audioRef.current.load();
-      audioRef.current.play().catch(e => {
-        console.error("Playback failed.", e)
-        toast({
-          variant: "destructive",
-          title: "Playback Failed",
-          description: "Could not play the song.",
-        });
+      audioRef.current.play().then(() => {
+        setIsPlaying(true);
+      }).catch(e => {
+        console.error("Autoplay was prevented.", e);
         setIsPlaying(false);
       });
     }
@@ -254,11 +255,11 @@ export const MusicPlayerProvider = ({ children }: { children: React.ReactNode })
         return;
       }
       
-      const effectiveDuration = duration - 2; // Subtract a bit for start/end silence
+      const effectiveDuration = duration - 2;
       const timePerLine = effectiveDuration / lines.length;
 
       const timings = lines.map((line, index) => {
-        return { line, startTime: index * timePerLine + 1 }; // Start lyrics 1s in
+        return { line, startTime: index * timePerLine + 1 };
       });
 
       setLyricTimings(timings);
@@ -297,7 +298,6 @@ export const MusicPlayerProvider = ({ children }: { children: React.ReactNode })
 
     const handleAudioError = (e: any) => {
         console.error("Audio playback error:", currentSong?.title, e);
-        // Silently skip to the next song to avoid getting stuck
         playNextSong();
     };
 
@@ -314,16 +314,6 @@ export const MusicPlayerProvider = ({ children }: { children: React.ReactNode })
       audio.removeEventListener('error', handleAudioError);
     };
   }, [isPlaying, lyricTimings, currentLineIndex, playNextSong, currentSong]);
-
-  useEffect(() => {
-    if (audioRef.current) {
-      if (isPlaying) {
-        audioRef.current.play().catch(console.error);
-      } else {
-        audioRef.current.pause();
-      }
-    }
-  }, [isPlaying]);
 
   useEffect(() => {
     if (audioRef.current) {
@@ -403,7 +393,7 @@ export const MusicPlayerProvider = ({ children }: { children: React.ReactNode })
   const toggleExpandPlayer = useCallback(() => {
     const nextState = !isExpanded;
     setIsExpanded(nextState);
-    if (!nextState) { // If collapsing player
+    if (!nextState) { 
       setShowLyrics(false);
     }
   }, [isExpanded]);
@@ -448,7 +438,6 @@ export const MusicPlayerProvider = ({ children }: { children: React.ReactNode })
       }
   }, [showLyrics, isExpanded, lyrics, loadingLyrics, fetchLyrics]);
   
-  // Playlist functions
   const createPlaylist = useCallback((name: string, description?: string): Playlist => {
       const newPlaylist: Playlist = {
         id: `playlist-${Date.now()}`,
@@ -492,9 +481,6 @@ export const MusicPlayerProvider = ({ children }: { children: React.ReactNode })
               if (updatedSongIds.length === 0) {
                   updatedPlaylist.coverArt = undefined;
               }
-              // A more complex logic would be needed to fetch the next song's cover art if the first one is removed.
-              // For simplicity, we'll leave it as is.
-              
               return updatedPlaylist;
           }
           return p;
@@ -592,7 +578,7 @@ export const MusicPlayerProvider = ({ children }: { children: React.ReactNode })
     <MusicPlayerContext.Provider
       value={value}
     >
-      <audio ref={audioRef} crossOrigin="anonymous" preload="metadata" />
+      <audio ref={audioRef} crossOrigin="anonymous" preload="metadata" playsInline />
       {children}
     </MusicPlayerContext.Provider>
   );
