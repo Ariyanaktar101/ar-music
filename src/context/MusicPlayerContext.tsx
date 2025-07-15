@@ -212,6 +212,11 @@ export const MusicPlayerProvider = ({ children }: { children: React.ReactNode })
         setIsPlaying(true);
       }).catch(e => {
         console.error("Autoplay was prevented.", e);
+        toast({
+          variant: "destructive",
+          title: "Playback Failed",
+          description: "Could not play the song. The source may be invalid.",
+        });
         setIsPlaying(false);
       });
     }
@@ -296,22 +301,14 @@ export const MusicPlayerProvider = ({ children }: { children: React.ReactNode })
         playNextSong();
     };
 
-    const handleAudioError = (e: any) => {
-        console.error("Audio playback error:", currentSong?.title, e);
-        playNextSong();
-    };
-
     audio.addEventListener('loadedmetadata', setAudioData);
     audio.addEventListener('timeupdate', setAudioTime);
     audio.addEventListener('ended', handleSongEnd);
-    audio.addEventListener('error', handleAudioError);
-
 
     return () => {
       audio.removeEventListener('loadedmetadata', setAudioData);
       audio.removeEventListener('timeupdate', setAudioTime);
       audio.removeEventListener('ended', handleSongEnd);
-      audio.removeEventListener('error', handleAudioError);
     };
   }, [isPlaying, lyricTimings, currentLineIndex, playNextSong, currentSong]);
 
