@@ -13,7 +13,6 @@ import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
 import { motion, AnimatePresence } from 'framer-motion';
 import Link from 'next/link';
-import { GenreCard } from '@/components/genre-card';
 
 const LOCAL_STORAGE_RECENT_SEARCHES = 'ar-music-recent-searches';
 
@@ -33,15 +32,6 @@ function NewlyAddedSkeleton() {
         </div>
     )
 }
-
-const genres = [
-    { name: 'Pop', imageUrl: 'https://placehold.co/400x400.png', dataAiHint: 'pop concert' },
-    { name: 'Hip Hop', imageUrl: 'https://placehold.co/400x400.png', dataAiHint: 'hiphop concert' },
-    { name: 'Rock', imageUrl: 'https://placehold.co/400x400.png', dataAiHint: 'rock concert' },
-    { name: 'Electronic', imageUrl: 'https://placehold.co/400x400.png', dataAiHint: 'dj music' },
-    { name: 'R&B', imageUrl: 'https://placehold.co/400x400.png', dataAiHint: 'soul singer' },
-    { name: 'Indie', imageUrl: 'https://placehold.co/400x400.png', dataAiHint: 'indie artist' }
-];
 
 function SearchPageComponent() {
   const searchParams = useSearchParams();
@@ -269,22 +259,6 @@ function SearchPageComponent() {
                     </Button>
                 </div>
               </motion.div>
-
-               <motion.div variants={initialViewItem} className="space-y-4">
-                <h2 className="text-2xl font-semibold font-headline tracking-tight">
-                    Browse All
-                </h2>
-                <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-                    {genres.slice(0, 6).map((genre) => (
-                        <GenreCard 
-                            key={genre.name}
-                            genre={genre.name}
-                            imageUrl={genre.imageUrl}
-                            dataAiHint={genre.dataAiHint}
-                        />
-                    ))}
-                </div>
-            </motion.div>
               
               <motion.div variants={initialViewItem}>
                 <h2 className="text-2xl font-semibold font-headline tracking-tight mb-4">
