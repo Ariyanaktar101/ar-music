@@ -103,7 +103,7 @@ function SearchPageComponent() {
   useEffect(() => {
     const fetchNewlyAdded = async () => {
         setLoadingNewlyAdded(true);
-        const songs = await handleSearch("latest hindi and english songs", 40);
+        const songs = await handleSearch("top hindi songs", 40);
         // Filter out duplicates based on title and artist
         const uniqueSongs = songs.reduce((acc, current) => {
           if (!acc.some(song => song.title === current.title && song.artist === current.artist)) {
