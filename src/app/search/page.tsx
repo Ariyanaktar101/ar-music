@@ -104,14 +104,18 @@ function SearchPageComponent() {
     const fetchNewlyAdded = async () => {
         setLoadingNewlyAdded(true);
         const songs = await handleSearch("top hindi songs", 40);
-        // Filter out duplicates based on title and artist
+        
         const uniqueSongs = songs.reduce((acc, current) => {
           if (!acc.some(song => song.title === current.title && song.artist === current.artist)) {
             acc.push(current);
           }
           return acc;
         }, [] as Song[]);
-        setNewlyAdded(uniqueSongs.slice(0, 20));
+
+        // Filter out specific devotional songs
+        const filteredSongs = uniqueSongs.filter(song => !song.title.toLowerCase().includes('hanuman chalisa'));
+
+        setNewlyAdded(filteredSongs.slice(0, 20));
         setLoadingNewlyAdded(false);
     }
     fetchNewlyAdded();
