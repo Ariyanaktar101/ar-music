@@ -35,12 +35,12 @@ function NewlyAddedSkeleton() {
 }
 
 const genres = [
-    { name: 'Pop', imageUrl: 'https://placehold.co/400x400.png', dataAiHint: 'pop music' },
-    { name: 'Hip Hop', imageUrl: 'https://placehold.co/400x400.png', dataAiHint: 'hip hop' },
-    { name: 'Rock', imageUrl: 'https://placehold.co/400x400.png', dataAiHint: 'rock music' },
-    { name: 'Electronic', imageUrl: 'https://placehold.co/400x400.png', dataAiHint: 'electronic music' },
-    { name: 'R&B', imageUrl: 'https://placehold.co/400x400.png', dataAiHint: 'rnb music' },
-    { name: 'Indie', imageUrl: 'https://placehold.co/400x400.png', dataAiHint: 'indie music' }
+    { name: 'Pop', imageUrl: 'https://placehold.co/400x400.png', dataAiHint: 'pop concert' },
+    { name: 'Hip Hop', imageUrl: 'https://placehold.co/400x400.png', dataAiHint: 'hiphop concert' },
+    { name: 'Rock', imageUrl: 'https://placehold.co/400x400.png', dataAiHint: 'rock concert' },
+    { name: 'Electronic', imageUrl: 'https://placehold.co/400x400.png', dataAiHint: 'dj music' },
+    { name: 'R&B', imageUrl: 'https://placehold.co/400x400.png', dataAiHint: 'soul singer' },
+    { name: 'Indie', imageUrl: 'https://placehold.co/400x400.png', dataAiHint: 'indie artist' }
 ];
 
 function SearchPageComponent() {
@@ -275,7 +275,7 @@ function SearchPageComponent() {
                     Browse All
                 </h2>
                 <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-                    {genres.map((genre) => (
+                    {genres.slice(0, 6).map((genre) => (
                         <GenreCard 
                             key={genre.name}
                             genre={genre.name}
