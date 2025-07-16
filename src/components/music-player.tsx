@@ -87,7 +87,6 @@ function ExpandedPlayer() {
     toggleFavorite,
     isExpanded,
     toggleExpandPlayer,
-    closePlayer,
     volume,
     isMuted,
     handleVolumeChange,
@@ -113,7 +112,7 @@ function ExpandedPlayer() {
     const velocity = info.velocity.y;
 
     if (dragDistance > window.innerHeight / 4 || velocity > 500) {
-      closePlayer();
+      toggleExpandPlayer();
     } else {
       controls.start({ y: 0, transition: { type: 'spring', damping: 30, stiffness: 250 } });
     }
@@ -465,7 +464,6 @@ export function MusicPlayer() {
 
       <motion.div 
         className="hidden md:block fixed bottom-0 left-0 right-0 h-24 bg-background/80 backdrop-blur-md border-t z-50 shadow-[0_-5px_15px_-5px_rgba(0,0,0,0.05)] dark:shadow-[0_-5px_15px_-5px_rgba(0,0,0,0.5)]"
-        style={{ touchAction: 'pan-y' }}
       >
         <div className="container mx-auto h-full flex items-center justify-between px-4 sm:px-6 lg:px-8">
           <div className="flex items-center gap-4 w-1/4">
