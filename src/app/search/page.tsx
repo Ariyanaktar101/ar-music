@@ -103,8 +103,15 @@ function SearchPageComponent() {
   useEffect(() => {
     const fetchNewlyAdded = async () => {
         setLoadingNewlyAdded(true);
-        const songs = await handleSearch("latest hindi and english songs", 10);
-        setNewlyAdded(songs);
+        const songs = await handleSearch("latest hindi and english songs", 40);
+        // Filter out duplicates based on title and artist
+        const uniqueSongs = songs.reduce((acc, current) => {
+          if (!acc.some(song => song.title === current.title && song.artist === current.artist)) {
+            acc.push(current);
+          }
+          return acc;
+        }, [] as Song[]);
+        setNewlyAdded(uniqueSongs.slice(0, 20));
         setLoadingNewlyAdded(false);
     }
     fetchNewlyAdded();
