@@ -12,25 +12,9 @@ import { useDebounce } from '@/hooks/use-debounce';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
 import { motion, AnimatePresence } from 'framer-motion';
-import { GenreCard } from '@/components/genre-card';
 import Link from 'next/link';
 
 const LOCAL_STORAGE_RECENT_SEARCHES = 'ar-music-recent-searches';
-
-const genres = [
-    { name: 'Bollywood', hint: 'bollywood movies' },
-    { name: 'Punjabi', hint: 'punjabi music' },
-    { name: 'Pop', hint: 'pop music' },
-    { name: 'Hip Hop', hint: 'hiphop concert' },
-    { name: 'Rock', hint: 'rock concert' },
-    { name: 'Electronic', hint: 'dj music' },
-    { name: 'R&B', hint: 'rnb soul' },
-    { name: 'Indie', hint: 'indie music' },
-    { name: 'Workout', hint: 'gym workout' },
-    { name: 'Chill', hint: 'relaxing beach' },
-    { name: 'Party', hint: 'party celebration' },
-    { name: 'Sleep', hint: 'night sky' },
-];
 
 function NewlyAddedSkeleton() {
     return (
