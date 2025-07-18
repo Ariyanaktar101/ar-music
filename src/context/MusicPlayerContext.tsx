@@ -4,7 +4,8 @@
 
 import React, { createContext, useContext, useState, useRef, useEffect, useCallback, useMemo } from 'react';
 import type { Song, Playlist } from '@/lib/types';
-import { getLyrics } from '@/ai/flows/get-lyrics-flow';
+import { getLyrics, LyricAnalysis } from '@/ai/flows/get-lyrics-flow';
+import { generatePlaylistArt } from '@/ai/flows/generate-playlist-art-flow';
 import { useToast } from '@/hooks/use-toast';
 
 interface MusicPlayerContextType {
@@ -48,6 +49,9 @@ interface MusicPlayerContextType {
   
   downloadedSongs: Song[];
   downloadSong: (song: Song) => void;
+
+  lyricAnalysis: LyricAnalysis | null;
+  loadingLyricAnalysis: boolean;
 }
 
 const MusicPlayerContext = createContext<MusicPlayerContextType | undefined>(undefined);
@@ -87,6 +91,8 @@ export const MusicPlayerProvider = ({ children }: { children: React.ReactNode })
   const [loadingLyrics, setLoadingLyrics] = useState(false);
   const [currentLineIndex, setCurrentLineIndex] = useState<number | null>(null);
   const [lyricTimings, setLyricTimings] = useState<LyricTimings[]>([]);
+  const [lyricAnalysis, setLyricAnalysis] = useState<LyricAnalysis | null>(null);
+  const [loadingLyricAnalysis, setLoadingLyricAnalysis] = useState(false);
 
   const [playlists, setPlaylists] = useState<Playlist[]>([]);
   
@@ -120,6 +126,13 @@ export const MusicPlayerProvider = ({ children }: { children: React.ReactNode })
     }
   }, []);
 
+  const savePlaylists = useCallback((newPlaylists: Playlist[]) => {
+      setPlaylists(newPlaylists);
+      if (!loading) {
+        localStorage.setItem('ar-music-playlists', JSON.stringify(newPlaylists));
+      }
+  }, [loading]);
+
   useEffect(() => {
     if (loading) return;
     localStorage.setItem('ar-music-favorites', JSON.stringify(favoriteSongs));
@@ -129,11 +142,6 @@ export const MusicPlayerProvider = ({ children }: { children: React.ReactNode })
     if (loading) return;
     localStorage.setItem('ar-music-recent', JSON.stringify(recentlyPlayed));
   }, [recentlyPlayed, loading]);
-
-  useEffect(() => {
-    if (loading) return;
-    localStorage.setItem('ar-music-playlists', JSON.stringify(playlists));
-  }, [playlists, loading]);
   
   useEffect(() => {
     if (loading) return;
@@ -204,6 +212,7 @@ export const MusicPlayerProvider = ({ children }: { children: React.ReactNode })
     setLyrics(null);
     setCurrentLineIndex(null);
     setLyricTimings([]);
+    setLyricAnalysis(null);
     
     if (audioRef.current) {
       audioRef.current.src = song.url;
@@ -372,6 +381,10 @@ export const MusicPlayerProvider = ({ children }: { children: React.ReactNode })
 
 
   const closePlayer = useCallback(() => {
+      if (audioRef.current) {
+        audioRef.current.pause();
+        audioRef.current.src = '';
+      }
       setCurrentSong(null);
       setIsPlaying(false);
       setIsExpanded(false);
@@ -382,9 +395,13 @@ export const MusicPlayerProvider = ({ children }: { children: React.ReactNode })
   }, [favoriteSongs]);
 
   const toggleFavorite = useCallback((songId: string) => {
-    setFavoriteSongs(prev => 
-      prev.includes(songId) ? prev.filter(id => id !== songId) : [...prev, songId]
-    )
+    setFavoriteSongs(prev => {
+      if (prev.includes(songId)) {
+        return prev.filter(id => id !== songId);
+      } else {
+        return [...prev, songId];
+      }
+    })
   }, []);
 
   const toggleExpandPlayer = useCallback(() => {
@@ -398,7 +415,9 @@ export const MusicPlayerProvider = ({ children }: { children: React.ReactNode })
   const fetchLyrics = useCallback(async () => {
     if (!currentSong) return;
     setLoadingLyrics(true);
+    setLoadingLyricAnalysis(true);
     setLyrics(null);
+    setLyricAnalysis(null);
     setCurrentLineIndex(null);
     try {
         const result = await getLyrics({ 
@@ -411,11 +430,16 @@ export const MusicPlayerProvider = ({ children }: { children: React.ReactNode })
         } else {
             setLyrics(null);
         }
+        if (result.analysis) {
+            setLyricAnalysis(result.analysis);
+        }
     } catch (error) {
         console.error("Failed to fetch lyrics:", error);
         setLyrics(null);
+        setLyricAnalysis(null);
     } finally {
         setLoadingLyrics(false);
+        setLoadingLyricAnalysis(false);
     }
   }, [currentSong]);
 
@@ -446,31 +470,55 @@ export const MusicPlayerProvider = ({ children }: { children: React.ReactNode })
       return newPlaylist;
   }, []);
 
-  const addSongToPlaylist = useCallback(async (playlistId: string, song: Song) => {
+  const addSongToPlaylist = useCallback((playlistId: string, song: Song) => {
     let playlistName = '';
     
-    setPlaylists(prev => prev.map(p => {
+    setPlaylists(prevPlaylists => {
+      const newPlaylists = prevPlaylists.map(p => {
         if (p.id === playlistId) {
             playlistName = p.name;
-            if (p.songIds.includes(song.id)) {
-                return p;
-            }
+            // Prevent duplicates
+            if (p.songIds.includes(song.id)) return p;
+
             const updatedPlaylist = { ...p, songIds: [...p.songIds, song.id] };
-            if (!updatedPlaylist.coverArt) {
+            
+            // Set cover art if it's the first song
+            if (!updatedPlaylist.coverArt && song.coverArt) {
               updatedPlaylist.coverArt = song.coverArt;
+              
+              // Kick off AI art generation in the background without waiting
+              generatePlaylistArt({ playlistName: p.name })
+                .then(art => {
+                  if (art.imageUrl) {
+                    setPlaylists(latestPlaylists => {
+                       const finalPlaylists = latestPlaylists.map(pl => 
+                        pl.id === playlistId ? { ...pl, coverArt: art.imageUrl } : pl
+                      );
+                      savePlaylists(finalPlaylists);
+                      return finalPlaylists;
+                    });
+                  }
+                })
+                .catch(err => console.error("Failed to generate playlist art", err));
             }
             return updatedPlaylist;
         }
         return p;
-    }));
+      });
+      // Save after optimistic update
+      savePlaylists(newPlaylists);
+      return newPlaylists;
+    });
+
     toast({
         title: "Added to Playlist",
         description: `"${song.title}" has been added to ${playlistName}.`,
     });
-  }, [toast]);
+  }, [toast, savePlaylists]);
 
-  const removeSongFromPlaylist = useCallback(async (playlistId: string, songId: string) => {
-      setPlaylists(prev => prev.map(p => {
+  const removeSongFromPlaylist = useCallback((playlistId: string, songId: string) => {
+      setPlaylists(prev => {
+        const newPlaylists = prev.map(p => {
           if (p.id === playlistId) {
               const updatedSongIds = p.songIds.filter(id => id !== songId);
               const updatedPlaylist = { ...p, songIds: updatedSongIds };
@@ -481,8 +529,11 @@ export const MusicPlayerProvider = ({ children }: { children: React.ReactNode })
               return updatedPlaylist;
           }
           return p;
-      }));
-  }, []);
+        });
+        savePlaylists(newPlaylists);
+        return newPlaylists;
+      });
+  }, [savePlaylists]);
 
   const getPlaylistById = useCallback((id: string) => {
     return playlists.find(p => p.id === id);
@@ -533,6 +584,8 @@ export const MusicPlayerProvider = ({ children }: { children: React.ReactNode })
     getPlaylistById,
     downloadedSongs,
     downloadSong,
+    lyricAnalysis,
+    loadingLyricAnalysis,
   }), [
     loading,
     currentSong,
@@ -569,6 +622,8 @@ export const MusicPlayerProvider = ({ children }: { children: React.ReactNode })
     getPlaylistById,
     downloadedSongs,
     downloadSong,
+    lyricAnalysis,
+    loadingLyricAnalysis,
   ]);
 
   return (

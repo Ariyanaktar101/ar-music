@@ -98,6 +98,8 @@ function ExpandedPlayer() {
     currentLineIndex,
     isShuffled,
     toggleShuffle,
+    lyricAnalysis,
+    loadingLyricAnalysis
   } = useMusicPlayer();
   
   const controls = useAnimation();
@@ -282,6 +284,15 @@ function ExpandedPlayer() {
             <div className="flex-1 text-left overflow-hidden">
               <h2 className="text-2xl font-bold truncate">{currentSong.title}</h2>
               <p className="text-muted-foreground truncate">{currentSong.artist}</p>
+               {loadingLyricAnalysis ? (
+                 <div className="h-4 w-24 bg-muted rounded-md animate-pulse mt-1"></div>
+               ) : lyricAnalysis ? (
+                <div className="text-xs text-muted-foreground capitalize flex items-center gap-2 mt-1">
+                  <span>{lyricAnalysis.mood}</span>
+                  <span className="h-1 w-1 rounded-full bg-muted-foreground"></span>
+                  <span>{lyricAnalysis.theme}</span>
+                </div>
+               ) : null}
             </div>
             <Button variant="ghost" size="icon" onClick={() => toggleFavorite(currentSong.id)}>
               <Heart className={cn("h-6 w-6", currentSongIsFavorite ? "fill-red-500 text-red-500" : "text-muted-foreground")} />
@@ -387,7 +398,7 @@ export function MusicPlayer() {
     if (dragDistance > 60 || velocity > 500) {
       compactPlayerControls.start({ y: "100%", transition: { type: 'tween', ease: 'easeInOut', duration: 0.3 } }).then(() => {
         closePlayer();
-        compactPlayerControls.set({ y: 0 }); 
+        compactPlayerControls.set({ y: 0 }); // Reset position after closing
       });
     } else {
       compactPlayerControls.start({ y: 0, transition: { type: 'spring', damping: 30, stiffness: 250 } });
