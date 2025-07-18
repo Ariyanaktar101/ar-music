@@ -4,9 +4,14 @@
 
 import React, { createContext, useContext, useState, useRef, useEffect, useCallback, useMemo } from 'react';
 import type { Song, Playlist } from '@/lib/types';
-import { getLyrics, LyricAnalysis } from '@/ai/flows/get-lyrics-flow';
+import { getLyrics, GetLyricsOutput } from '@/ai/flows/get-lyrics-flow';
 import { generatePlaylistArt } from '@/ai/flows/generate-playlist-art-flow';
 import { useToast } from '@/hooks/use-toast';
+
+interface LyricAnalysis {
+    mood: string;
+    theme: string;
+}
 
 interface MusicPlayerContextType {
   loading: boolean;
@@ -388,6 +393,9 @@ export const MusicPlayerProvider = ({ children }: { children: React.ReactNode })
       setCurrentSong(null);
       setIsPlaying(false);
       setIsExpanded(false);
+      // Reset progress and duration to avoid stale values if player is reopened
+      setProgress(0);
+      setDuration(0);
   }, []);
 
   const isFavorite = useCallback((songId: string) => {
@@ -420,7 +428,7 @@ export const MusicPlayerProvider = ({ children }: { children: React.ReactNode })
     setLyricAnalysis(null);
     setCurrentLineIndex(null);
     try {
-        const result = await getLyrics({ 
+        const result: GetLyricsOutput = await getLyrics({ 
             songTitle: currentSong.title, 
             artist: currentSong.artist,
             album: currentSong.album,
@@ -466,74 +474,62 @@ export const MusicPlayerProvider = ({ children }: { children: React.ReactNode })
         description,
         songIds: [],
       };
-      setPlaylists(prev => [...prev, newPlaylist]);
+      savePlaylists([...playlists, newPlaylist]);
       return newPlaylist;
-  }, []);
+  }, [playlists, savePlaylists]);
 
   const addSongToPlaylist = useCallback((playlistId: string, song: Song) => {
     let playlistName = '';
     
-    setPlaylists(prevPlaylists => {
-      const newPlaylists = prevPlaylists.map(p => {
-        if (p.id === playlistId) {
-            playlistName = p.name;
-            // Prevent duplicates
-            if (p.songIds.includes(song.id)) return p;
-
-            const updatedPlaylist = { ...p, songIds: [...p.songIds, song.id] };
-            
-            // Set cover art if it's the first song
-            if (!updatedPlaylist.coverArt && song.coverArt) {
-              updatedPlaylist.coverArt = song.coverArt;
-              
-              // Kick off AI art generation in the background without waiting
-              generatePlaylistArt({ playlistName: p.name })
-                .then(art => {
-                  if (art.imageUrl) {
-                    setPlaylists(latestPlaylists => {
-                       const finalPlaylists = latestPlaylists.map(pl => 
-                        pl.id === playlistId ? { ...pl, coverArt: art.imageUrl } : pl
-                      );
-                      savePlaylists(finalPlaylists);
-                      return finalPlaylists;
-                    });
-                  }
-                })
-                .catch(err => console.error("Failed to generate playlist art", err));
-            }
-            return updatedPlaylist;
-        }
-        return p;
-      });
-      // Save after optimistic update
-      savePlaylists(newPlaylists);
-      return newPlaylists;
+    const newPlaylists = playlists.map(p => {
+      if (p.id === playlistId) {
+          playlistName = p.name;
+          if (p.songIds.includes(song.id)) return p;
+          const updatedPlaylist = { ...p, songIds: [...p.songIds, song.id] };
+          if (!updatedPlaylist.coverArt && song.coverArt) {
+            updatedPlaylist.coverArt = song.coverArt;
+            generatePlaylistArt({ playlistName: p.name })
+              .then(art => {
+                if (art.imageUrl) {
+                   // Re-fetch playlists from state to ensure we're not overwriting concurrent changes
+                  setPlaylists(currentPlaylists => {
+                    const latestPlaylists = currentPlaylists.map(pl => 
+                      pl.id === playlistId ? { ...pl, coverArt: art.imageUrl } : pl
+                    );
+                    savePlaylists(latestPlaylists);
+                    return latestPlaylists;
+                  });
+                }
+              })
+              .catch(err => console.error("Failed to generate playlist art", err));
+          }
+          return updatedPlaylist;
+      }
+      return p;
     });
+
+    savePlaylists(newPlaylists);
 
     toast({
         title: "Added to Playlist",
         description: `"${song.title}" has been added to ${playlistName}.`,
     });
-  }, [toast, savePlaylists]);
+  }, [playlists, savePlaylists, toast]);
 
   const removeSongFromPlaylist = useCallback((playlistId: string, songId: string) => {
-      setPlaylists(prev => {
-        const newPlaylists = prev.map(p => {
-          if (p.id === playlistId) {
-              const updatedSongIds = p.songIds.filter(id => id !== songId);
-              const updatedPlaylist = { ...p, songIds: updatedSongIds };
-              
-              if (updatedSongIds.length === 0) {
-                  updatedPlaylist.coverArt = undefined;
-              }
-              return updatedPlaylist;
-          }
-          return p;
-        });
-        savePlaylists(newPlaylists);
-        return newPlaylists;
+      const newPlaylists = playlists.map(p => {
+        if (p.id === playlistId) {
+            const updatedSongIds = p.songIds.filter(id => id !== songId);
+            const updatedPlaylist = { ...p, songIds: updatedSongIds };
+            if (updatedSongIds.length === 0) {
+                updatedPlaylist.coverArt = undefined;
+            }
+            return updatedPlaylist;
+        }
+        return p;
       });
-  }, [savePlaylists]);
+      savePlaylists(newPlaylists);
+  }, [playlists, savePlaylists]);
 
   const getPlaylistById = useCallback((id: string) => {
     return playlists.find(p => p.id === id);

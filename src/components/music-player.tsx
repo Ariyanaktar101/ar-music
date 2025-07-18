@@ -396,10 +396,8 @@ export function MusicPlayer() {
     const velocity = info.velocity.y;
 
     if (dragDistance > 60 || velocity > 500) {
-      compactPlayerControls.start({ y: "100%", transition: { type: 'tween', ease: 'easeInOut', duration: 0.3 } }).then(() => {
-        closePlayer();
-        compactPlayerControls.set({ y: 0 }); // Reset position after closing
-      });
+      closePlayer();
+      compactPlayerControls.start({ y: "100%", transition: { type: 'tween', ease: 'easeInOut', duration: 0.3 } });
     } else {
       compactPlayerControls.start({ y: 0, transition: { type: 'spring', damping: 30, stiffness: 250 } });
     }
