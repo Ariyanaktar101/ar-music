@@ -13,6 +13,7 @@ import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
 import { motion, AnimatePresence } from 'framer-motion';
 import Link from 'next/link';
+import Image from 'next/image';
 
 const LOCAL_STORAGE_RECENT_SEARCHES = 'ar-music-recent-searches';
 
@@ -40,12 +41,14 @@ function SearchPageComponent() {
   const [isPending, startTransition] = useTransition();
   const [results, setResults] = useState<Song[]>([]);
   const [query, setQuery] = useState(initialGenre || '');
-  const debouncedQuery = useDebounce(query, 200);
+  const debouncedQuery = useDebounce(query, 300);
   const [hasSearched, setHasSearched] = useState(!!initialGenre);
   const [newlyAdded, setNewlyAdded] = useState<Song[]>([]);
   const [loadingNewlyAdded, setLoadingNewlyAdded] = useState(true);
   const [recentSearches, setRecentSearches] = useState<string[]>([]);
   const [isFocused, setIsFocused] = useState(false);
+
+  const showEasterEgg = debouncedQuery.toLowerCase().trim() === 'rupmita';
 
   useEffect(() => {
     try {
@@ -93,7 +96,9 @@ function SearchPageComponent() {
       return;
     }
     setHasSearched(true);
-    addRecentSearch(term);
+    if(term.toLowerCase() !== 'rupmita') {
+        addRecentSearch(term);
+    }
     startTransition(async () => {
       const searchResults = await handleSearch(term, 100);
       setResults(searchResults);
@@ -112,7 +117,6 @@ function SearchPageComponent() {
           return acc;
         }, [] as Song[]);
 
-        // Filter out specific devotional songs
         const filteredSongs = uniqueSongs.filter(song => !song.title.toLowerCase().includes('hanuman chalisa'));
 
         setNewlyAdded(filteredSongs.slice(0, 20));
@@ -122,7 +126,7 @@ function SearchPageComponent() {
   }, []);
 
   useEffect(() => {
-    if (debouncedQuery) {
+    if (debouncedQuery && debouncedQuery.toLowerCase().trim() !== 'rupmita') {
       performSearch(debouncedQuery);
     } else {
       if (!initialGenre || (initialGenre && query === '')) {
@@ -138,8 +142,8 @@ function SearchPageComponent() {
     }
   }, [initialGenre]);
 
-  const showInitialView = !hasSearched && query === '';
-  const showRecentSearches = isFocused && query === '' && recentSearches.length > 0;
+  const showInitialView = !hasSearched && query === '' && !showEasterEgg;
+  const showRecentSearches = isFocused && query === '' && recentSearches.length > 0 && !showEasterEgg;
 
   const recentSearchesVariants = {
     hidden: { opacity: 0 },
@@ -177,12 +181,29 @@ function SearchPageComponent() {
           value={query}
           onChange={(e) => setQuery(e.target.value)}
           onFocus={() => setIsFocused(true)}
-          onBlur={() => setTimeout(() => setIsFocused(false), 150)} // Delay blur to allow click on recent search
+          onBlur={() => setTimeout(() => setIsFocused(false), 150)}
         />
       </div>
 
       <section className="mt-8">
-        {isPending ? (
+        {showEasterEgg ? (
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="text-center flex flex-col items-center gap-4"
+          >
+            <Image 
+                src="https://i.pinimg.com/736x/d4/b7/c4/d4b7c48c7d55fc0d09f340d543d6aa37.jpg" 
+                alt="A special image for Rupmita"
+                width={500}
+                height={500}
+                className="rounded-lg shadow-lg max-w-sm w-full h-auto object-cover"
+            />
+            <p className="text-2xl font-semibold font-headline mt-4">
+                you looks beautifool
+            </p>
+          </motion.div>
+        ) : isPending ? (
           <div className="flex justify-center items-center mt-10">
             <Loader className="h-8 w-8 animate-spin text-primary" />
           </div>
