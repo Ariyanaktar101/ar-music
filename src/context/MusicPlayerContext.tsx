@@ -1,3 +1,4 @@
+
 'use client';
 
 import React, { createContext, useContext, useState, useRef, useEffect, useCallback, useMemo } from 'react';
@@ -212,6 +213,17 @@ export const MusicPlayerProvider = ({ children }: { children: React.ReactNode })
         }
         return null;
   }, []);
+  
+  const togglePlayPause = useCallback(() => {
+    if (audioRef.current) {
+      if (isPlaying) {
+        audioRef.current.pause();
+      } else {
+        audioRef.current.play();
+      }
+      setIsPlaying(!isPlaying);
+    }
+  }, [isPlaying]);
 
   const playSong = useCallback((song: Song, queue: Song[] = []) => {
     if (!song.url) {
@@ -224,11 +236,7 @@ export const MusicPlayerProvider = ({ children }: { children: React.ReactNode })
     }
 
     if (currentSong?.id === song.id) {
-      if (audioRef.current) {
-        if (isPlaying) audioRef.current.pause();
-        else audioRef.current.play();
-        setIsPlaying(!isPlaying);
-      }
+      togglePlayPause();
       return;
     }
     
@@ -271,7 +279,7 @@ export const MusicPlayerProvider = ({ children }: { children: React.ReactNode })
         setIsPlaying(false);
       });
     }
-  }, [toast, currentSong, isPlaying, isShuffled, addSongToRecents, isRadioMode, fetchAndSetLyricAnalysis]);
+  }, [toast, currentSong, togglePlayPause, isShuffled, addSongToRecents, isRadioMode, fetchAndSetLyricAnalysis]);
 
   const fillRadioQueue = useCallback(async (seedSong: Song, mood: string) => {
     try {
@@ -546,7 +554,7 @@ export const MusicPlayerProvider = ({ children }: { children: React.ReactNode })
     setLoadingLyrics(true);
     setLyrics(null);
     setCurrentLineIndex(null);
-    const analysis = await fetchAndSetLyricAnalysis(currentSong);
+    await fetchAndSetLyricAnalysis(currentSong);
 
     try {
         const result: GetLyricsOutput = await getLyrics({ 
