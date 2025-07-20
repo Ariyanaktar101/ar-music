@@ -3,7 +3,7 @@
 
 import React from 'react';
 import Image from 'next/image';
-import { Play, Pause, SkipBack, SkipForward, Volume2, VolumeX, X, Heart, ChevronDown, Shuffle, Repeat, Mic2, Loader, Music, MoreVertical, PlusSquare, Download } from 'lucide-react';
+import { Play, Pause, SkipBack, SkipForward, Volume2, VolumeX, X, Heart, ChevronDown, Shuffle, Repeat, Mic2, Loader, Music, MoreVertical, PlusSquare, Download, RadioTower } from 'lucide-react';
 import { Slider } from '@/components/ui/slider';
 import { Button } from '@/components/ui/button';
 import { useMusicPlayer } from '@/context/MusicPlayerContext';
@@ -99,7 +99,9 @@ function ExpandedPlayer() {
     isShuffled,
     toggleShuffle,
     lyricAnalysis,
-    loadingLyricAnalysis
+    loadingLyricAnalysis,
+    isRadioMode,
+    toggleRadioMode,
   } = useMusicPlayer();
   
   const controls = useAnimation();
@@ -334,8 +336,8 @@ function ExpandedPlayer() {
             <Button variant="ghost" size="icon" onClick={skipForward}>
                 <SkipForward className="h-6 w-6" />
             </Button>
-            <Button variant="ghost" size="icon">
-                <Repeat className="h-5 w-5 text-muted-foreground" />
+            <Button variant="ghost" size="icon" onClick={toggleRadioMode} >
+                <RadioTower className={cn("h-5 w-5", isRadioMode ? "text-primary" : "text-muted-foreground")} />
             </Button>
         </div>
 
@@ -387,6 +389,8 @@ export function MusicPlayer() {
     toggleLyricsView,
     isShuffled,
     toggleShuffle,
+    isRadioMode,
+    toggleRadioMode,
   } = useMusicPlayer();
   
   const compactPlayerControls = useAnimation();
@@ -506,8 +510,8 @@ export function MusicPlayer() {
               <Button variant="ghost" size="icon" onClick={skipForward}>
                 <SkipForward className="h-5 w-5" />
               </Button>
-               <Button variant="ghost" size="icon">
-                <Repeat className="h-5 w-5 text-muted-foreground" />
+               <Button variant="ghost" size="icon" onClick={toggleRadioMode}>
+                <RadioTower className={cn("h-5 w-5", isRadioMode ? "text-primary" : "text-muted-foreground")} />
               </Button>
             </div>
             <div className="w-full flex items-center gap-2">
