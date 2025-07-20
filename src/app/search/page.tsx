@@ -200,7 +200,7 @@ function SearchPageComponent() {
                 className="rounded-lg shadow-lg max-w-sm w-full h-auto object-cover"
             />
             <p className="text-2xl font-semibold font-headline mt-4">
-                you looks beautifool
+                you looks beautifool 🤡
             </p>
           </motion.div>
         ) : isPending ? (
