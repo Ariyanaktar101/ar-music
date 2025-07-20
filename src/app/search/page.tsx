@@ -13,7 +13,6 @@ import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
 import { motion, AnimatePresence } from 'framer-motion';
 import Link from 'next/link';
-import Image from 'next/image';
 
 const LOCAL_STORAGE_RECENT_SEARCHES = 'ar-music-recent-searches';
 
@@ -48,8 +47,6 @@ function SearchPageComponent() {
   const [recentSearches, setRecentSearches] = useState<string[]>([]);
   const [isFocused, setIsFocused] = useState(false);
 
-  const showEasterEgg = debouncedQuery.toLowerCase().trim() === 'rupmita';
-
   useEffect(() => {
     try {
         const stored = localStorage.getItem(LOCAL_STORAGE_RECENT_SEARCHES);
@@ -81,9 +78,7 @@ function SearchPageComponent() {
       return;
     }
     setHasSearched(true);
-    if(term.toLowerCase() !== 'rupmita') {
-        addRecentSearch(term);
-    }
+    addRecentSearch(term);
     startTransition(async () => {
       const searchResults = await handleSearch(term, 100);
       setResults(searchResults);
@@ -111,7 +106,7 @@ function SearchPageComponent() {
   }, []);
 
   useEffect(() => {
-    if (debouncedQuery && debouncedQuery.toLowerCase().trim() !== 'rupmita') {
+    if (debouncedQuery) {
       performSearch(debouncedQuery);
     } else {
       if (!initialGenre || (initialGenre && query === '')) {
@@ -127,8 +122,8 @@ function SearchPageComponent() {
     }
   }, [initialGenre]);
 
-  const showInitialView = !hasSearched && query === '' && !showEasterEgg;
-  const showRecentSearches = isFocused && query === '' && recentSearches.length > 0 && !showEasterEgg;
+  const showInitialView = !hasSearched && query === '';
+  const showRecentSearches = isFocused && query === '' && recentSearches.length > 0;
 
   const recentSearchesVariants = {
     hidden: { opacity: 0 },
@@ -171,24 +166,7 @@ function SearchPageComponent() {
       </div>
 
       <section className="mt-8">
-        {showEasterEgg ? (
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="text-center flex flex-col items-center gap-4"
-          >
-            <Image 
-                src="https://i.pinimg.com/736x/d4/b7/c4/d4b7c48c7d55fc0d09f340d543d6aa37.jpg" 
-                alt="A special image for Rupmita"
-                width={500}
-                height={500}
-                className="rounded-lg shadow-lg max-w-sm w-full h-auto object-cover"
-            />
-            <p className="text-2xl font-semibold font-headline mt-4">
-                you looks beautifool 🤡
-            </p>
-          </motion.div>
-        ) : isPending ? (
+        {isPending ? (
           <div className="flex justify-center items-center mt-10">
             <Loader className="h-8 w-8 animate-spin text-primary" />
           </div>
