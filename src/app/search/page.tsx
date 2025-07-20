@@ -61,11 +61,6 @@ function SearchPageComponent() {
     }
   }, [])
   
-  const saveRecentSearches = (searches: string[]) => {
-      setRecentSearches(searches);
-      localStorage.setItem(LOCAL_STORAGE_RECENT_SEARCHES, JSON.stringify(searches));
-  }
-  
   const addRecentSearch = useCallback((searchTerm: string) => {
     const lowercasedTerm = searchTerm.toLowerCase().trim();
     if (!lowercasedTerm) return;
@@ -78,16 +73,6 @@ function SearchPageComponent() {
     });
   }, []);
   
-  const removeRecentSearch = (searchTerm: string, e: React.MouseEvent) => {
-    e.stopPropagation();
-    const newSearches = recentSearches.filter(s => s !== searchTerm);
-    saveRecentSearches(newSearches);
-  }
-
-  const clearRecentSearches = () => {
-    saveRecentSearches([]);
-  }
-
   const performSearch = useCallback((searchTerm: string) => {
     const term = searchTerm.trim();
     if (!term) {
@@ -215,9 +200,6 @@ function SearchPageComponent() {
               >
                 <div className="flex justify-between items-center">
                     <h2 className="text-xl font-semibold font-headline tracking-tight">Recent Searches</h2>
-                    {recentSearches.length > 0 && (
-                      <Button variant="ghost" size="sm" onClick={clearRecentSearches} className="text-muted-foreground hover:text-foreground">Clear all</Button>
-                    )}
                 </div>
                 <motion.div
                   className="flex flex-wrap gap-3"
@@ -238,12 +220,9 @@ function SearchPageComponent() {
                           whileTap={{ scale: 0.95 }}
                           className="group flex items-center bg-secondary rounded-full cursor-pointer"
                         >
-                          <span onClick={() => setQuery(term)} className="py-2 pl-4 pr-3 font-medium capitalize text-secondary-foreground text-sm">
+                          <span onClick={() => setQuery(term)} className="py-2 px-4 font-medium capitalize text-secondary-foreground text-sm">
                             {term}
                           </span>
-                          <button onClick={(e) => removeRecentSearch(term, e)} className="p-2 mr-1 rounded-full text-muted-foreground hover:bg-background/60 hover:text-foreground transition-colors">
-                            <X className="h-4 w-4" />
-                          </button>
                         </motion.div>
                     ))}
                   </AnimatePresence>
