@@ -2,21 +2,30 @@
 'use client';
 
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import { auth, googleProvider } from '@/lib/firebase';
+import { 
+  onAuthStateChanged, 
+  signInWithPopup, 
+  signOut,
+  User as FirebaseUser
+} from 'firebase/auth';
 
 interface User {
   name: string;
   email?: string;
   phone?: string;
   avatarSeed?: string;
-  avatarUrl?: string; // For custom uploaded avatars
+  avatarUrl?: string; // For custom uploaded avatars or from Google
   username?: string;
   bio?: string;
 }
 
 interface AuthContextType {
   user: User | null;
+  loading: boolean;
   login: (user: User) => void;
   logout: () => void;
+  signInWithGoogle: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -28,16 +37,36 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    try {
-      const storedUser = localStorage.getItem(LOCAL_STORAGE_KEY);
-      if (storedUser) {
-        setUser(JSON.parse(storedUser));
-      }
-    } catch (error) {
-        console.error("Failed to parse user from localStorage", error);
+    const unsubscribe = onAuthStateChanged(auth, (firebaseUser: FirebaseUser | null) => {
+      if (firebaseUser) {
+        // User is signed in with Firebase
+        const storedUser = localStorage.getItem(LOCAL_STORAGE_KEY);
+        let appUser: User;
+        if (storedUser) {
+            appUser = JSON.parse(storedUser);
+            // Ensure Firebase data (like photoURL) is up-to-date
+            appUser.name = firebaseUser.displayName || appUser.name;
+            appUser.email = firebaseUser.email || appUser.email;
+            appUser.avatarUrl = firebaseUser.photoURL || appUser.avatarUrl;
+        } else {
+            // New Firebase user, create a profile
+            appUser = {
+                name: firebaseUser.displayName || 'New User',
+                email: firebaseUser.email || '',
+                avatarUrl: firebaseUser.photoURL || undefined,
+            };
+        }
+        setUser(appUser);
+        localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(appUser));
+      } else {
+        // User is signed out
+        setUser(null);
         localStorage.removeItem(LOCAL_STORAGE_KEY);
-    }
-    setLoading(false);
+      }
+      setLoading(false);
+    });
+
+    return () => unsubscribe();
   }, []);
 
   const login = (userData: User) => {
@@ -49,18 +78,39 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(userToSave));
   };
 
-  const logout = () => {
-    setUser(null);
-    localStorage.removeItem(LOCAL_STORAGE_KEY);
+  const signInWithGoogle = async () => {
+    try {
+      const result = await signInWithPopup(auth, googleProvider);
+      const firebaseUser = result.user;
+      const appUser: User = {
+        name: firebaseUser.displayName || 'Friend',
+        email: firebaseUser.email || '',
+        avatarUrl: firebaseUser.photoURL || undefined,
+      };
+      login(appUser);
+    } catch (error) {
+      console.error("Error during Google sign-in:", error);
+      // Handle errors here, e.g., show a toast message
+    }
+  };
+
+  const logout = async () => {
+    try {
+        await signOut(auth);
+        setUser(null);
+        localStorage.removeItem(LOCAL_STORAGE_KEY);
+    } catch (error) {
+        console.error("Error signing out:", error);
+    }
   };
   
-  // Don't render children until we've checked for a user in localStorage
+  // Don't render children until we've checked for a user in localStorage/Firebase
   if (loading) {
-      return null;
+      return null; // Or a loading spinner
   }
 
   return (
-    <AuthContext.Provider value={{ user, login, logout }}>
+    <AuthContext.Provider value={{ user, loading, login, logout, signInWithGoogle }}>
       {children}
     </AuthContext.Provider>
   );
@@ -73,5 +123,3 @@ export const useAuth = () => {
   }
   return context;
 };
-
-    

@@ -39,7 +39,7 @@ import {
 } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { Textarea } from '@/components/ui/textarea';
 import { motion } from 'framer-motion';
 import { GoogleIcon } from '@/components/google-icon';
@@ -101,14 +101,25 @@ function LoggedInView() {
   const { user, logout, login } = useAuth();
   const fileInputRef = useRef<HTMLInputElement>(null);
   
-  const [name, setName] = useState(user?.name || '');
-  const [username, setUsername] = useState(user?.username || '');
-  const [bio, setBio] = useState(user?.bio || '');
-  const [email, setEmail] = useState(user?.email || '');
-  const [phone, setPhone] = useState(user?.phone || '');
-  const [avatarSeed, setAvatarSeed] = useState(user?.avatarSeed || 'default');
-  const [customAvatar, setCustomAvatar] = useState<string | null>(user?.avatarUrl || null);
+  const [name, setName] = useState('');
+  const [username, setUsername] = useState('');
+  const [bio, setBio] = useState('');
+  const [email, setEmail] = useState('');
+  const [phone, setPhone] = useState('');
+  const [avatarSeed, setAvatarSeed] = useState('default');
+  const [customAvatar, setCustomAvatar] = useState<string | null>(null);
 
+  useEffect(() => {
+    if (user) {
+        setName(user.name || '');
+        setUsername(user.username || '');
+        setBio(user.bio || '');
+        setEmail(user.email || '');
+        setPhone(user.phone || '');
+        setAvatarSeed(user.avatarSeed || user.name || 'default');
+        setCustomAvatar(user.avatarUrl || null);
+    }
+  }, [user]);
 
   const handleSaveChanges = () => {
     if (user) {
@@ -134,10 +145,13 @@ function LoggedInView() {
   };
   
   const getAvatarSrc = () => {
+    if (customAvatar) {
+        return customAvatar;
+    }
     if (user?.avatarUrl) {
       return user.avatarUrl;
     }
-    return `https://api.dicebear.com/8.x/bottts-neutral/svg?seed=${user?.avatarSeed || user?.name}`;
+    return `https://api.dicebear.com/8.x/bottts-neutral/svg?seed=${avatarSeed}`;
   }
 
   return (
@@ -259,7 +273,7 @@ function LoggedInView() {
                      <Label className="text-right">Avatar</Label>
                      <div className="col-span-3 flex items-center gap-2">
                         <Avatar>
-                            <AvatarImage src={customAvatar || `https://api.dicebear.com/8.x/bottts-neutral/svg?seed=${avatarSeed}`} alt={name} />
+                            <AvatarImage src={getAvatarSrc()} alt={name} />
                             <AvatarFallback>{name?.[0]}</AvatarFallback>
                         </Avatar>
                         <Button variant="ghost" size="icon" onClick={randomizeAvatar}>
@@ -332,6 +346,7 @@ function LoggedInView() {
 }
 
 function GuestView() {
+  const { signInWithGoogle } = useAuth();
   return (
     <Card className="w-full max-w-md animate-in fade-in-50 zoom-in-95">
       <CardHeader className="text-center">
@@ -359,7 +374,7 @@ function GuestView() {
                 </Link>
                 </Button>
             </div>
-            <Button variant="outline" className="w-full">
+            <Button variant="outline" className="w-full" onClick={signInWithGoogle}>
                 <GoogleIcon className="mr-2 h-4 w-4" />
                 Sign In with Google
             </Button>
@@ -403,7 +418,15 @@ function GuestView() {
 }
 
 export default function ProfilePage() {
-  const { user } = useAuth();
+  const { user, loading } = useAuth();
+  
+  if (loading) {
+      return (
+          <div className="flex items-center justify-center h-full">
+              {/* You can add a skeleton loader here */}
+          </div>
+      )
+  }
 
   return (
       <div className="flex flex-col items-center justify-center h-full">

@@ -14,7 +14,7 @@ import { motion } from 'framer-motion';
 import { GoogleIcon } from '@/components/google-icon';
 
 export default function LoginPage() {
-  const { login } = useAuth();
+  const { login, signInWithGoogle } = useAuth();
   const router = useRouter();
 
   const handleLogin = (e: React.FormEvent) => {
@@ -23,6 +23,11 @@ export default function LoginPage() {
     // For now, we'll just log in a mock user.
     const mockUser = { name: 'Ariyan' };
     login(mockUser);
+    router.push('/profile');
+  };
+  
+  const handleGoogleSignIn = async () => {
+    await signInWithGoogle();
     router.push('/profile');
   };
 
@@ -67,7 +72,7 @@ export default function LoginPage() {
                     </span>
                 </div>
             </div>
-            <Button variant="outline" className="w-full">
+            <Button variant="outline" className="w-full" onClick={handleGoogleSignIn}>
                 <GoogleIcon className="mr-2 h-4 w-4" />
                 Sign In with Google
             </Button>
