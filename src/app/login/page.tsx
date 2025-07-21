@@ -8,7 +8,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Music } from 'lucide-react';
+import { Music, Phone } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
 import { motion } from 'framer-motion';
 import { GoogleIcon } from '@/components/google-icon';
@@ -72,10 +72,16 @@ export default function LoginPage() {
                     </span>
                 </div>
             </div>
-            <Button variant="outline" className="w-full" onClick={handleGoogleSignIn}>
-                <GoogleIcon className="mr-2 h-4 w-4" />
-                Sign In with Google
-            </Button>
+            <div className="space-y-2">
+              <Button variant="outline" className="w-full">
+                  <Phone className="mr-2 h-4 w-4" />
+                  Sign In with Phone
+              </Button>
+              <Button variant="outline" className="w-full" onClick={handleGoogleSignIn}>
+                  <GoogleIcon className="mr-2 h-4 w-4" />
+                  Sign In with Google
+              </Button>
+            </div>
           </CardContent>
           <CardFooter className="text-center text-sm">
             <p className="w-full">

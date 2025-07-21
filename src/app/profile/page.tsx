@@ -359,7 +359,7 @@ function GuestView() {
         </CardDescription>
       </CardHeader>
       <CardContent className="flex flex-col gap-4 px-6 pt-4">
-        <div className="flex flex-col gap-4">
+        <div className="flex flex-col gap-2">
             <div className="flex justify-center items-center gap-4">
                 <Button asChild className="w-full">
                 <Link href="/login">
@@ -374,6 +374,10 @@ function GuestView() {
                 </Link>
                 </Button>
             </div>
+            <Button variant="outline" className="w-full">
+                <Phone className="mr-2 h-4 w-4" />
+                Sign In with Phone
+            </Button>
             <Button variant="outline" className="w-full" onClick={signInWithGoogle}>
                 <GoogleIcon className="mr-2 h-4 w-4" />
                 Sign In with Google
