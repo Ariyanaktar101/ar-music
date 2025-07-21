@@ -42,6 +42,7 @@ import { Label } from '@/components/ui/label';
 import React, { useState, useRef } from 'react';
 import { Textarea } from '@/components/ui/textarea';
 import { motion } from 'framer-motion';
+import { GoogleIcon } from '@/components/google-icon';
 
 function SnapchatIcon(props: React.SVGProps<SVGSVGElement>) {
   return (
@@ -343,18 +344,24 @@ function GuestView() {
         </CardDescription>
       </CardHeader>
       <CardContent className="flex flex-col gap-4 px-6 pt-4">
-        <div className="flex justify-center items-center gap-4">
-            <Button asChild className="w-full">
-            <Link href="/login">
-                <LogIn />
-                Log In
-            </Link>
-            </Button>
-            <Button asChild variant="secondary" className="w-full">
-            <Link href="/signup">
-                <UserPlus />
-                Sign Up
-            </Link>
+        <div className="flex flex-col gap-4">
+            <div className="flex justify-center items-center gap-4">
+                <Button asChild className="w-full">
+                <Link href="/login">
+                    <LogIn />
+                    Log In
+                </Link>
+                </Button>
+                <Button asChild variant="secondary" className="w-full">
+                <Link href="/signup">
+                    <UserPlus />
+                    Sign Up
+                </Link>
+                </Button>
+            </div>
+            <Button variant="outline" className="w-full">
+                <GoogleIcon className="mr-2 h-4 w-4" />
+                Sign In with Google
             </Button>
         </div>
         <Button asChild variant="outline" className="w-full">
