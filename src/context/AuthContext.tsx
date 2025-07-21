@@ -103,11 +103,6 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         console.error("Error signing out:", error);
     }
   };
-  
-  // Don't render children until we've checked for a user in localStorage/Firebase
-  if (loading) {
-      return null; // Or a loading spinner
-  }
 
   return (
     <AuthContext.Provider value={{ user, loading, login, logout, signInWithGoogle }}>

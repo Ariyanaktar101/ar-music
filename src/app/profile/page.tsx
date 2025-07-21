@@ -43,7 +43,8 @@ import React, { useState, useRef, useEffect } from 'react';
 import { Textarea } from '@/components/ui/textarea';
 import { motion } from 'framer-motion';
 import { GoogleIcon } from '@/components/google-icon';
-import { PhoneAuthForm } from '@/components/phone-auth-form';
+import { Skeleton } from '@/components/ui/skeleton';
+
 
 function SnapchatIcon(props: React.SVGProps<SVGSVGElement>) {
   return (
@@ -356,47 +357,14 @@ function GuestView() {
           <WavingDoraemon />
         </CardTitle>
         <CardDescription className="text-md text-muted-foreground pt-2">
-          Sign up or log in to customize your experience.
+          Sign in to customize your experience.
         </CardDescription>
       </CardHeader>
       <CardContent className="flex flex-col gap-4 px-6 pt-4">
-        <div className="flex flex-col gap-2">
-            <div className="flex justify-center items-center gap-4">
-                <Button asChild className="w-full">
-                <Link href="/login">
-                    <LogIn />
-                    Log In
-                </Link>
-                </Button>
-                <Button asChild variant="secondary" className="w-full">
-                <Link href="/signup">
-                    <UserPlus />
-                    Sign Up
-                </Link>
-                </Button>
-            </div>
-            <Dialog>
-              <DialogTrigger asChild>
-                <Button variant="outline" className="w-full">
-                  <Phone className="mr-2 h-4 w-4" />
-                  Sign In with Phone
-                </Button>
-              </DialogTrigger>
-              <DialogContent>
-                <DialogHeader>
-                  <DialogTitle>Sign In with Phone</DialogTitle>
-                  <DialogDescription>
-                    Enter your phone number to receive a verification code.
-                  </DialogDescription>
-                </DialogHeader>
-                <PhoneAuthForm />
-              </DialogContent>
-            </Dialog>
-            <Button variant="outline" className="w-full" onClick={signInWithGoogle}>
-                <GoogleIcon className="mr-2 h-4 w-4" />
-                Sign In with Google
-            </Button>
-        </div>
+        <Button variant="outline" className="w-full" onClick={signInWithGoogle}>
+            <GoogleIcon className="mr-2 h-4 w-4" />
+            Sign In with Google
+        </Button>
         <Button asChild variant="outline" className="w-full">
             <Link href="/settings">
                 <Settings />
@@ -435,13 +403,35 @@ function GuestView() {
   );
 }
 
+function ProfileSkeleton() {
+    return (
+        <Card className="w-full max-w-md">
+            <CardHeader className="text-center items-center">
+                <Skeleton className="h-24 w-24 rounded-full mb-4" />
+                <Skeleton className="h-8 w-48" />
+                <Skeleton className="h-4 w-64 mt-2" />
+            </CardHeader>
+            <CardContent className="px-6 pt-4 space-y-4">
+                <div className="grid grid-cols-2 gap-4">
+                    <Skeleton className="h-10 w-full" />
+                    <Skeleton className="h-10 w-full" />
+                </div>
+            </CardContent>
+            <CardFooter className="flex-col gap-4 pt-6">
+                 <Skeleton className="h-10 w-1/2" />
+                 <Skeleton className="h-8 w-3/4 mt-2" />
+            </CardFooter>
+        </Card>
+    )
+}
+
 export default function ProfilePage() {
   const { user, loading } = useAuth();
   
   if (loading) {
       return (
-          <div className="flex items-center justify-center h-full">
-              {/* You can add a skeleton loader here */}
+          <div className="flex flex-col items-center justify-center h-full">
+              <ProfileSkeleton />
           </div>
       )
   }
