@@ -12,6 +12,8 @@ import { Music, Phone } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
 import { motion } from 'framer-motion';
 import { GoogleIcon } from '@/components/google-icon';
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { PhoneAuthForm } from '@/components/phone-auth-form';
 
 export default function LoginPage() {
   const { login, signInWithGoogle } = useAuth();
@@ -73,10 +75,23 @@ export default function LoginPage() {
                 </div>
             </div>
             <div className="space-y-2">
-              <Button variant="outline" className="w-full">
-                  <Phone className="mr-2 h-4 w-4" />
-                  Sign In with Phone
-              </Button>
+              <Dialog>
+                <DialogTrigger asChild>
+                  <Button variant="outline" className="w-full">
+                      <Phone className="mr-2 h-4 w-4" />
+                      Sign In with Phone
+                  </Button>
+                </DialogTrigger>
+                <DialogContent>
+                  <DialogHeader>
+                    <DialogTitle>Sign In with Phone</DialogTitle>
+                    <DialogDescription>
+                      Enter your phone number to receive a verification code.
+                    </DialogDescription>
+                  </DialogHeader>
+                  <PhoneAuthForm />
+                </DialogContent>
+              </Dialog>
               <Button variant="outline" className="w-full" onClick={handleGoogleSignIn}>
                   <GoogleIcon className="mr-2 h-4 w-4" />
                   Sign In with Google

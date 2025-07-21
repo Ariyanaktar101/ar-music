@@ -43,6 +43,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import { Textarea } from '@/components/ui/textarea';
 import { motion } from 'framer-motion';
 import { GoogleIcon } from '@/components/google-icon';
+import { PhoneAuthForm } from '@/components/phone-auth-form';
 
 function SnapchatIcon(props: React.SVGProps<SVGSVGElement>) {
   return (
@@ -374,10 +375,23 @@ function GuestView() {
                 </Link>
                 </Button>
             </div>
-            <Button variant="outline" className="w-full">
-                <Phone className="mr-2 h-4 w-4" />
-                Sign In with Phone
-            </Button>
+            <Dialog>
+              <DialogTrigger asChild>
+                <Button variant="outline" className="w-full">
+                  <Phone className="mr-2 h-4 w-4" />
+                  Sign In with Phone
+                </Button>
+              </DialogTrigger>
+              <DialogContent>
+                <DialogHeader>
+                  <DialogTitle>Sign In with Phone</DialogTitle>
+                  <DialogDescription>
+                    Enter your phone number to receive a verification code.
+                  </DialogDescription>
+                </DialogHeader>
+                <PhoneAuthForm />
+              </DialogContent>
+            </Dialog>
             <Button variant="outline" className="w-full" onClick={signInWithGoogle}>
                 <GoogleIcon className="mr-2 h-4 w-4" />
                 Sign In with Google
