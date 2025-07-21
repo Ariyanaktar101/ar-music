@@ -55,10 +55,14 @@ export function PhoneAuthForm() {
       toast({ title: 'OTP Sent!', description: 'Check your phone for the verification code.' });
     } catch (error: any) {
       console.error('Error sending OTP:', error);
+      let description = error.message || 'Please check the phone number and try again.';
+      if (error.code === 'auth/billing-not-enabled') {
+        description = 'Phone Authentication is a premium feature. Please enable billing on your Firebase project to use it.';
+      }
       toast({
         variant: 'destructive',
         title: 'Failed to send OTP',
-        description: error.message || 'Please check the phone number and try again.',
+        description: description,
       });
       // Reset reCAPTCHA
       if (window.recaptchaVerifier) {
