@@ -24,14 +24,14 @@ import {
 const LOCAL_STORAGE_RECENT_SEARCHES = 'ar-music-recent-searches';
 
 const exploreCategories = [
-    'Lofi / Chill',
+    'Lofi',
     'Romantic',
-    'Sad / Heartbreak',
-    'Dance / Party',
+    'Sad',
+    'Party',
     'Item Songs',
-    'Indie / Non-Film',
-    'Bihari / Bhojpuri',
-    'Bengali Songs'
+    'Indie',
+    'Bhojpuri',
+    'Bengali'
 ]
 
 function NewlyAddedSkeleton() {
