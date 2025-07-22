@@ -34,6 +34,18 @@ const exploreCategories = [
     'Bengali'
 ]
 
+const categorySearchTerms: { [key: string]: string } = {
+  'Lofi': 'lofi songs',
+  'Romantic': 'romantic songs',
+  'Sad': 'sad songs',
+  'Party': 'party songs',
+  'Item Songs': 'item songs',
+  'Indie': 'indian indie',
+  'Bhojpuri': 'bhojpuri songs',
+  'Bengali': 'bengali songs'
+};
+
+
 function NewlyAddedSkeleton() {
     return (
         <div className="space-y-2">
@@ -88,7 +100,7 @@ function SearchPageComponent() {
     });
   }, []);
   
-  const performSearch = useCallback((searchTerm: string) => {
+  const performSearch = useCallback((searchTerm: string, isCategoryClick = false) => {
     const term = searchTerm.trim();
     if (!term) {
       setResults([]);
@@ -96,9 +108,14 @@ function SearchPageComponent() {
       return;
     }
     setHasSearched(true);
-    addRecentSearch(term);
+    if (!isCategoryClick) {
+      addRecentSearch(term);
+    }
+    
+    const finalSearchTerm = isCategoryClick ? (categorySearchTerms[term] || term) : term;
+
     startTransition(async () => {
-      const searchResults = await handleSearch(term, 100);
+      const searchResults = await handleSearch(finalSearchTerm, 100);
       setResults(searchResults);
     });
   }, [addRecentSearch]);
@@ -125,7 +142,7 @@ function SearchPageComponent() {
 
   useEffect(() => {
     if (debouncedQuery) {
-      performSearch(debouncedQuery);
+      performSearch(debouncedQuery, exploreCategories.includes(debouncedQuery));
     } else {
       if (!initialGenre || (initialGenre && query === '')) {
          setResults([]);
