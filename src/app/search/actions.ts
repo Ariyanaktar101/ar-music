@@ -4,7 +4,7 @@
 import type { Song } from '@/lib/types';
 import { mapSaavnSongToSong } from '@/lib/jiosaavn-api';
 
-export async function handleSearch(query: string, limit: number = 20): Promise<Song[]> {
+export async function handleSearch(query: string, limit: number = 100): Promise<Song[]> {
   if (!query) return [];
 
   try {
