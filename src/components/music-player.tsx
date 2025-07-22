@@ -3,7 +3,7 @@
 
 import React from 'react';
 import Image from 'next/image';
-import { Play, Pause, SkipBack, SkipForward, Volume2, VolumeX, X, Heart, ChevronDown, Shuffle, Repeat, Mic2, Loader, Music, MoreVertical, PlusSquare, Download, RadioTower, Album } from 'lucide-react';
+import { Play, Pause, SkipBack, SkipForward, Volume2, VolumeX, X, Heart, ChevronDown, Shuffle, Repeat, Mic2, Loader, Music, MoreVertical, PlusSquare, Download, ListMusic } from 'lucide-react';
 import { Slider } from '@/components/ui/slider';
 import { Button } from '@/components/ui/button';
 import { useMusicPlayer } from '@/context/MusicPlayerContext';
@@ -22,6 +22,7 @@ import {
   DropdownMenuPortal,
 } from '@/components/ui/dropdown-menu';
 import { motion, PanInfo, useAnimation } from 'framer-motion';
+import Link from 'next/link';
 
 function MoreOptionsButton() {
     const { currentSong, playlists, addSongToPlaylist, toggleLyricsView, downloadSong } = useMusicPlayer();
@@ -76,7 +77,6 @@ function MoreOptionsButton() {
 function ExpandedPlayer() {
   const { 
     currentSong, 
-    nextSong,
     isPlaying, 
     togglePlayPause, 
     progress, 
@@ -329,21 +329,6 @@ function ExpandedPlayer() {
             </Button>
         </div>
         
-        {nextSong && (
-            <div className="p-2 bg-secondary/50 rounded-md">
-                <div className="flex items-center gap-3">
-                    <Image src={nextSong.coverArt} alt={nextSong.title} width={32} height={32} className="rounded" />
-                    <div className="flex-1 overflow-hidden">
-                        <p className="text-xs text-muted-foreground">Up Next</p>
-                        <p className="text-sm font-medium truncate">{nextSong.title}</p>
-                    </div>
-                     <Button variant="ghost" size="icon" className="w-8 h-8 flex-shrink-0" onClick={skipForward}>
-                        <SkipForward className="h-4 w-4" />
-                    </Button>
-                </div>
-            </div>
-        )}
-
         <div className="flex items-center justify-between gap-4 pt-1">
              <Button variant="ghost" size="icon" onClick={handleMuteToggle}>
                 {isMuted || volume === 0 ? <VolumeX className="h-5 w-5 text-muted-foreground" /> : <Volume2 className="h-5 w-5 text-muted-foreground" />}
@@ -355,6 +340,11 @@ function ExpandedPlayer() {
               onValueChange={handleVolumeChange}
               className="w-full h-1 relative [&>span:first-child]:h-1 [&>span>span]:h-1 [&>span>span]:bg-white/40 [&>a]:h-3 [&>a]:w-3"
             />
+            <Button variant="ghost" size="icon" asChild>
+                <Link href="/queue">
+                    <ListMusic className="h-5 w-5" />
+                </Link>
+            </Button>
              <Button variant="ghost" size="icon" onClick={toggleLyricsView} className={cn(showLyrics && "text-primary")}>
                 <Mic2 className="h-5 w-5" />
             </Button>
@@ -531,6 +521,11 @@ export function MusicPlayer() {
           <div className="flex items-center gap-2 w-1/4 justify-end">
              <Button variant="ghost" size="icon" onClick={toggleLyricsView} className={cn(showLyrics && "text-primary")}>
                 <Mic2 className="h-5 w-5" />
+            </Button>
+            <Button variant="ghost" size="icon" asChild>
+                <Link href="/queue">
+                    <ListMusic className="h-5 w-5" />
+                </Link>
             </Button>
             <Popover>
                 <PopoverTrigger asChild>

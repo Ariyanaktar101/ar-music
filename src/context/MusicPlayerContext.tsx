@@ -49,6 +49,9 @@ interface MusicPlayerContextType {
   
   downloadedSongs: Song[];
   downloadSong: (song: Song) => void;
+
+  currentQueue: Song[];
+  shuffledQueue: Song[];
 }
 
 const MusicPlayerContext = createContext<MusicPlayerContextType | undefined>(undefined);
@@ -564,6 +567,8 @@ export const MusicPlayerProvider = ({ children }: { children: React.ReactNode })
     getPlaylistById,
     downloadedSongs,
     downloadSong,
+    currentQueue,
+    shuffledQueue,
   }), [
     loading,
     currentSong,
@@ -601,6 +606,8 @@ export const MusicPlayerProvider = ({ children }: { children: React.ReactNode })
     getPlaylistById,
     downloadedSongs,
     downloadSong,
+    currentQueue,
+    shuffledQueue,
   ]);
 
   return (
