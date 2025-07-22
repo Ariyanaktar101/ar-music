@@ -12,13 +12,13 @@ import { useEffect, useState } from 'react';
 import { Song } from '@/lib/types';
 
 export default function QueuePage() {
-  const { currentSong, currentQueue, shuffledQueue, isShuffled } = useMusicPlayer();
+  const { currentSong, nextSong, currentQueue, shuffledQueue, isShuffled } = useMusicPlayer();
   const router = useRouter();
-  const [orderedQueue, setOrderedQueue] = useState<Song[]>([]);
+  const [upcomingSongs, setUpcomingSongs] = useState<Song[]>([]);
 
   useEffect(() => {
     if (!currentSong) {
-      setOrderedQueue([]);
+      setUpcomingSongs([]);
       return;
     }
 
@@ -26,16 +26,13 @@ export default function QueuePage() {
     const currentIndex = queueToUse.findIndex(s => s.id === currentSong.id);
 
     if (currentIndex === -1) {
-      setOrderedQueue([]);
+      setUpcomingSongs([]);
       return;
     }
 
-    const upcomingSongs = queueToUse.slice(currentIndex + 1);
-    const pastSongs = queueToUse.slice(0, currentIndex);
-    
-    // For a non-looping queue, this is correct. If it loops, this might need adjustment.
-    setOrderedQueue([...upcomingSongs, ...pastSongs]);
-
+    // Songs after the current one in the queue
+    const upcoming = queueToUse.slice(currentIndex + 1);
+    setUpcomingSongs(upcoming);
 
   }, [currentSong, currentQueue, shuffledQueue, isShuffled]);
 
@@ -65,10 +62,10 @@ export default function QueuePage() {
                     <SongList songs={[currentSong]} />
                 </div>
             
-                {orderedQueue.length > 0 && (
+                {upcomingSongs.length > 0 && (
                     <div>
-                        <h2 className="text-lg font-semibold text-muted-foreground mb-2">Next in Queue</h2>
-                        <SongList songs={orderedQueue} />
+                        <h2 className="text-lg font-semibold text-muted-foreground mb-2 mt-6">Next in Queue</h2>
+                        <SongList songs={upcomingSongs} />
                     </div>
                 )}
             </div>

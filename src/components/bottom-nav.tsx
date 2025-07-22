@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { Home, Search, Library, User, ListMusic } from 'lucide-react';
+import { Home, Search, Library, User } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useMusicPlayer } from '@/context/MusicPlayerContext';
 
@@ -13,7 +13,6 @@ export function BottomNavBar() {
   const navItems = [
     { href: '/', label: 'Home', icon: Home },
     { href: '/search', label: 'Search', icon: Search },
-    { href: '/queue', label: 'Queue', icon: ListMusic, show: !!currentSong },
     { href: '/library', label: 'Library', icon: Library },
     { href: '/profile', label: 'Profile', icon: User },
   ];
@@ -21,7 +20,7 @@ export function BottomNavBar() {
   return (
     <div className="md:hidden fixed bottom-0 left-0 right-0 bg-background/95 backdrop-blur-sm border-t z-50">
       <nav className="flex justify-around items-center h-16">
-        {navItems.filter(item => item.show !== false).map((item) => {
+        {navItems.map((item) => {
           const isActive = pathname === item.href;
           return (
             <Link
