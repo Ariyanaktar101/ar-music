@@ -3,7 +3,7 @@
 
 import React from 'react';
 import Image from 'next/image';
-import { Play, Pause, SkipBack, SkipForward, Volume2, VolumeX, X, Heart, ChevronDown, Shuffle, Repeat, Mic2, Loader, Music, MoreVertical, PlusSquare, Download, RadioTower } from 'lucide-react';
+import { Play, Pause, SkipBack, SkipForward, Volume2, VolumeX, X, Heart, ChevronDown, Shuffle, Repeat, Mic2, Loader, Music, MoreVertical, PlusSquare, Download, RadioTower, Album } from 'lucide-react';
 import { Slider } from '@/components/ui/slider';
 import { Button } from '@/components/ui/button';
 import { useMusicPlayer } from '@/context/MusicPlayerContext';
@@ -76,6 +76,7 @@ function MoreOptionsButton() {
 function ExpandedPlayer() {
   const { 
     currentSong, 
+    nextSong,
     isPlaying, 
     togglePlayPause, 
     progress, 
@@ -98,10 +99,6 @@ function ExpandedPlayer() {
     currentLineIndex,
     isShuffled,
     toggleShuffle,
-    lyricAnalysis,
-    loadingLyricAnalysis,
-    isRadioMode,
-    toggleRadioMode,
   } = useMusicPlayer();
   
   const controls = useAnimation();
@@ -286,15 +283,6 @@ function ExpandedPlayer() {
             <div className="flex-1 text-left overflow-hidden">
               <h2 className="text-2xl font-bold truncate">{currentSong.title}</h2>
               <p className="text-muted-foreground truncate">{currentSong.artist}</p>
-               {loadingLyricAnalysis ? (
-                 <div className="h-4 w-24 bg-muted rounded-md animate-pulse mt-1"></div>
-               ) : lyricAnalysis ? (
-                <div className="text-xs text-muted-foreground capitalize flex items-center gap-2 mt-1">
-                  <span>{lyricAnalysis.mood}</span>
-                  <span className="h-1 w-1 rounded-full bg-muted-foreground"></span>
-                  <span>{lyricAnalysis.theme}</span>
-                </div>
-               ) : null}
             </div>
             <Button variant="ghost" size="icon" onClick={() => toggleFavorite(currentSong.id)}>
               <Heart className={cn("h-6 w-6", currentSongIsFavorite ? "fill-red-500 text-red-500" : "text-muted-foreground")} />
@@ -304,7 +292,7 @@ function ExpandedPlayer() {
       </motion.div>
       
       <motion.div 
-         className="flex-shrink-0 px-6 pb-6 space-y-3"
+         className="flex-shrink-0 px-6 pb-2 space-y-3"
          variants={itemVariants}
          initial="hidden"
          animate={isExpanded ? "visible" : "hidden"}
@@ -336,10 +324,25 @@ function ExpandedPlayer() {
             <Button variant="ghost" size="icon" onClick={skipForward}>
                 <SkipForward className="h-6 w-6" />
             </Button>
-            <Button variant="ghost" size="icon" onClick={toggleRadioMode} >
-                <RadioTower className={cn("h-5 w-5", isRadioMode ? "text-primary" : "text-muted-foreground")} />
+            <Button variant="ghost" size="icon" onClick={() => {}}>
+                <Repeat className={cn("h-5 w-5 text-muted-foreground")} />
             </Button>
         </div>
+        
+        {nextSong && (
+            <div className="p-2 bg-secondary/50 rounded-md">
+                <div className="flex items-center gap-3">
+                    <Image src={nextSong.coverArt} alt={nextSong.title} width={32} height={32} className="rounded" />
+                    <div className="flex-1 overflow-hidden">
+                        <p className="text-xs text-muted-foreground">Up Next</p>
+                        <p className="text-sm font-medium truncate">{nextSong.title}</p>
+                    </div>
+                     <Button variant="ghost" size="icon" className="w-8 h-8 flex-shrink-0" onClick={skipForward}>
+                        <SkipForward className="h-4 w-4" />
+                    </Button>
+                </div>
+            </div>
+        )}
 
         <div className="flex items-center justify-between gap-4 pt-1">
              <Button variant="ghost" size="icon" onClick={handleMuteToggle}>
@@ -389,8 +392,6 @@ export function MusicPlayer() {
     toggleLyricsView,
     isShuffled,
     toggleShuffle,
-    isRadioMode,
-    toggleRadioMode,
   } = useMusicPlayer();
   
   const compactPlayerControls = useAnimation();
@@ -510,8 +511,8 @@ export function MusicPlayer() {
               <Button variant="ghost" size="icon" onClick={skipForward}>
                 <SkipForward className="h-5 w-5" />
               </Button>
-               <Button variant="ghost" size="icon" onClick={toggleRadioMode}>
-                <RadioTower className={cn("h-5 w-5", isRadioMode ? "text-primary" : "text-muted-foreground")} />
+               <Button variant="ghost" size="icon" onClick={() => {}}>
+                <Repeat className={cn("h-5 w-5 text-muted-foreground")} />
               </Button>
             </div>
             <div className="w-full flex items-center gap-2">

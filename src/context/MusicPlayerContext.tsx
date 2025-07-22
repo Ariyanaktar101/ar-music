@@ -5,18 +5,12 @@ import React, { createContext, useContext, useState, useRef, useEffect, useCallb
 import type { Song, Playlist } from '@/lib/types';
 import { getLyrics, GetLyricsOutput } from '@/ai/flows/get-lyrics-flow';
 import { generatePlaylistArt } from '@/ai/flows/generate-playlist-art-flow';
-import { getRelatedSongs } from '@/ai/flows/get-related-songs-flow';
-import { handleSearch } from '@/app/search/actions';
 import { useToast } from '@/hooks/use-toast';
-
-interface LyricAnalysis {
-    mood: string;
-    theme: string;
-}
 
 interface MusicPlayerContextType {
   loading: boolean;
   currentSong: Song | null;
+  nextSong: Song | null;
   isPlaying: boolean;
   playSong: (song: Song, queue?: Song[]) => void;
   togglePlayPause: () => void;
@@ -40,9 +34,6 @@ interface MusicPlayerContextType {
   
   isShuffled: boolean;
   toggleShuffle: () => void;
-  
-  isRadioMode: boolean;
-  toggleRadioMode: () => void;
 
   showLyrics: boolean;
   lyrics: string | null;
@@ -58,9 +49,6 @@ interface MusicPlayerContextType {
   
   downloadedSongs: Song[];
   downloadSong: (song: Song) => void;
-
-  lyricAnalysis: LyricAnalysis | null;
-  loadingLyricAnalysis: boolean;
 }
 
 const MusicPlayerContext = createContext<MusicPlayerContextType | undefined>(undefined);
@@ -69,9 +57,6 @@ interface LyricTimings {
   line: string;
   startTime: number;
 }
-
-const MOOD_TRANSITION_THRESHOLD = 15;
-const ALL_MOODS = ['happy', 'sad', 'energetic', 'calm', 'romantic', 'upbeat'];
 
 const shuffleArray = (array: any[]) => {
   const newArray = [...array];
@@ -86,6 +71,7 @@ const shuffleArray = (array: any[]) => {
 export const MusicPlayerProvider = ({ children }: { children: React.ReactNode }) => {
   const [loading, setLoading] = useState(true);
   const [currentSong, setCurrentSong] = useState<Song | null>(null);
+  const [nextSong, setNextSong] = useState<Song | null>(null);
   const [currentQueue, setCurrentQueue] = useState<Song[]>([]);
   const [shuffledQueue, setShuffledQueue] = useState<Song[]>([]);
   const [isPlaying, setIsPlaying] = useState(false);
@@ -98,20 +84,11 @@ export const MusicPlayerProvider = ({ children }: { children: React.ReactNode })
   const [isExpanded, setIsExpanded] = useState(false);
   const [isShuffled, setIsShuffled] = useState(false);
   
-  // Radio Mode State
-  const [isRadioMode, setIsRadioMode] = useState(false);
-  const [radioQueue, setRadioQueue] = useState<Song[]>([]);
-  const [currentMood, setCurrentMood] = useState<string | null>(null);
-  const [moodSongCount, setMoodSongCount] = useState(0);
-  const radioQueueRef = useRef(radioQueue); // Ref to get the latest state in callbacks
-
   const [showLyrics, setShowLyrics] = useState(false);
   const [lyrics, setLyrics] = useState<string | null>(null);
   const [loadingLyrics, setLoadingLyrics] = useState(false);
   const [currentLineIndex, setCurrentLineIndex] = useState<number | null>(null);
   const [lyricTimings, setLyricTimings] = useState<LyricTimings[]>([]);
-  const [lyricAnalysis, setLyricAnalysis] = useState<LyricAnalysis | null>(null);
-  const [loadingLyricAnalysis, setLoadingLyricAnalysis] = useState(false);
 
   const [playlists, setPlaylists] = useState<Playlist[]>([]);
   
@@ -120,11 +97,6 @@ export const MusicPlayerProvider = ({ children }: { children: React.ReactNode })
   const audioRef = useRef<HTMLAudioElement>(null);
 
   const { toast } = useToast();
-  
-  // Update ref whenever state changes
-  useEffect(() => {
-    radioQueueRef.current = radioQueue;
-  }, [radioQueue]);
 
   useEffect(() => {
     try {
@@ -142,9 +114,6 @@ export const MusicPlayerProvider = ({ children }: { children: React.ReactNode })
 
       const storedShuffle = localStorage.getItem('ar-music-shuffle');
       if (storedShuffle) setIsShuffled(JSON.parse(storedShuffle));
-      
-      const storedRadio = localStorage.getItem('ar-music-radio');
-      if (storedRadio) setIsRadioMode(JSON.parse(storedRadio));
 
     } catch (error) {
       console.error("Failed to parse from localStorage", error);
@@ -177,11 +146,6 @@ export const MusicPlayerProvider = ({ children }: { children: React.ReactNode })
   
   useEffect(() => {
     if (loading) return;
-    localStorage.setItem('ar-music-radio', JSON.stringify(isRadioMode));
-  }, [isRadioMode, loading]);
-
-  useEffect(() => {
-    if (loading) return;
     localStorage.setItem('ar-music-downloads', JSON.stringify(downloadedSongs));
   }, [downloadedSongs, loading]);
   
@@ -189,29 +153,8 @@ export const MusicPlayerProvider = ({ children }: { children: React.ReactNode })
     setRecentlyPlayed(prev => {
         const filtered = prev.filter(s => s.id !== song.id);
         const newRecents = [song, ...filtered];
-        return newRecents.slice(0, 50); // Increased recent history
+        return newRecents.slice(0, 50);
     });
-  }, []);
-
-  const fetchAndSetLyricAnalysis = useCallback(async (song: Song) => {
-        setLoadingLyricAnalysis(true);
-        setLyricAnalysis(null);
-        try {
-            const result = await getLyrics({
-                songTitle: song.title,
-                artist: song.artist,
-                album: song.album,
-            });
-            if (result.analysis) {
-                setLyricAnalysis(result.analysis);
-                return result.analysis;
-            }
-        } catch (error) {
-            console.error("Failed to fetch lyric analysis:", error);
-        } finally {
-            setLoadingLyricAnalysis(false);
-        }
-        return null;
   }, []);
   
   const togglePlayPause = useCallback(() => {
@@ -224,6 +167,16 @@ export const MusicPlayerProvider = ({ children }: { children: React.ReactNode })
       setIsPlaying(!isPlaying);
     }
   }, [isPlaying]);
+
+  const calculateNextSong = useCallback((song: Song, queue: Song[], shuffle: boolean) => {
+    const currentQueueToUse = shuffle ? shuffleArray(queue) : queue;
+    const currentIndex = currentQueueToUse.findIndex(s => s.id === song.id);
+    if (currentIndex !== -1 && currentIndex < currentQueueToUse.length - 1) {
+      setNextSong(currentQueueToUse[currentIndex + 1]);
+    } else {
+      setNextSong(null); // No next song in the current view
+    }
+  }, []);
 
   const playSong = useCallback((song: Song, queue: Song[] = []) => {
     if (!song.url) {
@@ -242,18 +195,15 @@ export const MusicPlayerProvider = ({ children }: { children: React.ReactNode })
     
     setCurrentSong(song);
 
-    if (!isRadioMode) {
-      const newQueue = queue.length > 0 ? queue : [song];
-      setCurrentQueue(newQueue);
-      if (isShuffled) {
-        const otherSongs = newQueue.filter(s => s.id !== song.id);
-        setShuffledQueue([song, ...shuffleArray(otherSongs)]);
-      }
+    const newQueue = queue.length > 0 ? queue : [song];
+    setCurrentQueue(newQueue);
+    if (isShuffled) {
+      const otherSongs = newQueue.filter(s => s.id !== song.id);
+      const newShuffledQueue = [song, ...shuffleArray(otherSongs)];
+      setShuffledQueue(newShuffledQueue);
+      calculateNextSong(song, newShuffledQueue, true);
     } else {
-        // When in radio mode, playing a new song resets the radio queue
-        setCurrentMood(null);
-        setRadioQueue([]);
-        setMoodSongCount(0);
+       calculateNextSong(song, newQueue, false);
     }
 
     addSongToRecents(song);
@@ -262,7 +212,6 @@ export const MusicPlayerProvider = ({ children }: { children: React.ReactNode })
     setLyrics(null);
     setCurrentLineIndex(null);
     setLyricTimings([]);
-    fetchAndSetLyricAnalysis(song);
     
     if (audioRef.current) {
       audioRef.current.src = song.url;
@@ -279,82 +228,7 @@ export const MusicPlayerProvider = ({ children }: { children: React.ReactNode })
         setIsPlaying(false);
       });
     }
-  }, [toast, currentSong, togglePlayPause, isShuffled, addSongToRecents, isRadioMode, fetchAndSetLyricAnalysis]);
-
-  const fillRadioQueue = useCallback(async (seedSong: Song, mood: string) => {
-    try {
-        const related = await getRelatedSongs({ songTitle: seedSong.title, mood: mood });
-        if (!related.queries || related.queries.length === 0) {
-            throw new Error("AI did not return any related song queries.");
-        }
-
-        const searchPromises = related.queries.map(q => handleSearch(q, 1));
-        const searchResults = await Promise.all(searchPromises);
-        
-        const newSongs = searchResults
-            .flat()
-            .filter((song): song is Song => song !== null)
-            .filter(song => song.id !== seedSong.id && !radioQueueRef.current.some(s => s.id === song.id));
-        
-        if (newSongs.length > 0) {
-            setRadioQueue(prev => [...prev, ...newSongs]);
-        } else {
-            // Fallback: if AI songs are not found, search for songs of the same artist
-            const fallbackSongs = await handleSearch(seedSong.artist, 10);
-            const filteredFallback = fallbackSongs.filter(song => song.id !== seedSong.id && !radioQueueRef.current.some(s => s.id === song.id));
-            setRadioQueue(prev => [...prev, ...filteredFallback]);
-        }
-    } catch (error) {
-        console.error("Failed to fill radio queue:", error);
-        // Fallback to a random popular song
-        const fallbackSongs = await handleSearch('top hindi songs', 10);
-        setRadioQueue(prev => [...prev, ...fallbackSongs.filter(s => s.id !== seedSong.id)]);
-    }
-  }, []);
-
-  const playNextSongInRadio = useCallback(async () => {
-    if (!currentSong) return;
-
-    if (radioQueue.length > 0) {
-        const nextSong = radioQueue[0];
-        setRadioQueue(prev => prev.slice(1));
-        playSong(nextSong, [nextSong]);
-        setMoodSongCount(prev => prev + 1);
-        return;
-    }
-
-    // Queue is empty, need to fetch more songs
-    toast({ title: "Finding similar songs...", duration: 2000 });
-    let analysis = lyricAnalysis;
-    if (!analysis) {
-        analysis = await fetchAndSetLyricAnalysis(currentSong);
-    }
-    
-    let moodToUse = currentMood;
-    if (moodSongCount >= MOOD_TRANSITION_THRESHOLD) {
-        // Time to transition mood
-        const otherMoods = ALL_MOODS.filter(m => m !== currentMood);
-        moodToUse = otherMoods[Math.floor(Math.random() * otherMoods.length)];
-        setCurrentMood(moodToUse);
-        setMoodSongCount(0);
-        toast({ title: `Changing mood to ${moodToUse}...`, duration: 2000 });
-    } else if (!moodToUse) {
-        moodToUse = analysis?.mood || 'popular';
-        setCurrentMood(moodToUse);
-    }
-
-    await fillRadioQueue(currentSong, moodToUse);
-    // After filling, check the ref directly as state update is async
-    if (radioQueueRef.current.length > 0) {
-        const nextSong = radioQueueRef.current[0];
-        setRadioQueue(prev => prev.slice(1));
-        playSong(nextSong, [nextSong]);
-        setMoodSongCount(prev => prev + 1);
-    } else {
-        setIsPlaying(false);
-    }
-}, [currentSong, radioQueue, lyricAnalysis, currentMood, moodSongCount, playSong, fillRadioQueue, fetchAndSetLyricAnalysis, toast]);
-
+  }, [toast, currentSong, togglePlayPause, isShuffled, addSongToRecents, calculateNextSong]);
 
   const playNextSongInQueue = useCallback(() => {
     if (!currentSong) return;
@@ -374,19 +248,15 @@ export const MusicPlayerProvider = ({ children }: { children: React.ReactNode })
       nextIndex = 0; // Loop for non-shuffled queue
     }
     
-    const nextSong = queue[nextIndex];
-    if (nextSong) playSong(nextSong, currentQueue);
+    const nextSongToPlay = queue[nextIndex];
+    if (nextSongToPlay) playSong(nextSongToPlay, currentQueue);
     else setIsPlaying(false);
   }, [currentSong, currentQueue, shuffledQueue, isShuffled, playSong]);
 
 
   const handleSongEnd = useCallback(() => {
-      if (isRadioMode) {
-          playNextSongInRadio();
-      } else {
-          playNextSongInQueue();
-      }
-  }, [isRadioMode, playNextSongInRadio, playNextSongInQueue]);
+      playNextSongInQueue();
+  }, [playNextSongInQueue]);
 
   useEffect(() => {
     if (lyrics && duration > 0) {
@@ -457,21 +327,14 @@ export const MusicPlayerProvider = ({ children }: { children: React.ReactNode })
     setIsShuffled(willBeShuffled);
     if (willBeShuffled && currentSong) {
       const otherSongs = currentQueue.filter(s => s.id !== currentSong.id);
-      setShuffledQueue([currentSong, ...shuffleArray(otherSongs)]);
-    } else {
+      const newShuffledQueue = [currentSong, ...shuffleArray(otherSongs)];
+      setShuffledQueue(newShuffledQueue);
+      calculateNextSong(currentSong, newShuffledQueue, true);
+    } else if (currentSong) {
       setShuffledQueue([]);
+      calculateNextSong(currentSong, currentQueue, false);
     }
-  }, [isShuffled, currentSong, currentQueue]);
-  
-  const toggleRadioMode = useCallback(() => {
-    setIsRadioMode(prev => !prev);
-    // When turning radio mode off, clear the radio queue
-    if (isRadioMode) {
-      setRadioQueue([]);
-      setCurrentMood(null);
-      setMoodSongCount(0);
-    }
-  }, [isRadioMode]);
+  }, [isShuffled, currentSong, currentQueue, calculateNextSong]);
 
   const handleProgressChange = useCallback((value: number[]) => {
     if (audioRef.current) {
@@ -495,12 +358,8 @@ export const MusicPlayerProvider = ({ children }: { children: React.ReactNode })
   }, [isMuted, volume]);
   
   const skipForward = useCallback(() => {
-    if (isRadioMode) {
-      playNextSongInRadio();
-    } else {
-      playNextSongInQueue();
-    }
-  }, [isRadioMode, playNextSongInRadio, playNextSongInQueue]);
+    playNextSongInQueue();
+  }, [playNextSongInQueue]);
 
   const skipBackward = useCallback(() => {
     if (audioRef.current && audioRef.current.currentTime > 3) {
@@ -521,6 +380,7 @@ export const MusicPlayerProvider = ({ children }: { children: React.ReactNode })
         audioRef.current.src = '';
       }
       setCurrentSong(null);
+      setNextSong(null);
       setIsPlaying(false);
       setIsExpanded(false);
       setProgress(0);
@@ -554,7 +414,6 @@ export const MusicPlayerProvider = ({ children }: { children: React.ReactNode })
     setLoadingLyrics(true);
     setLyrics(null);
     setCurrentLineIndex(null);
-    await fetchAndSetLyricAnalysis(currentSong);
 
     try {
         const result: GetLyricsOutput = await getLyrics({ 
@@ -573,7 +432,7 @@ export const MusicPlayerProvider = ({ children }: { children: React.ReactNode })
     } finally {
         setLoadingLyrics(false);
     }
-  }, [currentSong, fetchAndSetLyricAnalysis]);
+  }, [currentSong]);
 
   const toggleLyricsView = useCallback(() => {
       const willShow = !showLyrics;
@@ -670,6 +529,7 @@ export const MusicPlayerProvider = ({ children }: { children: React.ReactNode })
   const value = useMemo(() => ({
     loading,
     currentSong,
+    nextSong,
     isPlaying,
     playSong,
     togglePlayPause,
@@ -692,8 +552,6 @@ export const MusicPlayerProvider = ({ children }: { children: React.ReactNode })
     toggleExpandPlayer,
     isShuffled,
     toggleShuffle,
-    isRadioMode,
-    toggleRadioMode,
     showLyrics,
     lyrics,
     loadingLyrics,
@@ -706,11 +564,10 @@ export const MusicPlayerProvider = ({ children }: { children: React.ReactNode })
     getPlaylistById,
     downloadedSongs,
     downloadSong,
-    lyricAnalysis,
-    loadingLyricAnalysis,
   }), [
     loading,
     currentSong,
+    nextSong,
     isPlaying,
     playSong,
     togglePlayPause,
@@ -732,8 +589,6 @@ export const MusicPlayerProvider = ({ children }: { children: React.ReactNode })
     toggleExpandPlayer,
     isShuffled,
     toggleShuffle,
-    isRadioMode,
-    toggleRadioMode,
     showLyrics,
     lyrics,
     loadingLyrics,
@@ -746,8 +601,6 @@ export const MusicPlayerProvider = ({ children }: { children: React.ReactNode })
     getPlaylistById,
     downloadedSongs,
     downloadSong,
-    lyricAnalysis,
-    loadingLyricAnalysis,
   ]);
 
   return (
