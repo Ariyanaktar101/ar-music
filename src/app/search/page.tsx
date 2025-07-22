@@ -13,8 +13,26 @@ import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
 import { motion, AnimatePresence } from 'framer-motion';
 import Link from 'next/link';
+import {
+  Carousel,
+  CarouselContent,
+  CarouselItem,
+  CarouselNext,
+  CarouselPrevious,
+} from "@/components/ui/carousel"
 
 const LOCAL_STORAGE_RECENT_SEARCHES = 'ar-music-recent-searches';
+
+const exploreCategories = [
+    'Lofi / Chill',
+    'Romantic',
+    'Sad / Heartbreak',
+    'Dance / Party',
+    'Item Songs',
+    'Indie / Non-Film',
+    'Bihari / Bhojpuri',
+    'Bengali Songs'
+]
 
 function NewlyAddedSkeleton() {
     return (
@@ -236,17 +254,28 @@ function SearchPageComponent() {
             animate="visible"
           >
               <motion.div variants={initialViewItem} className="space-y-4">
-                 <h2 className="text-lg font-semibold font-headline tracking-tight">
-                  Quick Searches
+                 <h2 className="text-xl font-semibold font-headline tracking-tight">
+                  Explore Categories
                 </h2>
-                <div className="flex flex-wrap gap-3">
-                    <Button asChild variant="outline" size="lg" className="rounded-full">
-                        <Link href={`/search?genre=Bollywood`}>Bollywood</Link>
-                    </Button>
-                    <Button asChild variant="outline" size="lg" className="rounded-full">
-                        <Link href={`/search?genre=Punjabi`}>Punjabi</Link>
-                    </Button>
-                </div>
+                <Carousel
+                  opts={{
+                    align: "start",
+                    dragFree: true,
+                  }}
+                  className="w-full"
+                >
+                  <CarouselContent>
+                    {exploreCategories.map((category) => (
+                      <CarouselItem key={category} className="basis-auto">
+                        <Button asChild variant="outline" className="rounded-full w-full">
+                          <Link href={`/search?genre=${encodeURIComponent(category)}`}>
+                            {category}
+                          </Link>
+                        </Button>
+                      </CarouselItem>
+                    ))}
+                  </CarouselContent>
+                </Carousel>
               </motion.div>
               
               <motion.div variants={initialViewItem}>
