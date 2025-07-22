@@ -86,7 +86,7 @@ function HomeComponent() {
 
   const fetchTrendingSongs = async () => {
     setLoadingTrending(true);
-    const songs = await handleSearch("top music hits", 40);
+    const songs = await handleSearch("top music hits", 100);
     // Filter out specific devotional songs
     const filteredSongs = songs.filter(song => !song.title.toLowerCase().includes('hanuman chalisa'));
     setTrendingSongs(filteredSongs);
@@ -96,7 +96,7 @@ function HomeComponent() {
   const fetchFeaturedHits = useCallback(async () => {
     setLoadingFeaturedHits(true);
     // Fetch a larger pool of songs to allow for randomization
-    const songs = await handleSearch("top music hits", 40);
+    const songs = await handleSearch("top music hits", 100);
     setAllFeaturedHits(songs);
     setLoadingFeaturedHits(false);
   }, []);

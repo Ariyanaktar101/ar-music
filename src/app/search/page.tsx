@@ -106,7 +106,7 @@ function SearchPageComponent() {
   useEffect(() => {
     const fetchNewlyAdded = async () => {
         setLoadingNewlyAdded(true);
-        const songs = await handleSearch("latest hindi songs", 40);
+        const songs = await handleSearch("latest hindi songs", 100);
         
         const uniqueSongs = songs.reduce((acc, current) => {
           if (!acc.some(song => song.title === current.title && song.artist === current.artist)) {
