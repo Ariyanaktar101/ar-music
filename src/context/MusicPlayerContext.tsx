@@ -171,19 +171,19 @@ export const MusicPlayerProvider = ({ children }: { children: React.ReactNode })
     }
   }, [isPlaying]);
 
-  const calculateNextSong = useCallback((song: Song | null, queue: Song[], shuffle: boolean) => {
+  const calculateNextSong = useCallback((song: Song | null, queue: Song[], shuffle: boolean, currentShuffledQueue: Song[]) => {
     if (!song) {
         setNextSong(null);
         return;
     }
-    const currentQueueToUse = shuffle ? shuffledQueue : queue;
-    const currentIndex = currentQueueToUse.findIndex(s => s.id === song.id);
-    if (currentIndex !== -1 && currentIndex < currentQueueToUse.length - 1) {
-      setNextSong(currentQueueToUse[currentIndex + 1]);
+    const queueToUse = shuffle ? currentShuffledQueue : queue;
+    const currentIndex = queueToUse.findIndex(s => s.id === song.id);
+    if (currentIndex !== -1 && currentIndex < queueToUse.length - 1) {
+      setNextSong(queueToUse[currentIndex + 1]);
     } else {
       setNextSong(null); // No next song in the current view
     }
-  }, [shuffledQueue]);
+  }, []);
 
   const playSong = useCallback((song: Song, queue: Song[] = []) => {
     if (!song.url) {
@@ -210,11 +210,12 @@ export const MusicPlayerProvider = ({ children }: { children: React.ReactNode })
       const otherSongs = newQueue.filter(s => s.id !== song.id);
       newShuffledQueue = [song, ...shuffleArray(otherSongs)];
       setShuffledQueue(newShuffledQueue);
+    } else {
+        setShuffledQueue([]);
     }
     
-    calculateNextSong(song, isShuffled ? newShuffledQueue : newQueue, isShuffled);
+    calculateNextSong(song, newQueue, isShuffled, newShuffledQueue);
     
-
     addSongToRecents(song);
     
     setShowLyrics(false);
@@ -240,12 +241,17 @@ export const MusicPlayerProvider = ({ children }: { children: React.ReactNode })
   }, [toast, currentSong, togglePlayPause, isShuffled, addSongToRecents, calculateNextSong]);
 
   const playNextSongInQueue = useCallback(() => {
-    if (nextSong) {
-      playSong(nextSong, currentQueue);
+    const queueToUse = isShuffled ? shuffledQueue : currentQueue;
+    if (!currentSong) return;
+
+    const currentIndex = queueToUse.findIndex(s => s.id === currentSong.id);
+    if (currentIndex !== -1 && currentIndex < queueToUse.length - 1) {
+        const nextSongToPlay = queueToUse[currentIndex + 1];
+        playSong(nextSongToPlay, currentQueue); // Always pass original queue
     } else {
-      setIsPlaying(false);
+        setIsPlaying(false);
     }
-  }, [nextSong, playSong, currentQueue]);
+  }, [isShuffled, shuffledQueue, currentQueue, currentSong, playSong]);
 
 
   const handleSongEnd = useCallback(() => {
@@ -253,8 +259,8 @@ export const MusicPlayerProvider = ({ children }: { children: React.ReactNode })
   }, [playNextSongInQueue]);
   
   useEffect(() => {
-    calculateNextSong(currentSong, isShuffled ? shuffledQueue : currentQueue, isShuffled);
-  }, [currentSong, currentQueue, shuffledQueue, isShuffled, calculateNextSong]);
+    calculateNextSong(currentSong, currentQueue, isShuffled, shuffledQueue);
+  }, [currentSong, currentQueue, isShuffled, shuffledQueue, calculateNextSong]);
 
 
   useEffect(() => {
@@ -328,10 +334,10 @@ export const MusicPlayerProvider = ({ children }: { children: React.ReactNode })
       const otherSongs = currentQueue.filter(s => s.id !== currentSong.id);
       const newShuffledQueue = [currentSong, ...shuffleArray(otherSongs)];
       setShuffledQueue(newShuffledQueue);
-      calculateNextSong(currentSong, newShuffledQueue, true);
+      calculateNextSong(currentSong, currentQueue, true, newShuffledQueue);
     } else if (currentSong) {
       setShuffledQueue([]);
-      calculateNextSong(currentSong, currentQueue, false);
+      calculateNextSong(currentSong, currentQueue, false, []);
     }
   }, [isShuffled, currentSong, currentQueue, calculateNextSong]);
 
@@ -365,12 +371,15 @@ export const MusicPlayerProvider = ({ children }: { children: React.ReactNode })
       audioRef.current.currentTime = 0;
       return;
     }
-
-    const history = recentlyPlayed.slice(1); // Exclude current song
-    if (history.length > 0) {
-      playSong(history[0], currentQueue);
+    
+    const queueToUse = isShuffled ? shuffledQueue : currentQueue;
+    if (!currentSong) return;
+    
+    const currentIndex = queueToUse.findIndex(s => s.id === currentSong.id);
+    if (currentIndex > 0) {
+        playSong(queueToUse[currentIndex - 1], currentQueue);
     }
-  }, [recentlyPlayed, currentQueue, playSong]);
+  }, [currentSong, currentQueue, shuffledQueue, isShuffled, playSong]);
 
 
   const closePlayer = useCallback(() => {

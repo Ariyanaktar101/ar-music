@@ -30,7 +30,7 @@ export function QueueSheetContent() {
     }
 
     const upcoming = queueToUse.slice(currentIndex + 1);
-    setUpcomingSongs(upcoming);
+    setUpcomingSongs(upcoming.slice(0, 10)); // Limit to next 10 songs
 
   }, [currentSong, currentQueue, shuffledQueue, isShuffled]);
 
@@ -41,7 +41,7 @@ export function QueueSheetContent() {
             <ListMusic className="h-6 w-6 text-primary" /> Up Next
            </SheetTitle>
            <SheetDescription>
-            {currentQueue.length} songs in queue
+            {currentQueue.length > 1 ? `${currentQueue.length - 1} songs in queue` : "Queue is empty"}
            </SheetDescription>
         </SheetHeader>
         
@@ -54,11 +54,17 @@ export function QueueSheetContent() {
                             <SongList songs={[currentSong]} />
                         </div>
                     
-                        {upcomingSongs.length > 0 && (
+                        {upcomingSongs.length > 0 ? (
                             <div>
                                 <h2 className="text-lg font-semibold text-muted-foreground mb-2 mt-6">Next in Queue</h2>
                                 <SongList songs={upcomingSongs} />
                             </div>
+                        ) : (
+                           <div className="text-center text-muted-foreground flex flex-col items-center justify-center pt-16 gap-3">
+                                <Music className="h-12 w-12" />
+                                <h3 className="text-lg font-bold text-foreground">Queue is empty</h3>
+                                <p className="text-sm">No more songs – will auto-choose based on mood.</p>
+                           </div>
                         )}
                     </div>
                 )}
