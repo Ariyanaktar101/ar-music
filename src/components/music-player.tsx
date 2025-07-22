@@ -480,6 +480,7 @@ export function MusicPlayer() {
 
       <motion.div 
         className="hidden md:block fixed bottom-0 left-0 right-0 h-24 bg-background/80 backdrop-blur-md border-t z-50 shadow-[0_-5px_15px_-5px_rgba(0,0,0,0.05)] dark:shadow-[0_-5px_15px_-5px_rgba(0,0,0,0.5)]"
+        onClick={toggleExpandPlayer}
       >
         <div className="container mx-auto h-full flex items-center justify-between px-4 sm:px-6 lg:px-8">
           <div className="flex items-center gap-4 w-1/4">
@@ -494,12 +495,12 @@ export function MusicPlayer() {
               <p className="font-semibold truncate">{currentSong.title}</p>
               <p className="text-sm text-muted-foreground truncate">{currentSong.artist}</p>
             </div>
-             <Button variant="ghost" size="icon" onClick={() => toggleFavorite(currentSong.id)}>
+             <Button variant="ghost" size="icon" onClick={(e) => { e.stopPropagation(); toggleFavorite(currentSong.id); }}>
                 <Heart className={cn("h-5 w-5", currentSongIsFavorite ? "fill-red-500 text-red-500" : "text-muted-foreground")} />
             </Button>
           </div>
 
-          <div className="flex flex-col items-center gap-2 w-1/2">
+          <div className="flex flex-col items-center gap-2 w-1/2" onClick={(e) => e.stopPropagation()}>
             <div className="flex items-center gap-4">
                <Button variant="ghost" size="icon" onClick={toggleShuffle}>
                 <Shuffle className={cn("h-5 w-5", isShuffled ? "text-primary" : "text-muted-foreground")} />
@@ -530,7 +531,7 @@ export function MusicPlayer() {
             </div>
           </div>
 
-          <div className="flex items-center gap-4 w-1/4 justify-end">
+          <div className="flex items-center gap-4 w-1/4 justify-end" onClick={(e) => e.stopPropagation()}>
              <Button variant="ghost" size="icon" onClick={toggleLyricsView} className={cn(showLyrics && "text-primary")}>
                 <Mic2 className="h-5 w-5" />
             </Button>
