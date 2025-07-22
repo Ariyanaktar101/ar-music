@@ -3,7 +3,7 @@
 
 import React from 'react';
 import Image from 'next/image';
-import { Play, Pause, SkipBack, SkipForward, Volume2, VolumeX, X, Heart, ChevronDown, Shuffle, Repeat, Mic2, Loader, Music, MoreVertical, PlusSquare, Download } from 'lucide-react';
+import { Play, Pause, SkipBack, SkipForward, Volume2, VolumeX, X, Heart, ChevronDown, Shuffle, Repeat, Mic2, Loader, Music, MoreVertical, PlusSquare, Download, ListMusic } from 'lucide-react';
 import { Slider } from '@/components/ui/slider';
 import { Button } from '@/components/ui/button';
 import { useMusicPlayer } from '@/context/MusicPlayerContext';
@@ -24,6 +24,8 @@ import {
 import { motion, PanInfo, useAnimation } from 'framer-motion';
 import Link from 'next/link';
 import { Tooltip, TooltipContent, TooltipTrigger } from './ui/tooltip';
+import { Sheet, SheetContent, SheetTrigger } from './ui/sheet';
+import { QueueSheetContent } from './queue-sheet';
 
 function MoreOptionsButton() {
     const { currentSong, playlists, addSongToPlaylist, toggleLyricsView, downloadSong } = useMusicPlayer();
@@ -74,11 +76,34 @@ function MoreOptionsButton() {
     )
 }
 
+function QueueSheet() {
+    const { nextSong } = useMusicPlayer();
+    if (!nextSong) return <div className="h-8 w-8" />;
+
+    return (
+        <Sheet>
+            <SheetTrigger asChild>
+                 <Tooltip>
+                    <TooltipTrigger asChild>
+                        <button className="h-8 w-8 rounded-md overflow-hidden">
+                           <Image src={nextSong.coverArt} alt="Next song" width={32} height={32} />
+                        </button>
+                    </TooltipTrigger>
+                    <TooltipContent>
+                        <p>View Queue</p>
+                    </TooltipContent>
+                </Tooltip>
+            </SheetTrigger>
+            <SheetContent>
+                <QueueSheetContent />
+            </SheetContent>
+        </Sheet>
+    )
+}
 
 function ExpandedPlayer() {
   const { 
     currentSong, 
-    nextSong,
     isPlaying, 
     togglePlayPause, 
     progress, 
@@ -342,13 +367,7 @@ function ExpandedPlayer() {
               onValueChange={handleVolumeChange}
               className="w-full h-1 relative [&>span:first-child]:h-1 [&>span>span]:h-1 [&>span>span]:bg-white/40 [&>a]:h-3 [&>a]:w-3"
             />
-            {nextSong ? (
-                 <Link href="/queue">
-                     <Image src={nextSong.coverArt} alt="Next song" width={32} height={32} className="h-8 w-8 rounded" />
-                 </Link>
-            ) : (
-                <div className="h-8 w-8"></div>
-            )}
+            <QueueSheet />
              <Button variant="ghost" size="icon" onClick={toggleLyricsView} className={cn(showLyrics && "text-primary")}>
                 <Mic2 className="h-5 w-5" />
             </Button>
@@ -366,7 +385,6 @@ function ExpandedPlayer() {
 export function MusicPlayer() {
   const {
     currentSong,
-    nextSong,
     isPlaying,
     togglePlayPause,
     progress,
@@ -527,18 +545,7 @@ export function MusicPlayer() {
              <Button variant="ghost" size="icon" onClick={toggleLyricsView} className={cn(showLyrics && "text-primary")}>
                 <Mic2 className="h-5 w-5" />
             </Button>
-            {nextSong && (
-                <Tooltip>
-                    <TooltipTrigger asChild>
-                        <Link href="/queue">
-                            <Image src={nextSong.coverArt} alt="Next song" width={32} height={32} className="h-8 w-8 rounded-md" />
-                        </Link>
-                    </TooltipTrigger>
-                    <TooltipContent>
-                        <p>View Queue</p>
-                    </TooltipContent>
-                </Tooltip>
-            )}
+            <QueueSheet />
             <Popover>
                 <PopoverTrigger asChild>
                     <Button variant="ghost" size="icon">
