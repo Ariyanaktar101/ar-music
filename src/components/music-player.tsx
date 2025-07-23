@@ -245,20 +245,19 @@ function ExpandedPlayer() {
     }
     return (
         <motion.div 
-            className="relative w-full h-full rounded-lg shadow-2xl"
+            className="relative w-full h-full shadow-2xl"
             initial={{ scale: 0.8, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
             exit={{ scale: 0.8, opacity: 0 }}
             transition={{ type: 'spring', duration: 0.8 }}
         >
+            <div className="absolute inset-0 animate-aurora-glow rounded-lg -z-10" />
             <Image
                 src={currentSong.coverArt}
                 alt={currentSong.title}
                 fill
                 className="object-cover rounded-lg"
             />
-             <div className="absolute inset-0 bg-gradient-to-b from-black/50 to-transparent rounded-lg" />
-             <div className="absolute inset-0 animate-aurora-glow rounded-lg" />
         </motion.div>
     );
   }
@@ -285,7 +284,7 @@ function ExpandedPlayer() {
         </div>
 
         <motion.div 
-            className="flex-1 flex flex-col justify-end items-center px-4 pb-4 pt-16 gap-4 overflow-hidden"
+            className="flex-1 flex flex-col justify-center items-center p-4 gap-6"
             variants={containerVariants}
             initial="hidden"
             animate={isExpanded ? "visible" : "hidden"}
@@ -295,14 +294,14 @@ function ExpandedPlayer() {
             onDragEnd={handleDragEnd}
         >
             <motion.div 
-                className="relative w-full max-w-xs aspect-square" 
+                className="relative w-full max-w-sm aspect-square" 
                 variants={itemVariants}
                 onDoubleClick={toggleLyricsView}
             >
               {renderPlayerContent()}
             </motion.div>
 
-            <motion.div className="w-full max-w-xs" variants={itemVariants}>
+            <motion.div className="w-full max-w-sm space-y-4" variants={itemVariants}>
               <div className="flex justify-between items-center">
                 <div className="flex-1 text-left overflow-hidden">
                   <h2 className="text-2xl font-bold truncate">{currentSong.title}</h2>
@@ -312,59 +311,52 @@ function ExpandedPlayer() {
                   <Heart className={cn("h-6 w-6", currentSongIsFavorite ? "fill-red-500 text-red-500" : "text-muted-foreground")} />
                 </Button>
               </div>
-            </motion.div>
-        
-            <motion.div 
-             className="w-full max-w-xs space-y-2"
-             variants={itemVariants}
-             initial="hidden"
-             animate={isExpanded ? "visible" : "hidden"}
-            >
-                <div className="space-y-1 relative">
-                    <Slider
-                        value={[progress]}
-                        max={duration}
-                        step={1}
-                        onValueChange={handleProgressChange}
-                        className="w-full h-1 relative [&>span:first-child]:h-1 [&>span>span]:h-1 [&>span>span]:bg-accent [&>a]:h-3 [&>a]:w-3 [&>a]:bg-white"
-                    />
-                    <div className="flex justify-between text-xs text-muted-foreground font-mono">
-                        <span>{formatTime(progress)}</span>
-                        <span>{formatTime(duration)}</span>
-                    </div>
-                </div>
 
-                <div className="flex items-center justify-around">
-                    <Button variant="ghost" size="icon" onClick={toggleShuffle}>
-                        <Shuffle className={cn("h-5 w-5", isShuffled ? "text-primary" : "text-muted-foreground")} />
-                    </Button>
-                    <Button variant="ghost" size="icon" onClick={skipBackward}>
-                        <SkipBack className="h-6 w-6" />
-                    </Button>
-                    <Button size="icon" className="w-14 h-14 bg-primary hover:bg-primary/90 rounded-full shadow-lg" onClick={togglePlayPause}>
-                        {isPlaying ? <Pause className="h-7 w-7 fill-primary-foreground" /> : <Play className="h-7 w-7 fill-primary-foreground" />}
-                    </Button>
-                    <Button variant="ghost" size="icon" onClick={skipForward}>
-                        <SkipForward className="h-6 w-6" />
-                    </Button>
-                    <QueueSheet />
-                </div>
-                
-                <div className="flex items-center justify-between gap-2 pt-1">
-                     <Button variant="ghost" size="icon" onClick={handleMuteToggle}>
-                        {isMuted || volume === 0 ? <VolumeX className="h-5 w-5 text-muted-foreground" /> : <Volume2 className="h-5 w-5 text-muted-foreground" />}
-                    </Button>
-                    <Slider
-                      value={[isMuted ? 0 : volume]}
-                      max={100}
+              <div className="space-y-2 relative">
+                  <Slider
+                      value={[progress]}
+                      max={duration}
                       step={1}
-                      onValueChange={handleVolumeChange}
-                      className="w-full h-1 relative [&>span:first-child]:h-1 [&>span>span]:h-1 [&>span>span]:bg-white/40 [&>a]:h-3 [&>a]:w-3"
-                    />
-                     <Button variant="ghost" size="icon" onClick={toggleLyricsView} className={cn(showLyrics && "text-primary")}>
-                        <Mic2 className="h-5 w-5" />
-                    </Button>
-                </div>
+                      onValueChange={handleProgressChange}
+                      className="w-full h-1 relative [&>span:first-child]:h-1 [&>span>span]:h-1 [&>span>span]:bg-accent [&>a]:h-3 [&>a]:w-3 [&>a]:bg-white"
+                  />
+                  <div className="flex justify-between text-xs text-muted-foreground font-mono">
+                      <span>{formatTime(progress)}</span>
+                      <span>{formatTime(duration)}</span>
+                  </div>
+              </div>
+
+              <div className="flex items-center justify-around">
+                  <Button variant="ghost" size="icon" onClick={toggleShuffle}>
+                      <Shuffle className={cn("h-5 w-5", isShuffled ? "text-primary" : "text-muted-foreground")} />
+                  </Button>
+                  <Button variant="ghost" size="icon" onClick={skipBackward}>
+                      <SkipBack className="h-6 w-6" />
+                  </Button>
+                  <Button size="icon" className="w-16 h-16 bg-primary hover:bg-primary/90 rounded-full shadow-lg" onClick={togglePlayPause}>
+                      {isPlaying ? <Pause className="h-8 w-8 fill-primary-foreground" /> : <Play className="h-8 w-8 fill-primary-foreground ml-1" />}
+                  </Button>
+                  <Button variant="ghost" size="icon" onClick={skipForward}>
+                      <SkipForward className="h-6 w-6" />
+                  </Button>
+                  <QueueSheet />
+              </div>
+              
+              <div className="flex items-center justify-between gap-4 pt-2">
+                   <Button variant="ghost" size="icon" onClick={handleMuteToggle}>
+                      {isMuted || volume === 0 ? <VolumeX className="h-5 w-5 text-muted-foreground" /> : <Volume2 className="h-5 w-5 text-muted-foreground" />}
+                  </Button>
+                  <Slider
+                    value={[isMuted ? 0 : volume]}
+                    max={100}
+                    step={1}
+                    onValueChange={handleVolumeChange}
+                    className="w-full h-1 relative [&>span:first-child]:h-1 [&>span>span]:h-1 [&>span>span]:bg-white/40 [&>a]:h-3 [&>a]:w-3"
+                  />
+                   <Button variant="ghost" size="icon" onClick={toggleLyricsView} className={cn(showLyrics && "text-primary")}>
+                      <Mic2 className="h-5 w-5" />
+                  </Button>
+              </div>
             </motion.div>
         </motion.div>
     </motion.div>
