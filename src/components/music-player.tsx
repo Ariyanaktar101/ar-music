@@ -294,7 +294,7 @@ function ExpandedPlayer() {
             onDragEnd={handleDragEnd}
         >
             <motion.div 
-                className="relative w-full max-w-sm aspect-square" 
+                className="relative w-full max-w-xs aspect-square" 
                 variants={itemVariants}
                 onDoubleClick={toggleLyricsView}
             >
