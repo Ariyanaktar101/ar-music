@@ -327,7 +327,7 @@ function ExpandedPlayer() {
               </div>
 
               <div className="flex items-center justify-around">
-                  <Button variant="ghost" size="icon" onClick={toggleShuffle}>
+                   <Button variant="ghost" size="icon" onClick={toggleShuffle}>
                       <Shuffle className={cn("h-5 w-5", isShuffled ? "text-primary" : "text-muted-foreground")} />
                   </Button>
                   <Button variant="ghost" size="icon" onClick={skipBackward}>
@@ -339,10 +339,12 @@ function ExpandedPlayer() {
                   <Button variant="ghost" size="icon" onClick={skipForward}>
                       <SkipForward className="h-6 w-6" />
                   </Button>
-                  <QueueSheet />
+                  <Button variant="ghost" size="icon" onClick={() => {}}>
+                      <Repeat className={cn("h-5 w-5 text-muted-foreground")} />
+                  </Button>
               </div>
               
-              <div className="flex items-center justify-between gap-4 pt-2">
+              <div className="flex items-center justify-between gap-4 pt-4">
                    <Button variant="ghost" size="icon" onClick={handleMuteToggle}>
                       {isMuted || volume === 0 ? <VolumeX className="h-5 w-5 text-muted-foreground" /> : <Volume2 className="h-5 w-5 text-muted-foreground" />}
                   </Button>
@@ -357,6 +359,10 @@ function ExpandedPlayer() {
                       <Mic2 className="h-5 w-5" />
                   </Button>
               </div>
+
+               <div className="w-full pt-4 pr-2 text-right">
+                <p className="font-display text-muted-foreground text-lg">designed by ariyan</p>
+              </div>
             </motion.div>
         </motion.div>
     </motion.div>
@@ -366,6 +372,7 @@ function ExpandedPlayer() {
 export function MusicPlayer() {
   const {
     currentSong,
+    nextSong,
     isPlaying,
     togglePlayPause,
     progress,
@@ -450,7 +457,11 @@ export function MusicPlayer() {
                     <Button variant="ghost" size="icon" className="w-8 h-8 flex-shrink-0" onClick={togglePlayPause}>
                         {isPlaying ? <Pause className="h-5 w-5" /> : <Play className="h-5 w-5" />}
                     </Button>
-                    <MoreOptionsButton />
+                    {nextSong ? (
+                      <QueueSheet />
+                    ) : (
+                      <div className="w-8 h-8" /> // placeholder for spacing
+                    )}
                 </div>
             </div>
             <div className="flex items-center gap-2 text-xs font-mono text-muted-foreground">
