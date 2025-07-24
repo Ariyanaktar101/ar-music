@@ -284,7 +284,7 @@ function ExpandedPlayer() {
         </div>
 
         <motion.div 
-            className="flex-1 flex flex-col justify-between items-center p-4 pt-20 pb-10"
+            className="flex-1 flex flex-col justify-end items-center p-4 pt-20 pb-10"
             variants={containerVariants}
             initial="hidden"
             animate={isExpanded ? "visible" : "hidden"}
@@ -294,15 +294,15 @@ function ExpandedPlayer() {
             onDragEnd={handleDragEnd}
         >
             <motion.div 
-                className="relative w-full max-w-xs aspect-square" 
+                className="relative w-full max-w-xs aspect-square mt-8" 
                 variants={itemVariants}
                 onDoubleClick={toggleLyricsView}
             >
               {renderPlayerContent()}
             </motion.div>
 
-            <motion.div className="w-full max-w-sm space-y-4" variants={itemVariants}>
-              <div className="flex justify-between items-center">
+            <motion.div className="w-full max-w-sm space-y-4 mt-auto" variants={itemVariants}>
+              <div className="flex justify-between items-center pt-8">
                 <div className="flex-1 text-left overflow-hidden">
                   <h2 className="text-2xl font-bold truncate">{currentSong.title}</h2>
                   <p className="text-muted-foreground truncate">{currentSong.artist}</p>
@@ -359,12 +359,12 @@ function ExpandedPlayer() {
                       <Mic2 className="h-5 w-5" />
                   </Button>
               </div>
-
-               <div className="w-full pt-4 pr-2 text-right">
-                <p className="font-display text-muted-foreground text-lg">designed by ariyan</p>
-              </div>
             </motion.div>
         </motion.div>
+        
+        <div className="absolute bottom-4 left-0 right-0 text-center pointer-events-none">
+            <p className="font-display text-muted-foreground text-lg">designed by ariyan</p>
+        </div>
     </motion.div>
   )
 }
@@ -422,7 +422,7 @@ export function MusicPlayer() {
   
   const currentSongIsFavorite = isFavorite(currentSong.id);
 
-  const stopPropagation = (e: React.MouseEvent | React.TouchEvent) => e.stopPropagation();
+  const stopPropagation = (e: React.MouseEvent | React.TouchEvent | React.PointerEvent) => e.stopPropagation();
 
   return (
     <>
@@ -458,9 +458,22 @@ export function MusicPlayer() {
                         {isPlaying ? <Pause className="h-5 w-5" /> : <Play className="h-5 w-5" />}
                     </Button>
                     {nextSong ? (
-                      <QueueSheet />
+                       <Sheet>
+                          <SheetTrigger asChild>
+                             <Image
+                                src={nextSong.coverArt}
+                                alt={`Up next: ${nextSong.title}`}
+                                width={28}
+                                height={28}
+                                className="rounded-sm flex-shrink-0 opacity-70 hover:opacity-100"
+                            />
+                          </SheetTrigger>
+                          <SheetContent>
+                            <QueueSheetContent />
+                          </SheetContent>
+                        </Sheet>
                     ) : (
-                      <div className="w-8 h-8" /> // placeholder for spacing
+                      <div className="w-7 h-7" /> // placeholder for spacing
                     )}
                 </div>
             </div>
