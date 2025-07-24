@@ -527,12 +527,51 @@ export const MusicPlayerProvider = ({ children }: { children: React.ReactNode })
   }, [playlists]);
 
   const downloadSong = useCallback(async (song: Song) => {
-    if(!song.url) {
+    if (!song.url) {
       toast({ variant: 'destructive', title: 'Download Not Available', description: 'This song does not have a downloadable link.' });
       return;
     }
-    toast({ variant: 'destructive', title: 'Download Not Implemented', description: 'Downloading from this source is not supported.' });
-  }, [toast]);
+    
+    if (downloadedSongs.some(s => s.id === song.id)) {
+        toast({ title: "Already Downloaded", description: `"${song.title}" is already in your downloads.` });
+        return;
+    }
+
+    try {
+      toast({ title: "Starting Download...", description: `Downloading "${song.title}".` });
+
+      const response = await fetch(song.url);
+      if (!response.ok) {
+        throw new Error(`Failed to fetch song: ${response.statusText}`);
+      }
+      const blob = await response.blob();
+      
+      const link = document.createElement('a');
+      link.href = URL.createObjectURL(blob);
+      link.download = `${song.title} - ${song.artist}.mp3`;
+      
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      
+      URL.revokeObjectURL(link.href);
+
+      setDownloadedSongs(prev => [...prev, song]);
+
+      toast({
+        title: "Download Complete!",
+        description: `"${song.title}" has been saved to your downloads.`,
+      });
+
+    } catch (error) {
+      console.error("Download failed:", error);
+      toast({
+        variant: 'destructive',
+        title: 'Download Failed',
+        description: 'Could not download the song. Please try again later.',
+      });
+    }
+  }, [toast, downloadedSongs]);
 
   const value = useMemo(() => ({
     loading,
