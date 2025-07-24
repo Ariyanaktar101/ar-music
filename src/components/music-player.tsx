@@ -1,14 +1,26 @@
 
 "use client";
 
-import React from 'react';
+import React, { useState } from 'react';
 import Image from 'next/image';
-import { Play, Pause, SkipBack, SkipForward, Volume2, VolumeX, X, Heart, ChevronDown, Shuffle, Repeat, Mic2, Loader, Music, MoreVertical, PlusSquare, Download, ListMusic } from 'lucide-react';
+import { Play, Pause, SkipBack, SkipForward, Volume2, VolumeX, X, Heart, ChevronDown, Shuffle, Repeat, Mic2, Loader, Music, MoreVertical, PlusSquare, Download, ListMusic, Plus } from 'lucide-react';
 import { Slider } from '@/components/ui/slider';
 import { Button } from '@/components/ui/button';
 import { useMusicPlayer } from '@/context/MusicPlayerContext';
 import { cn } from '@/lib/utils';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+  DialogClose,
+} from '@/components/ui/dialog';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -26,11 +38,68 @@ import Link from 'next/link';
 import { Tooltip, TooltipContent, TooltipTrigger } from './ui/tooltip';
 import { Sheet, SheetContent, SheetTrigger } from './ui/sheet';
 import { QueueSheetContent } from './queue-sheet';
+import { useRouter } from 'next/navigation';
+
+function CreatePlaylistDialog({ children, onPlaylistCreated }: { children: React.ReactNode, onPlaylistCreated?: (playlist: any) => void }) {
+    const { createPlaylist } = useMusicPlayer();
+    const router = useRouter();
+    const [playlistName, setPlaylistName] = useState('');
+
+    const handleCreatePlaylist = () => {
+        if (!playlistName.trim()) return;
+        const newPlaylist = createPlaylist(playlistName);
+        if (onPlaylistCreated) {
+            onPlaylistCreated(newPlaylist);
+        } else {
+            router.push(`/playlist/${newPlaylist.id}`);
+        }
+        setPlaylistName(''); // Reset input after creation
+    }
+    
+    return (
+        <Dialog>
+            <DialogTrigger asChild>
+                {children}
+            </DialogTrigger>
+            <DialogContent>
+                <DialogHeader>
+                    <DialogTitle>Create Playlist</DialogTitle>
+                    <DialogDescription>Give your playlist a name.</DialogDescription>
+                </DialogHeader>
+                <div className="space-y-2">
+                    <Label htmlFor="playlist-name-dialog">Playlist Name</Label>
+                    <Input 
+                        id="playlist-name-dialog" 
+                        placeholder="My Awesome Mix" 
+                        value={playlistName}
+                        onChange={(e) => setPlaylistName(e.target.value)}
+                    />
+                </div>
+                <DialogFooter>
+                    <DialogClose asChild>
+                         <Button variant="ghost">Cancel</Button>
+                    </DialogClose>
+                    <DialogClose asChild>
+                        <Button onClick={handleCreatePlaylist} disabled={!playlistName.trim()}>
+                            Create
+                        </Button>
+                    </DialogClose>
+                </DialogFooter>
+            </DialogContent>
+        </Dialog>
+    )
+}
 
 function MoreOptionsButton() {
     const { currentSong, playlists, addSongToPlaylist, toggleLyricsView, downloadSong } = useMusicPlayer();
 
     if (!currentSong) return null;
+    
+    const handlePlaylistCreated = (playlist: any) => {
+        if (currentSong) {
+            addSongToPlaylist(playlist.id, currentSong);
+        }
+    }
 
     return (
         <DropdownMenu>
@@ -51,15 +120,18 @@ function MoreOptionsButton() {
                         <DropdownMenuSubContent>
                              <DropdownMenuLabel>Select Playlist</DropdownMenuLabel>
                              <DropdownMenuSeparator />
-                             {playlists.length > 0 ? (
-                                playlists.map(playlist => (
-                                    <DropdownMenuItem key={playlist.id} onClick={() => addSongToPlaylist(playlist.id, currentSong)}>
-                                        {playlist.name}
-                                    </DropdownMenuItem>
-                                ))
-                             ) : (
-                                <DropdownMenuItem disabled>No playlists yet</DropdownMenuItem>
-                             )}
+                             {playlists.map(playlist => (
+                                <DropdownMenuItem key={playlist.id} onClick={() => addSongToPlaylist(playlist.id, currentSong)}>
+                                    {playlist.name}
+                                </DropdownMenuItem>
+                             ))}
+                             <DropdownMenuSeparator />
+                             <CreatePlaylistDialog onPlaylistCreated={handlePlaylistCreated}>
+                                <DropdownMenuItem onSelect={(e) => e.preventDefault()}>
+                                    <Plus className="mr-2 h-4 w-4" />
+                                    New Playlist
+                                </DropdownMenuItem>
+                             </CreatePlaylistDialog>
                         </DropdownMenuSubContent>
                     </DropdownMenuPortal>
                 </DropdownMenuSub>

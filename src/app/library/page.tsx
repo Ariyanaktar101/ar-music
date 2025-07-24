@@ -47,7 +47,7 @@ function QuickAccessCard({ icon: Icon, title, subtitle, href, variant }: { icon:
     )
 }
 
-function CreatePlaylistDialog({ children }: { children: React.ReactNode }) {
+function CreatePlaylistDialog({ children, onPlaylistCreated }: { children: React.ReactNode, onPlaylistCreated?: (playlist: any) => void }) {
     const { createPlaylist } = useMusicPlayer();
     const router = useRouter();
     const [playlistName, setPlaylistName] = useState('');
@@ -55,7 +55,11 @@ function CreatePlaylistDialog({ children }: { children: React.ReactNode }) {
     const handleCreatePlaylist = () => {
         if (!playlistName.trim()) return;
         const newPlaylist = createPlaylist(playlistName);
-        router.push(`/playlist/${newPlaylist.id}`);
+        if (onPlaylistCreated) {
+            onPlaylistCreated(newPlaylist);
+        } else {
+            router.push(`/playlist/${newPlaylist.id}`);
+        }
     }
     
     return (
