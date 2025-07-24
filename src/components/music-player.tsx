@@ -284,7 +284,7 @@ function ExpandedPlayer() {
         </div>
 
         <motion.div 
-            className="flex-1 flex flex-col justify-center items-center p-4 gap-6"
+            className="flex-1 flex flex-col justify-between items-center p-4 pt-20 pb-10"
             variants={containerVariants}
             initial="hidden"
             animate={isExpanded ? "visible" : "hidden"}
