@@ -1,10 +1,21 @@
 
 import type { Song } from '@/lib/types';
 
-// Helper function to get a higher quality image URL
-const getHighQualityImage = (url: string) => {
-    if (!url) return 'https://placehold.co/500x500.png';
-    return url.replace('150x150', '500x500').replace('50x50', '500x500');
+// Helper function to get a higher quality image URL and handle invalid links
+const getHighQualityImage = (url: string): string => {
+    const placeholder = 'https://placehold.co/500x500.png';
+    if (!url || typeof url !== 'string') {
+        return placeholder;
+    }
+
+    let highQualityUrl = url.replace('150x150', '500x500').replace('50x50', '500x500');
+
+    // Ensure the URL is valid before returning
+    if (highQualityUrl.startsWith('http')) {
+        return highQualityUrl;
+    }
+    
+    return placeholder;
 }
 
 // Helper function to format duration from seconds to MM:SS
@@ -38,6 +49,8 @@ export function mapSaavnSongToSong(songData: any): Song | null {
     const decodedAlbum = songData.album.name
       .replace(/&quot;/g, '"')
       .replace(/&amp;/g, '&');
+      
+    const imageUrl = songData.image?.find((i: any) => i.quality === '150x150')?.url;
 
     return {
       id: songData.id,
@@ -45,7 +58,7 @@ export function mapSaavnSongToSong(songData: any): Song | null {
       artist: songData.artists.primary.map((a: any) => a.name).join(', '),
       album: decodedAlbum,
       duration: formatDuration(songData.duration),
-      coverArt: getHighQualityImage(songData.image.find((i: any) => i.quality === '150x150')?.url),
+      coverArt: getHighQualityImage(imageUrl),
       url: playableUrl,
     };
   } catch (error) {
