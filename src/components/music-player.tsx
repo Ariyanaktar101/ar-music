@@ -120,11 +120,15 @@ function MoreOptionsButton() {
                         <DropdownMenuSubContent>
                              <DropdownMenuLabel>Select Playlist</DropdownMenuLabel>
                              <DropdownMenuSeparator />
-                             {playlists.map(playlist => (
-                                <DropdownMenuItem key={playlist.id} onClick={() => addSongToPlaylist(playlist.id, currentSong)}>
-                                    {playlist.name}
-                                </DropdownMenuItem>
-                             ))}
+                             {playlists.length > 0 ? (
+                                playlists.map(playlist => (
+                                    <DropdownMenuItem key={playlist.id} onClick={() => addSongToPlaylist(playlist.id, currentSong)}>
+                                        {playlist.name}
+                                    </DropdownMenuItem>
+                                ))
+                             ) : (
+                                <DropdownMenuItem disabled>No playlists found</DropdownMenuItem>
+                             )}
                              <DropdownMenuSeparator />
                              <CreatePlaylistDialog onPlaylistCreated={handlePlaylistCreated}>
                                 <DropdownMenuItem onSelect={(e) => e.preventDefault()}>
@@ -427,9 +431,7 @@ function ExpandedPlayer() {
                     onValueChange={handleVolumeChange}
                     className="w-full h-1 relative [&>span:first-child]:h-1 [&>span>span]:h-1 [&>span>span]:bg-white/40 [&>a]:h-3 [&>a]:w-3"
                   />
-                   <Button variant="ghost" size="icon" onClick={toggleLyricsView} className={cn(showLyrics && "text-primary")}>
-                      <Mic2 className="h-5 w-5" />
-                  </Button>
+                   <MoreOptionsButton />
               </div>
             </motion.div>
         </motion.div>
@@ -493,6 +495,7 @@ export function MusicPlayer() {
   }
   
   const currentSongIsFavorite = isFavorite(currentSong.id);
+  const progressPercent = duration > 0 ? (progress / duration) * 100 : 0;
 
   const stopPropagation = (e: React.MouseEvent | React.TouchEvent | React.PointerEvent) => e.stopPropagation();
 
@@ -509,16 +512,17 @@ export function MusicPlayer() {
         className="md:hidden fixed bottom-16 left-0 right-0 h-auto bg-background/90 backdrop-blur-md border-t z-50"
         style={{ touchAction: 'pan-y' }}
        >
-         <div className="flex flex-col p-2 gap-2" onClick={toggleExpandPlayer}>
-             <div className="flex items-center gap-3">
+         <div className="flex flex-col gap-2">
+             <div className="flex items-center gap-3 p-2">
                 <Image
                     src={currentSong.coverArt}
                     alt={currentSong.title}
                     width={40}
                     height={40}
                     className="rounded-md flex-shrink-0"
+                    onClick={toggleExpandPlayer}
                 />
-                <div className="flex-1 flex flex-col justify-center overflow-hidden">
+                <div className="flex-1 flex flex-col justify-center overflow-hidden" onClick={toggleExpandPlayer}>
                     <p className="font-semibold truncate text-sm">{currentSong.title}</p>
                     <p className="text-xs text-muted-foreground truncate">{currentSong.artist}</p>
                 </div>
@@ -549,18 +553,11 @@ export function MusicPlayer() {
                     )}
                 </div>
             </div>
-            <div className="flex items-center gap-2 text-xs font-mono text-muted-foreground">
-                <span className="text-[10px]">{formatTime(progress)}</span>
-                <Slider
-                    value={[progress]}
-                    max={duration}
-                    step={1}
-                    onValueChange={(value) => handleProgressChange(value)}
-                    onClick={stopPropagation}
-                    onTouchStart={stopPropagation}
-                    className="w-full h-1 relative [&>span:first-child]:h-1 [&>span>span]:h-1 [&>span>span]:bg-accent [&>a]:h-2.5 [&>a]:w-2.5"
-                />
-                <span className="text-[10px]">{formatTime(duration)}</span>
+            <div className="bg-muted h-0.5 w-full">
+              <div 
+                className="bg-primary h-full"
+                style={{ width: `${progressPercent}%`}}
+              />
             </div>
         </div>
       </motion.div>
