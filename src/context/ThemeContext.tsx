@@ -4,7 +4,7 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { useSettings } from './SettingsContext';
 
-type Theme = 'light' | 'dark' | 'system';
+type Theme = 'light' | 'dark' | 'system' | 'purple-haze' | 'liquid-glass';
 
 interface ThemeProviderState {
   theme: Theme;
@@ -36,7 +36,7 @@ export const ThemeProvider = ({ children }: { children: ReactNode }) => {
     if (!isLoaded) return;
     const root = window.document.documentElement;
     
-    root.classList.remove('light', 'dark');
+    root.classList.remove('light', 'dark', 'purple-haze', 'liquid-glass');
 
     if (theme === 'system') {
       const systemTheme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';

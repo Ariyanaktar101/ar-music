@@ -21,7 +21,7 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from '@/components/ui/alert-dialog';
-import { ArrowLeft, Palette, Music, Wifi, User, Trash2, Moon, Sun, Monitor, Shield, Bell, LifeBuoy, Flag, MessageSquare, Link as LinkIcon, Loader, Check } from 'lucide-react';
+import { ArrowLeft, Palette, Music, Wifi, User, Trash2, Moon, Sun, Monitor, Shield, Bell, LifeBuoy, Flag, MessageSquare, Link as LinkIcon, Loader, Check, Droplets, Zap } from 'lucide-react';
 import Link from 'next/link';
 import { Label } from '@/components/ui/label';
 import {
@@ -40,6 +40,7 @@ import { useSettings } from '@/context/SettingsContext';
 import { Input } from '@/components/ui/input';
 import emailjs from '@emailjs/browser';
 import { useToast } from '@/hooks/use-toast';
+import { cn } from '@/lib/utils';
 
 const accentColors = [
     { name: 'Blue', color: '207 90% 58%' },
@@ -48,6 +49,43 @@ const accentColors = [
     { name: 'Rose', color: '347 77% 50%' },
     { name: 'Violet', color: '262 84% 58%' },
 ]
+
+function ThemeCard() {
+    const { theme, setTheme } = useTheme();
+
+    return (
+        <Card>
+            <CardHeader>
+                <CardTitle className="flex items-center gap-2"><Palette /> Theme</CardTitle>
+                <CardDescription>Select a theme for the application.</CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+                 <RadioGroup value={theme} onValueChange={(value) => setTheme(value as any)} className="grid grid-cols-2 gap-4">
+                    <Label htmlFor="light-theme" className={cn("p-4 rounded-lg border-2 flex flex-col items-center justify-center gap-2 cursor-pointer hover:border-primary", theme === 'light' && 'border-primary')}>
+                       <RadioGroupItem value="light" id="light-theme" className="sr-only" />
+                       <Sun className="h-8 w-8" />
+                       <span className="font-semibold">Light</span>
+                    </Label>
+                     <Label htmlFor="dark-theme" className={cn("p-4 rounded-lg border-2 flex flex-col items-center justify-center gap-2 cursor-pointer hover:border-primary", theme === 'dark' && 'border-primary')}>
+                       <RadioGroupItem value="dark" id="dark-theme" className="sr-only" />
+                       <Moon className="h-8 w-8" />
+                       <span className="font-semibold">Dark</span>
+                    </Label>
+                    <Label htmlFor="purple-haze-theme" className={cn("p-4 rounded-lg border-2 flex flex-col items-center justify-center gap-2 cursor-pointer hover:border-primary", theme === 'purple-haze' && 'border-primary')}>
+                       <RadioGroupItem value="purple-haze" id="purple-haze-theme" className="sr-only" />
+                       <Zap className="h-8 w-8" />
+                       <span className="font-semibold">Purple Haze</span>
+                    </Label>
+                     <Label htmlFor="liquid-glass-theme" className={cn("p-4 rounded-lg border-2 flex flex-col items-center justify-center gap-2 cursor-pointer hover:border-primary", theme === 'liquid-glass' && 'border-primary')}>
+                       <RadioGroupItem value="liquid-glass" id="liquid-glass-theme" className="sr-only" />
+                       <Droplets className="h-8 w-8" />
+                       <span className="font-semibold">Liquid Glass</span>
+                    </Label>
+                </RadioGroup>
+            </CardContent>
+        </Card>
+    )
+}
 
 function ReportSongCard() {
     const { toast } = useToast();
@@ -140,7 +178,6 @@ function ReportSongCard() {
 }
 
 export default function SettingsPage() {
-  const { theme, setTheme } = useTheme();
   const { 
     accentColor, 
     setAccentColor,
@@ -166,6 +203,8 @@ export default function SettingsPage() {
               <p className="text-muted-foreground">Manage your account and app preferences.</p>
             </div>
           </div>
+
+          <ThemeCard />
           
           <Card>
             <CardHeader>
@@ -173,20 +212,6 @@ export default function SettingsPage() {
               <CardDescription>Customize the look and feel of the app.</CardDescription>
             </CardHeader>
             <CardContent className="space-y-6">
-              <div className="flex items-center justify-between">
-                <Label htmlFor="theme-select">Theme</Label>
-                <Select value={theme} onValueChange={setTheme}>
-                  <SelectTrigger id="theme-select" className="w-[180px]">
-                    <SelectValue placeholder="Select theme" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="light"><div className="flex items-center gap-2"><Sun className="h-4 w-4"/><span>Light</span></div></SelectItem>
-                    <SelectItem value="dark"><div className="flex items-center gap-2"><Moon className="h-4 w-4"/><span>Dark</span></div></SelectItem>
-                    <SelectItem value="system"><div className="flex items-center gap-2"><Monitor className="h-4 w-4"/><span>System</span></div></SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-              <Separator />
                <div className="space-y-3">
                 <Label>Accent Color</Label>
                 <div className="flex flex-wrap gap-3">

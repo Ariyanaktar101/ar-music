@@ -74,6 +74,66 @@
     --sidebar-border: 217 33% 17%;
     --sidebar-ring: 207 90% 68%;
   }
+
+  .purple-haze {
+    --background: 258 60% 8%;
+    --foreground: 258 80% 98%;
+    --card: 258 50% 12%;
+    --card-foreground: 258 80% 98%;
+    --popover: 258 60% 8%;
+    --popover-foreground: 258 80% 98%;
+    --primary: 258 90% 68%;
+    --primary-foreground: 258 60% 10%;
+    --secondary: 258 50% 18%;
+    --secondary-foreground: 258 80% 98%;
+    --muted: 258 50% 18%;
+    --muted-foreground: 258 40% 65%;
+    --accent: 300 90% 60%;
+    --accent-foreground: 0 0% 100%;
+    --destructive: 0 70% 50%;
+    --destructive-foreground: 0 0% 98%;
+    --border: 258 50% 18%;
+    --input: 258 50% 18%;
+    --ring: 258 90% 68%;
+    --sidebar-background: 258 60% 8%;
+    --sidebar-foreground: 258 80% 98%;
+    --sidebar-primary: 258 90% 68%;
+    --sidebar-primary-foreground: 258 60% 10%;
+    --sidebar-accent: 258 50% 18%;
+    --sidebar-accent-foreground: 258 80% 98%;
+    --sidebar-border: 258 50% 18%;
+    --sidebar-ring: 258 90% 68%;
+  }
+
+  .liquid-glass {
+    --background: 220 50% 95%;
+    --foreground: 220 25% 25%;
+    --card: 220 30% 100% / 0.6;
+    --card-foreground: 220 25% 25%;
+    --popover: 220 30% 100% / 0.8;
+    --popover-foreground: 220 25% 25%;
+    --primary: 240 80% 65%;
+    --primary-foreground: 0 0% 100%;
+    --secondary: 220 30% 90% / 0.7;
+    --secondary-foreground: 220 25% 25%;
+    --muted: 220 30% 90% / 0.7;
+    --muted-foreground: 220 25% 55%;
+    --accent: 300 80% 60%;
+    --accent-foreground: 0 0% 100%;
+    --destructive: 0 70% 55%;
+    --destructive-foreground: 0 0% 100%;
+    --border: 220 20% 85% / 0.5;
+    --input: 220 30% 100% / 0.7;
+    --ring: 240 80% 65%;
+    --sidebar-background: 220 30% 100% / 0.5;
+    --sidebar-foreground: 220 25% 25%;
+    --sidebar-primary: 240 80% 65%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 220 30% 90% / 0.7;
+    --sidebar-accent-foreground: 220 25% 25%;
+    --sidebar-border: 220 20% 85% / 0.5;
+    --sidebar-ring: 240 80% 65%;
+  }
 }
 
 @layer base {
@@ -82,6 +142,12 @@
   }
   body {
     @apply bg-background text-foreground;
+  }
+  .liquid-glass body {
+    background-image: linear-gradient(120deg, #fdfbfb 0%, #ebedee 100%);
+  }
+  .liquid-glass .bg-card, .liquid-glass .bg-popover, .liquid-glass .bg-background\/90 {
+      @apply backdrop-blur-md;
   }
 }
 
